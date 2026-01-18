@@ -4,7 +4,8 @@ import {
   Github, Sparkles, Activity, 
   Cloud, Monitor, Heart, Zap, Music, User,
   Cpu, HardDrive, MousePointer2, Terminal,
-  Layers, Zap as Power
+  Layers, Zap as Power, ExternalLink, ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
 
 const LASTFM_USER = 'IvanPurr'; 
@@ -279,6 +280,65 @@ const App: React.FC = () => {
                 i specialize in squeezing performance out of potato servers and pcs and writing custom 
                 <span className="text-pink-300 drop-shadow-[0_0_5px_#ffb7c5]"> Minecraft Mods</span>.
               </p>
+            </div>
+          </section>
+
+          {/* Recommended Hosting Section */}
+          <section className="dimden-panel p-6 relative overflow-hidden group/hosting border-pink-500/10">
+            <div className="absolute top-0 right-0 p-2 opacity-10 group-hover/hosting:opacity-30 transition-opacity">
+              <Zap size={40} className="text-pink-400" />
+            </div>
+            
+            <div className="flex items-center gap-3 mb-6 border-b border-pink-400/10 pb-3">
+               <ShieldCheck size={16} className="text-pink-400" />
+               <h2 className="pixel-title text-[8px] uppercase tracking-[0.2em] text-pink-300/70">Recommended Host</h2>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
+              <div className="w-20 h-20 bg-pink-900/20 border border-pink-400/20 p-1 group-hover/hosting:border-pink-400/50 group-hover/hosting:rotate-3 transition-all">
+                <img 
+                  src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" 
+                  className="w-full h-full object-cover grayscale brightness-125 group-hover/hosting:grayscale-0 transition-all" 
+                  alt="Pyro Hosting"
+                />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-2">
+                  <h3 className="terminal-font text-2xl text-pink-100 uppercase tracking-wider">Pyro Hosting</h3>
+                  <span className="text-[10px] terminal-font text-pink-400/40 hidden sm:inline">[ STATUS: ONLINE ]</span>
+                </div>
+                <p className="terminal-font text-pink-300/70 text-base leading-tight mb-4 max-w-md">
+                  Superior performance for modded Minecraft. High-end hardware and global low-latency nodes.
+                </p>
+                <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+                   <a 
+                    href="https://pyro.host/games" 
+                    target="_blank" 
+                    className="dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-pink-300/80 hover:text-white hover:bg-pink-400/10 transition-all active:scale-95"
+                    onClick={handleLinkClick}
+                    onMouseEnter={() => playSound('hover')}
+                   >
+                     Website <ExternalLink size={14} />
+                   </a>
+                   <a 
+                    href="https://portal.pyro.host/aff.php?aff=41" 
+                    target="_blank" 
+                    className="dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-white bg-pink-500/10 hover:bg-pink-500/30 border-pink-400/40 shadow-[0_0_10px_rgba(255,183,197,0.1)] active:scale-95 group/aff"
+                    onClick={handleLinkClick}
+                    onMouseEnter={() => playSound('hover')}
+                   >
+                     <span>Support Kit</span>
+                     <Heart size={14} className="group-hover/aff:fill-pink-400 group-hover/aff:scale-110 transition-all text-pink-400" />
+                   </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-pink-900/10 border-t border-pink-400/5 p-3 flex items-start gap-3 rounded">
+               <AlertCircle size={14} className="text-pink-400/40 mt-1 shrink-0" />
+               <p className="terminal-font text-pink-400/40 text-[11px] leading-tight">
+                Disclaimer: This is the <span className="text-pink-300/60">ONLY</span> host I recommend. I am not paid to promote them; I simply use and trust their hardware for my own projects. Using the support link helps me out, but is entirely optional.
+               </p>
             </div>
           </section>
         </main>
