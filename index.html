@@ -33,6 +33,54 @@
             --accent-cherry: #ff0055;
         }
 
+        /* Panic Animations */
+        @keyframes panic-shake {
+            0% { transform: translate(0,0) rotate(0deg); }
+            10% { transform: translate(-5px,-5px) rotate(-1deg); }
+            20% { transform: translate(5px,5px) rotate(1deg); }
+            30% { transform: translate(-8px,2px) rotate(-2deg); }
+            40% { transform: translate(8px,-2px) rotate(2deg); }
+            50% { transform: translate(-10px,10px) rotate(-1deg); }
+            60% { transform: translate(10px,-10px) rotate(1deg); }
+            100% { transform: translate(0,0) rotate(0deg); }
+        }
+
+        @keyframes panic-flicker {
+            0% { background: rgba(255, 0, 0, 0.2); }
+            20% { background: rgba(0, 0, 0, 0.4); }
+            40% { background: rgba(255, 0, 0, 0.3); }
+            60% { background: rgba(255, 255, 255, 0.1); }
+            80% { background: rgba(0, 0, 0, 0.6); }
+            100% { background: rgba(255, 0, 0, 0.2); }
+        }
+
+        @keyframes panic-text {
+            0% { filter: blur(0); transform: skew(0deg); }
+            20% { filter: blur(2px); transform: skew(10deg); color: #ff0000; }
+            40% { filter: blur(0); transform: skew(-10deg); color: #ffffff; }
+            60% { filter: blur(1px); transform: skew(5deg); color: #ff0000; }
+            100% { filter: blur(0); transform: skew(0deg); }
+        }
+
+        .panic-mode #root {
+            animation: panic-shake 0.1s infinite;
+        }
+
+        .panic-mode::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+            animation: panic-flicker 0.05s infinite;
+        }
+
+        .panic-mode .pixel-title, 
+        .panic-mode .terminal-font {
+            animation: panic-text 0.2s infinite;
+        }
+
+        /* Rainbow Animations */
         @keyframes chroma-cycle {
             0% { filter: hue-rotate(0deg); }
             100% { filter: hue-rotate(360deg); }
