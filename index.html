@@ -15,7 +15,7 @@
             --sakura-main: #ffb7c5;
             --sakura-dark: #3d1a26;
             --border-color: rgba(255, 183, 197, 0.15);
-            --panel-bg: rgba(12, 5, 9, 0.8);
+            --panel-bg: rgba(12, 5, 9, 0.85);
             --glow-color: rgba(255, 183, 197, 0.25);
         }
         body {
@@ -26,6 +26,21 @@
             overflow-x: hidden;
             min-height: 100vh;
             position: relative;
+        }
+
+        /* Performance Mode Toggles */
+        .performance-mode .nebula,
+        .performance-mode .grid-layer,
+        .performance-mode .rain-container,
+        .performance-mode::before,
+        .performance-mode::after {
+            display: none !important;
+            animation: none !important;
+        }
+        
+        .performance-mode .dimden-panel {
+            backdrop-filter: none !important;
+            box-shadow: none !important;
         }
 
         /* Ambient Nebula Glows */
@@ -64,7 +79,7 @@
                 linear-gradient(90deg, rgba(255, 183, 197, 0.03) 1px, transparent 1px);
             background-size: 80px 80px;
             z-index: -1;
-            transform: translate(var(--mx), var(--my));
+            transform: translate(var(--mx, 0), var(--my, 0));
             transition: transform 0.4s cubic-bezier(0.1, 0.8, 0.3, 1);
         }
 
@@ -154,11 +169,15 @@
             position: relative;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .dimden-panel:hover {
-            border-color: var(--sakura-main);
-            box-shadow: 0 0 30px var(--glow-color);
-            transform: translateY(-4px);
+        
+        @media (min-width: 768px) {
+            .dimden-panel:hover {
+                border-color: var(--sakura-main);
+                box-shadow: 0 0 30px var(--glow-color);
+                transform: translateY(-4px);
+            }
         }
+        
         .pixel-title {
             font-family: 'Press Start 2P', cursive;
             color: var(--sakura-main);
@@ -179,7 +198,7 @@
         .sidebar-link:hover {
             background: rgba(255, 183, 197, 0.12);
             color: var(--sakura-light);
-            padding-left: 24px;
+            padding-left: 20px;
             text-shadow: 0 0 12px var(--sakura-main);
         }
         .terminal-font {
@@ -202,6 +221,10 @@
             z-index: -1;
             transform: translate(-50%, -50%);
         }
+
+        .performance-mode #mouse-glow {
+            display: none !important;
+        }
     </style>
 <script type="importmap">
 {
@@ -215,7 +238,7 @@
 }
 </script>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-2 sm:p-4 md:p-8">
     <!-- Ambient Layers -->
     <div class="nebula">
         <div class="glow-blob" style="width: 700px; height: 700px; background: #ffb7c5; top: -15%; left: -10%;"></div>
@@ -233,6 +256,7 @@
         const debrisContainer = document.getElementById('debris');
 
         document.addEventListener('mousemove', (e) => {
+            if (document.body.classList.contains('performance-mode')) return;
             requestAnimationFrame(() => {
                 glow.style.left = e.clientX + 'px';
                 glow.style.top = e.clientY + 'px';

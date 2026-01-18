@@ -5,7 +5,7 @@ import {
   Cloud, Monitor, Heart, Zap, Music, User,
   Cpu, Terminal, ExternalLink, ShieldCheck,
   AlertCircle, Disc, Clock, Play, Trophy,
-  List, Layout, Coffee
+  List, Layout, Coffee, Settings2
 } from 'lucide-react';
 
 // Using your provided "Stats spice" Last.fm API Key
@@ -38,10 +38,17 @@ const App: React.FC = () => {
   const [isOverload, setIsOverload] = useState(false);
   const [headerClicks, setHeaderClicks] = useState(0);
   const [liveMem, setLiveMem] = useState(24.50);
+  const [performanceMode, setPerformanceMode] = useState(false);
   
   const particleIdCounter = useRef(0);
   const konamiIndex = useRef(0);
   const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+
+  const togglePerformance = () => {
+    setPerformanceMode(!performanceMode);
+    document.body.classList.toggle('performance-mode');
+    playSound('click');
+  };
 
   const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'secret') => {
     if (!hasInteracted) return;
@@ -60,6 +67,7 @@ const App: React.FC = () => {
   }, [hasInteracted]);
 
   const createParticles = (e: React.MouseEvent | { clientX: number, clientY: number }, count = 12, color = '#ffb7c5') => {
+    if (performanceMode) return;
     const centerX = e.clientX;
     const centerY = e.clientY;
     const newParticles: Particle[] = [];
@@ -162,9 +170,20 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className={`max-w-[1400px] mx-auto space-y-6 relative z-10 py-4 px-2 md:px-6 transition-all duration-1000 ${isOverload ? 'bg-red-950/40' : ''}`}>
+    <div className={`max-w-[1400px] mx-auto space-y-6 md:space-y-8 relative z-10 py-4 px-3 md:px-6 transition-all duration-1000 ${isOverload ? 'bg-red-950/40' : ''}`}>
+      
+      {/* Performance Toggle Button */}
+      <button 
+        onClick={togglePerformance}
+        className="fixed bottom-4 right-4 z-[100] dimden-panel p-3 text-pink-300 hover:text-white flex items-center gap-2 group transition-all rounded-full sm:rounded-lg"
+        title="Toggle Effects for Performance"
+      >
+        <Settings2 size={18} className={`transition-transform duration-500 ${performanceMode ? '' : 'rotate-180'}`} />
+        <span className="terminal-font text-sm hidden sm:inline uppercase tracking-widest">{performanceMode ? 'FX: OFF' : 'FX: ON'}</span>
+      </button>
+
       <div className="fixed inset-0 pointer-events-none z-[100]">
-        {particles.map(p => (
+        {!performanceMode && particles.map(p => (
           <div 
             key={p.id}
             className="absolute w-1 h-1 shadow-[0_0_12px_currentColor] animate-particle-fade"
@@ -187,43 +206,43 @@ const App: React.FC = () => {
           </h3>
           <Layout size={10} className="text-pink-400/30" />
         </div>
-        <div className="p-8 flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
-          {isOverload && <div className="absolute inset-0 bg-red-600/15 animate-flicker pointer-events-none" />}
+        <div className="p-4 sm:p-6 md:p-8 flex flex-col md:flex-row items-center justify-between relative overflow-hidden gap-6 md:gap-0">
+          {!performanceMode && isOverload && <div className="absolute inset-0 bg-red-600/15 animate-flicker pointer-events-none" />}
           
-          <div className="flex items-center gap-8 relative z-10">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 relative z-10 text-center sm:text-left">
             <div 
-              className="relative w-20 h-20 bg-pink-900/20 border border-pink-400/20 p-1.5 transition-all duration-700 group-hover:rotate-6 group-hover:scale-110 overflow-hidden cursor-crosshair shadow-[0_0_20px_rgba(255,183,197,0.15)] shrink-0"
+              className="relative w-24 h-24 md:w-20 md:h-20 bg-pink-900/20 border border-pink-400/20 p-1.5 transition-all duration-700 md:group-hover:rotate-6 md:group-hover:scale-110 overflow-hidden cursor-crosshair shadow-[0_0_20px_rgba(255,183,197,0.15)] shrink-0"
               onMouseEnter={() => playSound('hover')}
             >
                <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
                     className={`w-full h-full object-cover transition-all duration-700 ${isOverload ? 'sepia hue-rotate-180 brightness-150 scale-125' : ''}`} alt="pfp" />
-               <div className="absolute inset-0 bg-gradient-to-tr from-pink-400/20 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+               {!performanceMode && <div className="absolute inset-0 bg-gradient-to-tr from-pink-400/20 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />}
             </div>
             <div className="cursor-pointer select-none" onClick={handleHeaderClick}>
-              <h1 className="pixel-title text-2xl md:text-3xl mb-2 transition-all group-hover:tracking-[0.15em] group-hover:drop-shadow-[0_0_15px_rgba(255,183,197,0.6)] uppercase flex items-center gap-3">
+              <h1 className="pixel-title text-xl sm:text-2xl md:text-3xl mb-2 transition-all md:group-hover:tracking-[0.15em] uppercase flex items-center justify-center sm:justify-start gap-3">
                 KITSUYA.SPACE
                 {headerClicks >= 50 && <Trophy size={18} className="text-yellow-400 animate-bounce drop-shadow-[0_0_10px_gold]" />}
               </h1>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center sm:justify-start gap-3">
                 <div className="relative flex items-center justify-center">
                   <span className={`w-2.5 h-2.5 rounded-full ${isOverload ? 'bg-red-500' : track?.nowPlaying ? 'bg-green-400' : 'bg-pink-400'}`} />
-                  <span className={`absolute w-4 h-4 rounded-full animate-ping opacity-75 ${isOverload ? 'bg-red-500' : track?.nowPlaying ? 'bg-green-400' : 'bg-pink-400'}`} />
+                  {!performanceMode && <span className={`absolute w-4 h-4 rounded-full animate-ping opacity-75 ${isOverload ? 'bg-red-500' : track?.nowPlaying ? 'bg-green-400' : 'bg-pink-400'}`} />}
                 </div>
-                <p className="terminal-font text-pink-300 text-xl opacity-70 uppercase tracking-widest hover:opacity-100 transition-opacity">~ root@kitsuya: /dev/minecraft</p>
+                <p className="terminal-font text-pink-300 text-lg sm:text-xl opacity-70 uppercase tracking-widest">~ root@kitsuya: /dev/minecraft</p>
               </div>
             </div>
           </div>
 
-          <div className="hidden lg:flex gap-12 border-l border-pink-400/10 pl-12 relative z-10">
+          <div className="flex md:flex lg:flex gap-6 sm:gap-12 md:border-l border-pink-400/10 md:pl-8 lg:pl-12 relative z-10">
              <div className="flex flex-col items-center group/stat">
-               <span className="text-[8px] text-pink-400/60 font-bold uppercase tracking-[0.3em] mb-2 group-hover/stat:text-pink-300 transition-colors">MEM_ALLOC</span>
-               <span className={`terminal-font text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] transition-all duration-700 ${isOverload ? 'text-red-500' : 'text-pink-50'}`}>
-                {liveMem.toFixed(2)}GB <span className="text-pink-400/30 text-sm">/ 28GB</span>
+               <span className="text-[8px] text-pink-400/60 font-bold uppercase tracking-[0.3em] mb-1 md:mb-2">MEM_ALLOC</span>
+               <span className={`terminal-font text-xl sm:text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-all duration-700 ${isOverload ? 'text-red-500' : 'text-pink-50'}`}>
+                {liveMem.toFixed(2)}GB <span className="text-pink-400/30 text-xs sm:text-sm">/ 28GB</span>
                </span>
              </div>
              <div className="flex flex-col items-center group/stat">
-               <span className="text-[8px] text-pink-400/60 font-bold uppercase tracking-[0.3em] mb-2 group-hover/stat:text-pink-300 transition-colors">TPS_SYNC</span>
-               <span className={`terminal-font text-4xl drop-shadow-[0_0_12px_rgba(74,222,128,0.4)] transition-colors duration-500 ${isOverload ? 'text-red-600 animate-pulse' : 'text-green-400 hover:text-green-300'}`}>
+               <span className="text-[8px] text-pink-400/60 font-bold uppercase tracking-[0.3em] mb-1 md:mb-2">TPS_SYNC</span>
+               <span className={`terminal-font text-3xl sm:text-4xl drop-shadow-[0_0_12px_rgba(74,222,128,0.3)] transition-colors duration-500 ${isOverload ? 'text-red-600 animate-pulse' : 'text-green-400'}`}>
                 {isOverload ? '0.00' : '20.00'}
                </span>
              </div>
@@ -231,8 +250,9 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <aside className="md:col-span-3 space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
+        {/* Left Side (Desktop) / Top Order (Mobile) */}
+        <aside className="md:col-span-3 space-y-6 md:space-y-8 order-2 md:order-1">
           <div className="dimden-panel p-0 overflow-hidden group border-pink-400/20">
             <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
               <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">Links</h3>
@@ -245,7 +265,7 @@ const App: React.FC = () => {
                 { label: 'BlueSky', icon: Cloud, href: 'https://bsky.app/profile/kitsuya.space' }
               ].map((link, idx) => (
                 <a key={idx} href={link.href} target="_blank" className="sidebar-link group/link" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
-                  <link.icon size={18} className="text-pink-400/40 group-hover/link:text-pink-300 group-hover/link:scale-110 transition-all" />
+                  <link.icon size={18} className="text-pink-400/40 group-hover/link:text-pink-300 transition-all" />
                   <span className="text-xl">{link.label}</span>
                 </a>
               ))}
@@ -257,7 +277,7 @@ const App: React.FC = () => {
               <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">Info</h3>
               <User size={10} className="text-pink-400/30" />
             </div>
-            <div className="p-5 space-y-2">
+            <div className="p-4 sm:p-5 space-y-2">
                 {[
                   { label: 'Name', value: 'Kit' },
                   { label: 'Age', value: '20' },
@@ -266,7 +286,7 @@ const App: React.FC = () => {
                 ].map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center py-2 border-b border-pink-400/5 last:border-0 hover:bg-pink-400/5 transition-colors px-2 rounded">
                     <span className="terminal-font text-pink-400/40 text-base uppercase tracking-widest">{item.label}:</span>
-                    <span className="terminal-font text-pink-100 text-2xl tracking-wider drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]">{item.value}</span>
+                    <span className="terminal-font text-pink-100 text-xl sm:text-2xl tracking-wider">{item.value}</span>
                   </div>
                 ))}
             </div>
@@ -277,7 +297,7 @@ const App: React.FC = () => {
               <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">Audio_Stream</h3>
               <Music size={10} className="text-pink-400/30" />
             </div>
-            <div className="p-5">
+            <div className="p-4 sm:p-5">
               {track ? (
                 <a 
                   href={track.url} 
@@ -288,28 +308,28 @@ const App: React.FC = () => {
                   onMouseEnter={() => playSound('hover')}
                 >
                   <div className="flex gap-4">
-                    <div className="w-14 h-14 border border-pink-400/15 p-1 shrink-0 relative overflow-hidden shadow-inner group-hover/track:shadow-[0_0_15px_rgba(255,183,197,0.3)] transition-all">
+                    <div className="w-14 h-14 border border-pink-400/15 p-1 shrink-0 relative overflow-hidden shadow-inner group-hover/track:shadow-[0_0_15px_rgba(255,183,197,0.2)] transition-all">
                       {track.image ? (
-                        <img src={track.image} className="w-full h-full object-cover grayscale brightness-90 group-hover/track:grayscale-0 group-hover/track:brightness-110 transition-all duration-500" alt="Cover" />
+                        <img src={track.image} className="w-full h-full object-cover grayscale brightness-90 group-hover/track:grayscale-0 transition-all duration-500" alt="Cover" />
                       ) : (
                         <div className="w-full h-full bg-pink-900/20 flex items-center justify-center">
                           <Disc size={24} className="text-pink-400/20 animate-spin-slow" />
                         </div>
                       )}
-                      {track.nowPlaying && <div className="absolute inset-0 bg-pink-400/10 animate-pulse pointer-events-none" />}
+                      {!performanceMode && track.nowPlaying && <div className="absolute inset-0 bg-pink-400/10 animate-pulse pointer-events-none" />}
                     </div>
                     <div className="terminal-font overflow-hidden flex flex-col justify-center gap-1">
-                      <div className="text-pink-100 text-xl truncate leading-tight group-hover/track:text-white transition-colors drop-shadow-[0_0_5px_rgba(255,183,197,0.2)]">
+                      <div className="text-pink-100 text-lg sm:text-xl truncate leading-tight group-hover/track:text-white transition-colors">
                         {track.name}
                       </div>
-                      <div className="text-pink-400/50 text-base truncate uppercase tracking-tighter group-hover/track:text-pink-300 transition-colors">
+                      <div className="text-pink-400/50 text-sm sm:text-base truncate uppercase tracking-tighter">
                         {track.artist}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center justify-between text-[11px] text-pink-400/30 uppercase tracking-[0.2em] pt-3 border-t border-pink-400/10">
                     <div className="flex items-center gap-2">
-                      {track.nowPlaying ? <Play size={10} className="fill-green-400 text-green-400 animate-pulse" /> : <Clock size={10} />}
+                      {track.nowPlaying ? <Play size={10} className="fill-green-400 text-green-400" /> : <Clock size={10} />}
                       <span className={track.nowPlaying ? 'text-green-400/60' : ''}>{track.nowPlaying ? 'NOW PLAYING' : track.lastSeen}</span>
                     </div>
                   </div>
@@ -324,28 +344,29 @@ const App: React.FC = () => {
           </div>
         </aside>
 
-        <main className="md:col-span-6 space-y-8">
-          <section className="dimden-panel p-0 overflow-hidden group border-pink-400/20 min-h-[420px] hover:shadow-[0_0_40px_rgba(255,183,197,0.1)]">
+        {/* Center Main (Desktop) / Middle Order (Mobile) */}
+        <main className="md:col-span-6 space-y-6 md:space-y-8 order-1 md:order-2">
+          <section className="dimden-panel p-0 overflow-hidden group border-pink-400/20 min-h-[350px] md:min-h-[420px]">
             <div className="bg-pink-900/10 p-3 border-b border-pink-400/10 flex items-center justify-between">
               <h3 className="pixel-title text-[8px] opacity-70 uppercase tracking-[0.2em] flex items-center gap-2">
                 <Sparkles size={12} className="text-pink-300" /> About me
               </h3>
               <Terminal size={12} className="text-pink-400/30" />
             </div>
-            <div className="p-10 md:p-16 relative overflow-hidden flex flex-col justify-center min-h-[380px]">
-              <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover:opacity-[0.05] transition-opacity duration-700">
+            <div className="p-6 sm:p-10 md:p-16 relative overflow-hidden flex flex-col justify-center min-h-[300px] md:min-h-[380px]">
+              <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none transition-opacity duration-700">
                 <Terminal size={240} className="text-pink-200" />
               </div>
-              <div className="terminal-font text-2xl md:text-3xl text-pink-50 leading-relaxed space-y-10 relative z-10">
-                <p className="hover:translate-x-2 transition-transform duration-500">
+              <div className="terminal-font text-xl sm:text-2xl md:text-3xl text-pink-50 leading-relaxed space-y-6 md:space-y-10 relative z-10">
+                <p className="md:hover:translate-x-2 transition-transform duration-500">
                   my work revolves around <span className="text-pink-300 font-bold decoration-dotted underline underline-offset-8 drop-shadow-[0_0_10px_rgba(255,183,197,0.3)]">server optimisation</span>, 
                   debloating and debugging. 
                 </p>
-                <p className="hover:translate-x-2 transition-transform duration-500 delay-75">
-                  i make <span className="text-pink-200 italic hover:text-white transition-colors">mod-packs</span> of all shapes and sizes 
+                <p className="md:hover:translate-x-2 transition-transform duration-500 delay-75">
+                  i make <span className="text-pink-200 italic">mod-packs</span> of all shapes and sizes 
                   and work on high-traffic networks too!
                 </p>
-                <p className="text-xl md:text-2xl text-pink-100/30 italic hover:text-pink-100/60 transition-colors duration-500">
+                <p className="text-lg sm:text-xl md:text-2xl text-pink-100/30 italic">
                   i specialize in squeezing performance out of potato servers / pcs and writing custom 
                   <span className="text-pink-300 font-medium"> Minecraft Mods</span>.
                 </p>
@@ -358,31 +379,30 @@ const App: React.FC = () => {
                <h2 className="pixel-title text-[8px] uppercase tracking-[0.3em] text-pink-300/60">Recommended Host</h2>
                <ShieldCheck size={18} className="text-pink-400/40" />
             </div>
-            <div className="p-8">
-              <div className="flex flex-col sm:flex-row items-center gap-8 mb-8">
-                <div className="w-24 h-24 bg-pink-900/10 border border-pink-400/15 p-1.5 group-hover/hosting:rotate-3 group-hover/hosting:scale-105 transition-all duration-500 shadow-lg relative">
-                  <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className="w-full h-full object-cover grayscale brightness-110 group-hover/hosting:grayscale-0 group-hover/hosting:brightness-125 transition-all duration-700" alt="Pyro" />
-                  <div className="absolute inset-0 border border-pink-400/0 group-hover/hosting:border-pink-400/40 transition-all pointer-events-none" />
+            <div className="p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mb-8">
+                <div className="w-24 h-24 bg-pink-900/10 border border-pink-400/15 p-1.5 transition-all duration-500 shadow-lg relative shrink-0">
+                  <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className="w-full h-full object-cover grayscale brightness-110 group-hover/hosting:grayscale-0 transition-all duration-700" alt="Pyro" />
                 </div>
                 <div className="flex-1 text-center sm:text-left">
                   <div className="flex flex-col sm:flex-row sm:items-baseline gap-3 mb-3">
-                    <h3 className="terminal-font text-3xl text-white uppercase tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">Pyro</h3>
+                    <h3 className="terminal-font text-2xl sm:text-3xl text-white uppercase tracking-widest">Pyro</h3>
                     <span className="text-[10px] terminal-font text-pink-400/40 hidden sm:inline tracking-[0.2em]">[ STATUS: OPTIMAL ]</span>
                   </div>
-                  <p className="terminal-font text-pink-200/60 text-lg leading-snug mb-6 max-w-lg">
-                    Superior performance for modded Minecraft. Enterprise-grade hardware and global low-latency nodes for the ultimate server experience.
+                  <p className="terminal-font text-pink-200/60 text-base sm:text-lg leading-snug mb-6 max-w-lg">
+                    Superior performance for modded Minecraft. Enterprise-grade hardware and global low-latency nodes.
                   </p>
                   <div className="flex flex-wrap justify-center sm:justify-start gap-4">
                      <a href="https://pyro.host/?a=41" target="_blank" className="dimden-panel px-6 py-2.5 flex items-center gap-3 terminal-font text-xl text-white hover:text-pink-100 bg-pink-500/10 border-pink-400/30 hover:bg-pink-500/20 transition-all group/btn" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
-                       <span className="group-hover/btn:tracking-widest transition-all">Visit Website</span>
-                       <ExternalLink size={16} className="text-pink-400 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                       <span>Visit Website</span>
+                       <ExternalLink size={16} className="text-pink-400" />
                      </a>
                   </div>
                 </div>
               </div>
-              <div className="bg-pink-900/15 border border-pink-400/10 p-4 flex items-start gap-4 rounded-lg shadow-inner">
-                 <AlertCircle size={16} className="text-pink-400/50 mt-1 shrink-0 animate-pulse" />
-                 <p className="terminal-font text-pink-300/50 text-sm leading-relaxed tracking-wide">
+              <div className="bg-pink-900/15 border border-pink-400/10 p-4 flex items-start gap-4 rounded-lg">
+                 <AlertCircle size={16} className="text-pink-400/50 mt-1 shrink-0" />
+                 <p className="terminal-font text-pink-300/50 text-xs sm:text-sm leading-relaxed tracking-wide">
                   This is the only server host I recommend. I am not directly partnered with them, but if you would like to support me, you can use the affiliate link above.
                  </p>
               </div>
@@ -390,22 +410,23 @@ const App: React.FC = () => {
           </section>
         </main>
 
-        <aside className="md:col-span-3 space-y-8">
+        {/* Right Side (Desktop) / Bottom Order (Mobile) */}
+        <aside className="md:col-span-3 space-y-6 md:space-y-8 order-3">
           <div className="dimden-panel p-0 overflow-hidden group/heart border-pink-400/20">
              <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
                <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">Heartbeat</h3>
                <Activity size={12} className="text-pink-400/30" />
              </div>
-             <div className="p-5 terminal-font space-y-5">
+             <div className="p-4 sm:p-5 terminal-font space-y-5">
                 <div className="flex justify-between items-end border-b border-pink-400/10 pb-3">
                   <span className="text-pink-400/50 text-base tracking-widest uppercase">UPTIME:</span> 
-                  <span className={`text-pink-100 text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] transition-colors ${isOverload ? 'text-red-600' : ''}`}>
+                  <span className={`text-pink-100 text-xl sm:text-2xl transition-colors ${isOverload ? 'text-red-600' : ''}`}>
                     {isOverload ? '0.00%' : '99.9%'}
                   </span>
                 </div>
                 <div className="flex gap-1 h-12 items-end">
                    {[40, 70, 30, 90, 50, 80, 20, 60, 45, 75, 55, 85].map((h, i) => (
-                     <div key={i} className={`w-full transition-all duration-700 rounded-t-sm ${isOverload ? 'bg-red-600' : 'bg-pink-400/15 hover:bg-pink-300 hover:shadow-[0_0_10px_var(--sakura-main)]'}`} style={{height: `${isOverload ? Math.random() * 15 : h}%`}} />
+                     <div key={i} className={`w-full transition-all duration-700 rounded-t-sm ${isOverload ? 'bg-red-600' : 'bg-pink-400/15 hover:bg-pink-300'}`} style={{height: `${isOverload ? Math.random() * 15 : h}%`}} />
                    ))}
                 </div>
              </div>
@@ -416,16 +437,16 @@ const App: React.FC = () => {
                <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">Specs</h3>
                <Cpu size={12} className="text-pink-400/30" />
              </div>
-             <div className="p-5 terminal-font space-y-2 relative z-10">
+             <div className="p-4 sm:p-5 terminal-font space-y-2 relative z-10">
                 {[
                   { label: 'CPU', value: 'Epyc 7543P', overload: 'ERR_HALT' },
                   { label: 'MEM', value: '28GB DDR4', overload: 'CRITICAL' },
                   { label: 'SSD', value: '2tb NVMe', overload: 'OFFLINE' },
-                  { label: 'OS', value: 'Windows 11', overload: 'BSOD' }
+                  { label: 'OS', value: 'Win 11', overload: 'BSOD' }
                 ].map((spec, idx) => (
-                  <div key={idx} className="flex justify-between items-center py-2 border-b border-pink-400/5 last:border-0 group/item hover:bg-white/5 transition-colors px-2 rounded">
-                    <span className="text-pink-400/40 uppercase text-sm tracking-[0.2em]">{spec.label}</span>
-                    <span className={`text-pink-100 text-right text-lg transition-colors duration-500 ${isOverload ? 'text-red-400' : 'group-hover/item:text-white'}`}>
+                  <div key={idx} className="flex justify-between items-center py-2 border-b border-pink-400/5 last:border-0 hover:bg-white/5 transition-colors px-2 rounded">
+                    <span className="text-pink-400/40 uppercase text-xs sm:text-sm tracking-[0.2em]">{spec.label}</span>
+                    <span className={`text-pink-100 text-right text-base sm:text-lg transition-colors duration-500 ${isOverload ? 'text-red-400' : ''}`}>
                       {isOverload ? spec.overload : spec.value}
                     </span>
                   </div>
@@ -433,15 +454,15 @@ const App: React.FC = () => {
              </div>
           </div>
           
-          <div className="flex justify-center gap-6 opacity-40 hover:opacity-100 transition-all duration-700 py-4 bg-pink-900/5 border border-pink-400/10 rounded-lg backdrop-blur-sm">
-            <Zap size={20} className="text-pink-300 hover:scale-125 hover:drop-shadow-[0_0_12px_var(--sakura-main)] cursor-pointer transition-all" onClick={handleLinkClick} />
-            <Heart size={20} className="text-pink-300 hover:scale-125 hover:drop-shadow-[0_0_12px_var(--sakura-main)] cursor-pointer animate-pulse transition-all" onClick={handleLinkClick} />
-            <Sparkles size={20} className="text-pink-300 hover:scale-125 hover:drop-shadow-[0_0_12px_var(--sakura-main)] cursor-pointer transition-all" onClick={handleLinkClick} />
+          <div className="flex justify-center gap-6 opacity-60 hover:opacity-100 transition-all duration-700 py-4 bg-pink-900/5 border border-pink-400/10 rounded-lg backdrop-blur-sm">
+            <Zap size={20} className="text-pink-300 hover:scale-125 cursor-pointer transition-all" onClick={handleLinkClick} />
+            <Heart size={20} className="text-pink-300 hover:scale-125 cursor-pointer animate-pulse transition-all" onClick={handleLinkClick} />
+            <Sparkles size={20} className="text-pink-300 hover:scale-125 cursor-pointer transition-all" onClick={handleLinkClick} />
           </div>
         </aside>
       </div>
 
-      <footer className="py-24 text-center terminal-font text-pink-400/15 text-2xl tracking-[0.6em] uppercase hover:text-pink-300/50 transition-all duration-1000 cursor-default select-none" onMouseEnter={() => playSound('hover')} onClick={handleLinkClick}>
+      <footer className="py-16 sm:py-24 text-center terminal-font text-pink-400/15 text-xl sm:text-2xl tracking-[0.6em] uppercase hover:text-pink-300/50 transition-all duration-1000 cursor-default select-none" onMouseEnter={() => playSound('hover')} onClick={handleLinkClick}>
         {isOverload ? 'SYSTEM_OVERLOAD_HALT' : '~ 2026 - the end of time ~'}
       </footer>
     </div>
