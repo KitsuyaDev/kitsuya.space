@@ -277,7 +277,7 @@ const App: React.FC = () => {
                 and work on high-traffic networks too!
               </p>
               <p className="text-xl md:text-2xl text-pink-100/40">
-                i specialize in squeezing performance out of potato servers and pcs and writing custom 
+                i specialize in squeezing performance out of potato servers / pcs and writing custom 
                 <span className="text-pink-300 drop-shadow-[0_0_5px_#ffb7c5]"> Minecraft Mods</span>.
               </p>
             </div>
