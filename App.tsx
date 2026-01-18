@@ -9,7 +9,6 @@ import {
   List, Layout, Info, Eye, Flame
 } from 'lucide-react';
 
-// Using your provided "Stats spice" Last.fm API Key
 const LASTFM_USER = 'IvanPurr'; 
 const LASTFM_API_KEY = '52f25787af57e73404ef01ba7a400fac';
 
@@ -215,7 +214,6 @@ const App: React.FC = () => {
         ))}
       </div>
 
-      {/* Easter Egg HUD Overlay */}
       {showHud && (
         <div className="fixed top-4 right-4 z-[200] dimden-panel p-4 border-blue-500/50 bg-black/90 animate-pulse transition-all">
           <div className="flex items-center gap-2 mb-2 text-blue-400">
@@ -404,7 +402,7 @@ const App: React.FC = () => {
             </div>
             <div className="p-6">
               <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
-                <div className="w-20 h-20 bg-pink-900/20 border border-pink-400/20 p-1 group-hover/hosting:rotate-3 transition-all overflow-hidden relative">
+                <div className="w-20 h-20 bg-pink-900/20 border border-pink-400/20 p-1 group-hover/hosting:rotate-3 transition-all overflow-hidden relative shadow-md">
                   <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className="w-full h-full object-cover grayscale brightness-125 group-hover/hosting:grayscale-0 transition-all" alt="Pyro Hosting" />
                   {isOverload && <div className="absolute inset-0 bg-blue-500/20 animate-pulse" />}
                 </div>
