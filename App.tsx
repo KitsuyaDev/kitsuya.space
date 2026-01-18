@@ -3,10 +3,9 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   Github, Sparkles, Activity, 
   Cloud, Monitor, Heart, Zap, Music, User,
-  Cpu, HardDrive, Terminal,
-  ExternalLink, ShieldCheck,
+  Cpu, Terminal, ExternalLink, ShieldCheck,
   AlertCircle, Disc, Clock, Play, Trophy,
-  List, Layout, Info, Eye, Flame
+  List, Layout, Eye, Flame
 } from 'lucide-react';
 
 const LASTFM_USER = 'IvanPurr'; 
@@ -40,7 +39,6 @@ const App: React.FC = () => {
   const [headerClicks, setHeaderClicks] = useState(0);
   const [showHud, setShowHud] = useState(false);
   const [tailCount, setTailCount] = useState(1);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   
   const particleIdCounter = useRef(0);
   const konamiIndex = useRef(0);
@@ -49,11 +47,11 @@ const App: React.FC = () => {
   const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
   const kitsuyaCode = ['k', 'i', 't', 's', 'u', 'y', 'a'];
 
-  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'secret' | 'glitch' | 'fire') => {
+  const playSound = useCallback((type: string) => {
     if (!hasInteracted) return;
     try {
       const audio = new Audio();
-      const sources = {
+      const sources: Record<string, string> = {
         hover: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
         click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
         xp: 'https://www.myinstants.com/media/sounds/levelup.mp3',
@@ -61,9 +59,11 @@ const App: React.FC = () => {
         glitch: 'https://assets.mixkit.co/active_storage/sfx/2556/2556-preview.mp3',
         fire: 'https://assets.mixkit.co/active_storage/sfx/2436/2436-preview.mp3'
       };
-      audio.src = sources[type as keyof typeof sources];
-      audio.volume = type === 'hover' ? 0.05 : 0.15;
-      audio.play().catch(() => {});
+      if (sources[type]) {
+        audio.src = sources[type];
+        audio.volume = type === 'hover' ? 0.05 : 0.15;
+        audio.play().catch(() => {});
+      }
     } catch (e) {}
   }, [hasInteracted]);
 
@@ -97,8 +97,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-      if (showHud && Math.random() > 0.85) {
+      if (showHud && Math.random() > 0.9) {
         createParticles({ clientX: e.clientX, clientY: e.clientY }, 1, '#60a5fa', true);
       }
     };
@@ -175,26 +174,6 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleHeaderClick = (e: React.MouseEvent) => {
-    setHeaderClicks(prev => {
-      const next = prev + 1;
-      if (next > 0 && next % 10 === 0) {
-        playSound('xp');
-        createParticles({ clientX: e.clientX, clientY: e.clientY }, 30, '#4ade80');
-      } else {
-        playSound('click');
-        createParticles({ clientX: e.clientX, clientY: e.clientY }, 5);
-      }
-      return next;
-    });
-  };
-
-  const handlePfpClick = (e: React.MouseEvent) => {
-    setTailCount(prev => (prev >= 9 ? 1 : prev + 1));
-    playSound('fire');
-    createParticles({ clientX: e.clientX, clientY: e.clientY }, 10 + tailCount * 2, '#60a5fa');
-  };
-
   return (
     <div className={`max-w-[1400px] mx-auto space-y-6 relative z-10 py-4 px-2 md:px-6 transition-all duration-1000 ${isOverload ? 'bg-blue-950/20' : ''}`}>
       <div className="fixed inset-0 pointer-events-none z-[100]">
@@ -215,29 +194,27 @@ const App: React.FC = () => {
       </div>
 
       {showHud && (
-        <div className="fixed top-4 right-4 z-[200] dimden-panel p-4 border-blue-500/50 bg-black/90 animate-pulse transition-all">
+        <div className="fixed top-4 right-4 z-[200] dimden-panel p-4 border-blue-500/50 bg-black/90 animate-pulse">
           <div className="flex items-center gap-2 mb-2 text-blue-400">
             <Eye size={16} />
-            <h4 className="pixel-title text-[10px]">KITSUNE_REVELATION_v3</h4>
+            <h4 className="pixel-title text-[10px]">KITSUNE_REVELATION</h4>
           </div>
           <div className="terminal-font text-xs text-blue-200/80 space-y-1">
             <p>> Code: kitsuya (UNLOCKED)</p>
-            <p>> Konami: Blue Spirit Realm Mode</p>
-            <p>> PFP: Click to manifest tails ({tailCount}/9)</p>
-            <p>> Status: ONLINE_AND_VIGILANT</p>
+            <p>> Realm: Blue Spirit Mode</p>
+            <p>> Tails: {tailCount}/9</p>
           </div>
         </div>
       )}
 
       <header className={`dimden-panel p-0 overflow-hidden group border-pink-400/30 transition-all duration-500 ${isOverload ? 'border-blue-400/50 shadow-[0_0_30px_rgba(59,130,246,0.3)]' : showHud ? 'border-blue-500/50' : ''}`}>
-        <div className={`${isOverload ? 'bg-blue-900/20' : 'bg-pink-900/20'} p-2 border-b border-pink-400/10 flex items-center justify-between transition-colors`}>
+        <div className={`${isOverload ? 'bg-blue-900/20' : 'bg-pink-900/20'} p-2 border-b border-pink-400/10 flex items-center justify-between`}>
           <div className="flex items-center gap-2">
-            <h3 className={`pixel-title text-[8px] opacity-70 uppercase tracking-[0.2em] ${isOverload ? 'text-blue-300' : ''}`}>Main</h3>
+            <h3 className={`pixel-title text-[8px] opacity-70 uppercase tracking-[0.2em] ${isOverload ? 'text-blue-300' : ''}`}>System</h3>
             {tailCount === 9 && <Sparkles size={10} className="text-blue-300 animate-spin-slow" />}
             {headerClicks >= 25 && <Trophy size={10} className="text-yellow-400 animate-bounce" />}
           </div>
           <div className="flex items-center gap-2">
-            {isOverload && <span className="text-[8px] text-blue-400 font-bold animate-pulse">[NINE_TAILS_PROTOCOL]</span>}
             <Layout size={10} className="text-pink-400/50" />
           </div>
         </div>
@@ -248,7 +225,11 @@ const App: React.FC = () => {
             <div 
               className={`relative w-16 h-16 bg-pink-900/10 border ${isOverload ? 'border-blue-400' : 'border-pink-400/30'} p-1 transition-all duration-500 group-hover:rotate-3 group-hover:scale-110 overflow-hidden cursor-pointer shadow-lg`}
               onMouseEnter={() => playSound('hover')}
-              onClick={handlePfpClick}
+              onClick={(e) => {
+                setTailCount(prev => (prev >= 9 ? 1 : prev + 1));
+                playSound('fire');
+                createParticles({ clientX: e.clientX, clientY: e.clientY }, 10, '#60a5fa');
+              }}
             >
                <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
                     className={`w-full h-full object-cover transition-all ${isOverload ? 'brightness-125 hue-rotate-[180deg] saturate-150' : ''}`} alt="pfp" />
@@ -258,7 +239,19 @@ const App: React.FC = () => {
                  </div>
                )}
             </div>
-            <div className="cursor-pointer select-none" onClick={handleHeaderClick}>
+            <div className="cursor-pointer select-none" onClick={(e) => {
+                setHeaderClicks(prev => {
+                  const next = prev + 1;
+                  if (next % 10 === 0) {
+                    playSound('xp');
+                    createParticles({ clientX: e.clientX, clientY: e.clientY }, 30, '#4ade80');
+                  } else {
+                    playSound('click');
+                    createParticles({ clientX: e.clientX, clientY: e.clientY }, 5);
+                  }
+                  return next;
+                });
+            }}>
               <h1 className={`pixel-title text-xl md:text-3xl mb-1 transition-all group-hover:tracking-widest uppercase ${isOverload ? 'text-blue-300' : showHud ? 'text-blue-400' : ''}`}>
                 KITSUYA.SPACE
               </h1>
@@ -278,18 +271,16 @@ const App: React.FC = () => {
               <h3 className="pixel-title text-[7px] opacity-70 uppercase">Links</h3>
               <List size={10} className="text-pink-400/50" />
             </div>
-            <div className="p-3 md:p-5">
+            <div className="p-4">
               <nav className="w-full flex flex-col gap-2">
                 {[
                   { icon: <Github size={16} />, label: 'GitHub', url: 'https://github.com/KitsuyaDev' },
                   { icon: <Monitor size={16} />, label: 'Twitch', url: 'https://twitch.tv/kitsuyatv' },
                   { icon: <Cloud size={16} />, label: 'BlueSky', url: 'https://bsky.app/profile/kitsuya.space' }
                 ].map((link, idx) => (
-                  <a key={idx} href={link.url} target="_blank" className="sidebar-link group !p-2 rounded hover:bg-pink-400/5" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
-                    <div className="flex items-center gap-3">
-                      <span className={`transition-colors ${isOverload ? 'text-blue-300' : 'text-pink-300'} opacity-60`}>{link.icon}</span>
-                      <span className="text-xl">{link.label}</span>
-                    </div>
+                  <a key={idx} href={link.url} target="_blank" rel="noopener noreferrer" className="sidebar-link flex items-center gap-3 p-2 rounded hover:bg-pink-400/5" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
+                    <span className={`transition-colors ${isOverload ? 'text-blue-300' : 'text-pink-300'} opacity-60`}>{link.icon}</span>
+                    <span className="terminal-font text-xl">{link.label}</span>
                   </a>
                 ))}
               </nav>
@@ -303,22 +294,17 @@ const App: React.FC = () => {
             </div>
             <div className="p-4">
               <div className="w-full space-y-1">
-                <div className="flex justify-between items-center py-1">
-                  <span className="terminal-font text-pink-400/50 text-base uppercase">Name:</span>
-                  <span className="terminal-font text-pink-100 text-xl tracking-wider">Kit</span>
-                </div>
-                <div className="flex justify-between items-center border-t border-pink-400/10 py-1">
-                  <span className="terminal-font text-pink-400/50 text-base uppercase">Age:</span>
-                  <span className={`terminal-font text-xl tracking-wider ${isOverload ? 'text-blue-300' : 'text-pink-100'}`}>20</span>
-                </div>
-                <div className="flex justify-between items-center border-t border-pink-400/10 py-1">
-                  <span className="terminal-font text-pink-400/50 text-base uppercase">Pronouns:</span>
-                  <span className="terminal-font text-pink-100 text-xl tracking-wider">They/Them</span>
-                </div>
-                <div className="flex justify-between items-center border-t border-pink-400/10 py-1">
-                  <span className="terminal-font text-pink-400/50 text-base uppercase">Time-zone:</span>
-                  <span className="terminal-font text-pink-100 text-xl tracking-wider">GMT</span>
-                </div>
+                {[
+                  { label: 'Name', value: 'Kit' },
+                  { label: 'Age', value: '20' },
+                  { label: 'Pronouns', value: 'They/Them' },
+                  { label: 'Time-zone', value: 'GMT' }
+                ].map((item, i) => (
+                  <div key={i} className={`flex justify-between items-center py-1 ${i !== 0 ? 'border-t border-pink-400/10' : ''}`}>
+                    <span className="terminal-font text-pink-400/50 text-base uppercase">{item.label}:</span>
+                    <span className={`terminal-font text-xl tracking-wider ${isOverload ? 'text-blue-300' : 'text-pink-100'}`}>{item.value}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -332,20 +318,19 @@ const App: React.FC = () => {
               {track ? (
                 <a href={track.url} target="_blank" rel="noopener noreferrer" className="w-full block no-underline group/track" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
                   <div className="flex gap-3 mb-3">
-                    <div className="w-12 h-12 border border-pink-400/20 p-1 shrink-0 relative overflow-hidden">
-                      {track.image ? (
-                        <img src={track.image} className="w-full h-full object-cover grayscale group-hover/track:grayscale-0 transition-all" alt="Cover" />
-                      ) : (
-                        <div className="w-full h-full bg-pink-900/20 flex items-center justify-center">
-                          <Disc size={20} className="text-pink-400/20" />
-                        </div>
-                      )}
+                    <div className="w-12 h-12 border border-pink-400/20 p-1 shrink-0 bg-black/40 relative">
+                      {track.image && <img src={track.image} className="w-full h-full object-cover grayscale group-hover/track:grayscale-0 transition-all" alt="Cover" />}
+                      {!track.image && <Disc size={20} className="text-pink-400/20 m-auto" />}
                       {track.nowPlaying && <div className="absolute inset-0 bg-pink-500/10 animate-pulse" />}
                     </div>
                     <div className="terminal-font overflow-hidden flex flex-col justify-center">
                       <div className="text-pink-100 text-lg truncate leading-tight group-hover/track:text-white transition-colors">{track.name}</div>
                       <div className="text-pink-400/60 text-sm truncate uppercase tracking-tighter mt-1">{track.artist}</div>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-1 border-t border-pink-400/10 pt-2 text-[10px] text-pink-400/40 uppercase tracking-widest">
+                    {track.nowPlaying ? <Play size={8} className="fill-green-400 text-green-400" /> : <Clock size={8} />}
+                    <span>{track.nowPlaying ? 'NOW PLAYING' : track.lastSeen}</span>
                   </div>
                 </a>
               ) : (
@@ -354,12 +339,6 @@ const App: React.FC = () => {
                   Polling signal...
                 </div>
               )}
-              <div className="w-full flex items-center justify-between border-t border-pink-400/10 text-[10px] text-pink-400/40 uppercase tracking-widest pt-2">
-                <div className="flex items-center gap-1">
-                  {track?.nowPlaying ? <Play size={8} className="fill-green-400 text-green-400" /> : <Clock size={8} />}
-                  <span>{track?.nowPlaying ? 'NOW PLAYING' : track?.lastSeen}</span>
-                </div>
-              </div>
             </div>
           </div>
         </aside>
@@ -374,20 +353,18 @@ const App: React.FC = () => {
             </div>
             <div className="p-6 md:p-10 relative overflow-hidden min-h-[300px]">
               <div className="absolute top-0 right-0 p-6 opacity-[0.02] pointer-events-none">
-                 <Terminal size={200} className={`${isOverload ? 'text-blue-300' : 'text-pink-300'}`} />
+                 <Terminal size={200} className={isOverload ? 'text-blue-300' : 'text-pink-300'} />
               </div>
               <div className="terminal-font text-lg md:text-xl text-pink-50/90 leading-relaxed space-y-6 relative z-10">
                 <p>
-                  my work revolves around <span className="text-pink-300 font-bold border-b border-dotted border-pink-300/40 pb-0.5 group/lore cursor-help">server optimisation
-                    <span className="hidden group-hover/lore:inline absolute -top-8 left-0 bg-blue-900 text-blue-100 text-[10px] p-1 border border-blue-400 whitespace-nowrap z-50 animate-bounce">SPIRITUAL_DEBLOAT_v1.2</span>
-                  </span>, debloating and debugging. 
+                  my work revolves around <span className="text-pink-300 font-bold border-b border-dotted border-pink-300/40 pb-0.5">server optimisation</span>, debloating and debugging. 
                 </p>
                 <p>
                   i make <span className="text-pink-200 italic">mod-packs</span> of all shapes and sizes and work on high-traffic networks too!
                 </p>
                 <p className="text-base md:text-lg text-pink-100/40 uppercase tracking-wide">
                   i specialize in squeezing performance out of potato servers and writing custom 
-                  <span className={`${isOverload ? 'text-blue-300' : 'text-pink-300'}`}> Minecraft Mods</span>.
+                  <span className={isOverload ? 'text-blue-300' : 'text-pink-300'}> Minecraft Mods</span>.
                 </p>
               </div>
             </div>
@@ -413,19 +390,19 @@ const App: React.FC = () => {
                   </div>
                   <p className="terminal-font text-pink-300/70 text-base leading-tight mb-4 max-w-md">Superior performance for modded Minecraft. High-end hardware and global low-latency nodes.</p>
                   <div className="flex flex-wrap justify-center sm:justify-start gap-3">
-                     <a href="https://pyro.host/games" target="_blank" className="dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-pink-300/80 hover:text-white" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
+                     <a href="https://pyro.host/games" target="_blank" rel="noopener noreferrer" className="dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-pink-300/80 hover:text-white" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
                        Website <ExternalLink size={14} />
                      </a>
-                     <a href="https://portal.pyro.host/aff.php?aff=41" target="_blank" className={`dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-white ${isOverload ? 'bg-blue-500/10 border-blue-400/40' : 'bg-pink-500/10 border-pink-400/40'}`} onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
+                     <a href="https://portal.pyro.host/aff.php?aff=41" target="_blank" rel="noopener noreferrer" className={`dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-white ${isOverload ? 'bg-blue-500/10 border-blue-400/40' : 'bg-pink-500/10 border-pink-400/40'}`} onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
                        <span>Support Kit</span>
-                       <Heart size={14} className={`${isOverload ? 'text-blue-400' : 'text-pink-400'}`} />
+                       <Heart size={14} className={isOverload ? 'text-blue-400' : 'text-pink-400'} />
                      </a>
                   </div>
                 </div>
               </div>
               <div className="bg-pink-900/10 border-t border-pink-400/5 p-3 flex items-start gap-3 rounded">
                  <AlertCircle size={14} className="text-pink-400/40 mt-1 shrink-0" />
-                 <p className="terminal-font text-pink-400/40 text-[11px] leading-tight">Disclaimer: This is the <span className="text-pink-300/60">ONLY</span> host I recommend. I am not paid to promote them; I simply use and trust their hardware for my own projects.</p>
+                 <p className="terminal-font text-pink-400/40 text-[11px] leading-tight">Disclaimer: This is the ONLY host I recommend. Trust their hardware for my own projects.</p>
               </div>
             </div>
           </section>
@@ -447,7 +424,7 @@ const App: React.FC = () => {
                 </div>
                 <div className="flex gap-1 h-8 items-end px-1">
                    {[40, 70, 30, 90, 50, 80, 20, 60, 45, 75, 55, 85].map((h, i) => (
-                     <div key={i} className={`w-full transition-all duration-300 ${isOverload ? 'bg-blue-400 shadow-[0_0_5px_blue]' : 'bg-pink-400/20 hover:bg-pink-400'}`} style={{height: `${isOverload ? Math.random() * 100 : h}%`}} />
+                     <div key={i} className={`w-full transition-all duration-300 ${isOverload ? 'bg-blue-400 shadow-[0_0_5px_blue]' : 'bg-pink-400/20 hover:bg-pink-400'}`} style={{height: `${isOverload ? (Math.random() * 100) : h}%`}} />
                    ))}
                 </div>
               </div>
@@ -461,36 +438,30 @@ const App: React.FC = () => {
             </div>
             <div className="p-4">
               <div className="w-full space-y-1">
-                <div className="flex justify-between items-center py-1">
-                  <span className="terminal-font text-pink-400/50 text-base uppercase">CPU:</span>
-                  <span className="terminal-font text-pink-100 text-xl tracking-wider">Epyc 7543P</span>
-                </div>
-                <div className="flex justify-between items-center border-t border-pink-400/10 py-1">
-                  <span className="terminal-font text-pink-400/50 text-base uppercase">MEM:</span>
-                  <span className="terminal-font text-pink-100 text-xl tracking-wider">32GB</span>
-                </div>
-                <div className="flex justify-between items-center border-t border-pink-400/10 py-1">
-                  <span className="terminal-font text-pink-400/50 text-base uppercase">SSD:</span>
-                  <span className="terminal-font text-pink-100 text-xl tracking-wider">2tb NVMe</span>
-                </div>
-                <div className="flex justify-between items-center border-t border-pink-400/10 py-1">
-                  <span className="terminal-font text-pink-400/50 text-base uppercase">OS:</span>
-                  <span className="terminal-font text-pink-100 text-xl tracking-wider">Windows 11</span>
-                </div>
+                {[
+                  { k: 'CPU', v: 'Epyc 7543P' },
+                  { k: 'MEM', v: '32GB' },
+                  { k: 'SSD', v: '2tb NVMe' },
+                  { k: 'OS', v: 'Windows 11' }
+                ].map((spec, idx) => (
+                  <div key={idx} className={`flex justify-between items-center py-1 ${idx !== 0 ? 'border-t border-pink-400/10' : ''}`}>
+                    <span className="terminal-font text-pink-400/50 text-base uppercase">{spec.k}:</span>
+                    <span className="terminal-font text-pink-100 text-xl tracking-wider">{spec.v}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
           <div className="flex justify-center gap-4 opacity-40 hover:opacity-100 transition-all duration-500 py-2">
-            <Flame size={16} className={`hover:scale-125 cursor-pointer transition-colors ${showHud || isOverload ? 'text-blue-400' : 'text-pink-300'}`} onClick={handleLinkClick} />
-            <Heart size={16} className={`hover:scale-125 cursor-pointer animate-pulse transition-colors ${showHud || isOverload ? 'text-blue-400' : 'text-pink-300'}`} onClick={handleLinkClick} />
-            <Sparkles size={16} className={`hover:scale-125 cursor-pointer transition-colors ${showHud || isOverload ? 'text-blue-400' : 'text-pink-300'}`} onClick={handleLinkClick} />
+            <Flame size={16} className={`hover:scale-125 cursor-pointer transition-colors ${isOverload ? 'text-blue-400' : 'text-pink-300'}`} onClick={handleLinkClick} />
+            <Heart size={16} className={`hover:scale-125 cursor-pointer animate-pulse transition-colors ${isOverload ? 'text-blue-400' : 'text-pink-300'}`} onClick={handleLinkClick} />
+            <Sparkles size={16} className={`hover:scale-125 cursor-pointer transition-colors ${isOverload ? 'text-blue-400' : 'text-pink-300'}`} onClick={handleLinkClick} />
           </div>
         </aside>
       </div>
 
-      <footer className="py-20 text-center terminal-font text-pink-400/20 text-xl tracking-[0.5em] uppercase hover:text-pink-300/60 transition-all duration-700 cursor-default" onMouseEnter={() => playSound('hover')} onClick={handleLinkClick}>
+      <footer className="py-20 text-center terminal-font text-pink-400/20 text-xl tracking-[0.5em] uppercase hover:text-pink-300/60 transition-all duration-700 cursor-default" onMouseEnter={() => playSound('hover')}>
         {isOverload ? 'SPIRIT_REALM_STABLE - SEALS_OK' : '~ 2026 - the end of time ~'}
-        {showHud && <div className="text-[10px] text-blue-400 mt-2 lowercase tracking-normal">[ Kitsune Fire Particles Enabled ]</div>}
       </footer>
     </div>
   );
