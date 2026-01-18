@@ -3,10 +3,9 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   Github, Sparkles, Activity, 
   Cloud, Monitor, Heart, Zap, Music, User,
-  Cpu, HardDrive, Terminal,
-  ExternalLink, ShieldCheck,
+  Cpu, Terminal, ExternalLink, ShieldCheck,
   AlertCircle, Disc, Clock, Play, Trophy,
-  Star
+  List, Layout
 } from 'lucide-react';
 
 // Using your provided "Stats spice" Last.fm API Key
@@ -151,7 +150,7 @@ const App: React.FC = () => {
   const handleHeaderClick = (e: React.MouseEvent) => {
     setHeaderClicks(prev => {
       const next = prev + 1;
-      if (next > 0 && next % 5 === 0) {
+      if (next > 0 && next % 10 === 0) {
         playSound('xp');
         createParticles(e, 30, '#4ade80');
       } else {
@@ -194,7 +193,7 @@ const App: React.FC = () => {
           <div className="cursor-pointer select-none" onClick={handleHeaderClick}>
             <h1 className="pixel-title text-xl md:text-2xl mb-1 transition-all group-hover:tracking-widest uppercase flex items-center gap-2">
               KITSUYA.SPACE
-              {headerClicks >= 25 && <Trophy size={16} className="text-yellow-400 animate-bounce" />}
+              {headerClicks >= 50 && <Trophy size={16} className="text-yellow-400 animate-bounce" />}
             </h1>
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full animate-pulse ${isOverload ? 'bg-red-500 shadow-[0_0_8px_red]' : track?.nowPlaying ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-pink-400 shadow-[0_0_8px_#ffb7c5]'}`} />
@@ -220,12 +219,12 @@ const App: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         <aside className="md:col-span-3 space-y-6">
-          <div className="dimden-panel p-4 overflow-hidden">
-            <h2 className="pixel-title text-[8px] mb-4 border-b border-pink-400/20 pb-2 opacity-50 flex items-center justify-between">
-              <span>DIRECTORY</span>
-              <span className="text-pink-400 animate-pulse">●</span>
-            </h2>
-            <nav className="flex flex-col gap-1">
+          <div className="dimden-panel p-0 overflow-hidden group border-pink-400/30">
+            <div className="bg-pink-900/20 p-2 border-b border-pink-400/10 flex items-center justify-between">
+              <h3 className="pixel-title text-[7px] opacity-70 uppercase">Links</h3>
+              <List size={10} className="text-pink-400/50" />
+            </div>
+            <nav className="flex flex-col p-2 gap-1">
               <a href="https://github.com/KitsuyaDev" target="_blank" className="sidebar-link group" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
                 <Github size={18} className="text-pink-300 opacity-60" />
                 <span className="text-xl">GitHub</span>
@@ -241,200 +240,158 @@ const App: React.FC = () => {
             </nav>
           </div>
 
-          {/* Redesigned ID Module */}
           <div className="dimden-panel p-0 overflow-hidden group/id border-pink-400/30">
             <div className="bg-pink-900/20 p-2 border-b border-pink-400/10 flex items-center justify-between">
-              <h3 className="pixel-title text-[7px] opacity-70">DATA_STRING_KIT</h3>
+              <h3 className="pixel-title text-[7px] opacity-70 uppercase">Info</h3>
               <User size={10} className="text-pink-400/50" />
             </div>
-            <div className="p-4 flex flex-col items-center">
-              <div className="terminal-font text-pink-300/60 text-[10px] tracking-tight leading-none mb-4 opacity-80 select-none">
-                ***•┈┈┈•✦ ♡ ✦•┈┈┈•***
-              </div>
-              
-              <div className="w-full space-y-2 px-1">
-                <div className="flex justify-between items-center group/field">
-                  <div className="flex items-center gap-2">
-                    <span className="text-pink-400 font-bold drop-shadow-[0_0_4px_currentColor]">♡</span>
-                    <span className="terminal-font text-pink-400/50 text-base uppercase">Name:</span>
-                  </div>
+            <div className="p-4 space-y-1">
+                <div className="flex justify-between items-center py-1">
+                  <span className="terminal-font text-pink-400/50 text-base uppercase">Name:</span>
                   <span className="terminal-font text-pink-100 text-2xl tracking-wider">Kit</span>
                 </div>
-                <div className="flex justify-between items-center group/field border-t border-pink-400/5 pt-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-pink-400 font-bold drop-shadow-[0_0_4px_currentColor]">♡</span>
-                    <span className="terminal-font text-pink-400/50 text-base uppercase">Age:</span>
-                  </div>
+                <div className="flex justify-between items-center border-t border-pink-400/10 py-1">
+                  <span className="terminal-font text-pink-400/50 text-base uppercase">Age:</span>
                   <span className="terminal-font text-pink-100 text-2xl tracking-wider">20</span>
                 </div>
-                <div className="flex justify-between items-center group/field border-t border-pink-400/5 pt-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-pink-400 font-bold drop-shadow-[0_0_4px_currentColor]">♡</span>
-                    <span className="terminal-font text-pink-400/50 text-base uppercase">Pronouns:</span>
-                  </div>
+                <div className="flex justify-between items-center border-t border-pink-400/10 py-1">
+                  <span className="terminal-font text-pink-400/50 text-base uppercase">Pronouns:</span>
                   <span className="terminal-font text-pink-100 text-2xl tracking-wider">They/Them</span>
                 </div>
-                <div className="flex justify-between items-center group/field border-t border-pink-400/5 pt-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-pink-400 font-bold drop-shadow-[0_0_4px_currentColor]">♡</span>
-                    <span className="terminal-font text-pink-400/50 text-base uppercase">Time-zone:</span>
-                  </div>
+                <div className="flex justify-between items-center border-t border-pink-400/10 py-1">
+                  <span className="terminal-font text-pink-400/50 text-base uppercase">Time-zone:</span>
                   <span className="terminal-font text-pink-100 text-2xl tracking-wider">GMT</span>
                 </div>
-              </div>
-
-              <div className="terminal-font text-pink-300/60 text-[10px] tracking-tight leading-none mt-4 opacity-80 select-none">
-                ***•┈┈┈•✦ ♡ ✦•┈┈┈•***
-              </div>
-            </div>
-            
-            <div className="bg-pink-900/10 px-4 py-3 flex items-center justify-between">
-               <div className="flex flex-col">
-                 <span className="text-[8px] terminal-font text-pink-400/40 uppercase">Power LVL</span>
-                 <span className={`terminal-font text-lg text-pink-100 leading-none transition-all duration-300 ${headerClicks % 5 === 0 && headerClicks > 0 ? 'scale-125 text-green-400' : ''}`}>
-                   {Math.floor(headerClicks / 5)}
-                 </span>
-               </div>
-               <div className="flex-1 ml-4 h-1.5 bg-black/40 rounded-full border border-pink-400/10 overflow-hidden relative">
-                  <div 
-                    className="h-full bg-pink-400 shadow-[0_0_10px_rgba(255,183,197,0.8)] transition-all duration-700" 
-                    style={{ width: `${(headerClicks % 5) * 20}%` }}
-                  />
-               </div>
             </div>
           </div>
 
-          <div className={`dimden-panel p-4 overflow-hidden group transition-all duration-500 ${track?.nowPlaying ? 'border-pink-300 ring-1 ring-pink-400/20' : 'border-pink-900/30'}`}>
-            <h3 className="pixel-title text-[8px] mb-4 border-b border-pink-400/20 pb-2 opacity-50 flex items-center justify-between">
-              <span>{track?.nowPlaying ? 'LIVE_AUDIO' : 'LAST_SCROBBLE'}</span>
-              {track?.nowPlaying ? (
-                <div className="flex gap-[1px] h-3 items-end">
-                   <div className="w-[2px] bg-pink-400 animate-[equalizer_0.8s_infinite]" />
-                   <div className="w-[2px] bg-pink-400 animate-[equalizer_0.5s_infinite]" />
-                   <div className="w-[2px] bg-pink-400 animate-[equalizer_1.1s_infinite]" />
-                </div>
-              ) : (
-                <Music size={12} className="text-pink-300/40" />
-              )}
-            </h3>
-            {track ? (
-              <a 
-                href={track.url} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="block space-y-3 no-underline group/track"
-                onClick={handleLinkClick}
-                onMouseEnter={() => playSound('hover')}
-              >
-                <div className="flex gap-3">
-                  <div className="w-12 h-12 border border-pink-400/20 p-1 shrink-0 relative overflow-hidden">
-                    {track.image ? (
-                      <img src={track.image} className="w-full h-full object-cover grayscale group-hover/track:grayscale-0 transition-all" alt="Cover" />
-                    ) : (
-                      <div className="w-full h-full bg-pink-900/20 flex items-center justify-center">
-                        <Disc size={20} className="text-pink-400/20" />
+          <div className="dimden-panel p-0 overflow-hidden group border-pink-400/30">
+            <div className="bg-pink-900/20 p-2 border-b border-pink-400/10 flex items-center justify-between">
+              <h3 className="pixel-title text-[7px] opacity-70 uppercase">Audio_Stream</h3>
+              <Music size={10} className="text-pink-400/50" />
+            </div>
+            <div className="p-4">
+              {track ? (
+                <a 
+                  href={track.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="block space-y-3 no-underline group/track"
+                  onClick={handleLinkClick}
+                  onMouseEnter={() => playSound('hover')}
+                >
+                  <div className="flex gap-3">
+                    <div className="w-12 h-12 border border-pink-400/20 p-1 shrink-0 relative overflow-hidden">
+                      {track.image ? (
+                        <img src={track.image} className="w-full h-full object-cover grayscale group-hover/track:grayscale-0 transition-all" alt="Cover" />
+                      ) : (
+                        <div className="w-full h-full bg-pink-900/20 flex items-center justify-center">
+                          <Disc size={20} className="text-pink-400/20" />
+                        </div>
+                      )}
+                      {track.nowPlaying && <div className="absolute inset-0 bg-pink-500/10 animate-pulse" />}
+                    </div>
+                    <div className="terminal-font overflow-hidden flex flex-col justify-center">
+                      <div className="text-pink-100 text-lg truncate leading-tight group-hover/track:text-white transition-colors">
+                        {track.name}
                       </div>
-                    )}
-                    {track.nowPlaying && <div className="absolute inset-0 bg-pink-500/10 animate-pulse" />}
-                  </div>
-                  <div className="terminal-font overflow-hidden flex flex-col justify-center">
-                    <div className="text-pink-100 text-lg truncate leading-tight group-hover/track:text-white transition-colors">
-                      {track.name}
-                    </div>
-                    <div className="text-pink-400/60 text-sm truncate uppercase tracking-tighter mt-1">
-                      {track.artist}
+                      <div className="text-pink-400/60 text-sm truncate uppercase tracking-tighter mt-1">
+                        {track.artist}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center justify-between text-[10px] text-pink-400/40 uppercase tracking-widest pt-2 border-t border-pink-400/5">
-                  <div className="flex items-center gap-1">
-                    {track.nowPlaying ? <Play size={8} className="fill-green-400 text-green-400" /> : <Clock size={8} />}
-                    <span>{track.nowPlaying ? 'NOW PLAYING' : track.lastSeen}</span>
+                  <div className="flex items-center justify-between text-[10px] text-pink-400/40 uppercase tracking-widest pt-2 border-t border-pink-400/5">
+                    <div className="flex items-center gap-1">
+                      {track.nowPlaying ? <Play size={8} className="fill-green-400 text-green-400" /> : <Clock size={8} />}
+                      <span>{track.nowPlaying ? 'NOW PLAYING' : track.lastSeen}</span>
+                    </div>
                   </div>
-                  <ExternalLink size={8} className="opacity-0 group-hover/track:opacity-100 transition-opacity" />
+                </a>
+              ) : (
+                <div className="terminal-font text-pink-400/30 text-sm italic uppercase tracking-widest flex items-center gap-2 py-4">
+                  <Disc size={14} className="animate-spin-slow" />
+                  Polling signal...
                 </div>
-              </a>
-            ) : (
-              <div className="terminal-font text-pink-400/30 text-sm italic uppercase tracking-widest flex items-center gap-2 py-4">
-                <Disc size={14} className="animate-spin-slow" />
-                Polling signal...
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </aside>
 
         <main className="md:col-span-6 space-y-6">
-          <section className="dimden-panel p-8 md:p-12 relative overflow-hidden group min-h-[400px]">
-            <div className="absolute top-0 right-0 p-6 opacity-[0.02] pointer-events-none">
-               <Terminal size={200} className="text-pink-300" />
+          <section className="dimden-panel p-0 overflow-hidden group border-pink-400/30 min-h-[400px]">
+            <div className="bg-pink-900/20 p-3 border-b border-pink-400/10 flex items-center justify-between">
+              <h3 className="pixel-title text-[8px] opacity-70 uppercase tracking-widest flex items-center gap-2">
+                <Sparkles size={12} /> About me
+              </h3>
+              <Terminal size={12} className="text-pink-400/50" />
             </div>
-            <div className="flex items-center gap-4 mb-10 text-pink-300/80">
-              <Sparkles size={20} className="animate-pulse" />
-              <h2 className="pixel-title text-[9px] tracking-widest uppercase">About me!</h2>
-            </div>
-            <div className="terminal-font text-2xl md:text-3xl text-pink-50 leading-relaxed space-y-8 relative z-10">
-              <p>
-                my work revolves around <span className="text-pink-300 font-bold decoration-dotted underline underline-offset-8">server optimisation</span>, 
-                debloating and debugging. 
-              </p>
-              <p>
-                i make <span className="text-pink-200 italic">mod-packs</span> of all shapes and sizes 
-                and work on high-traffic networks too!
-              </p>
-              <p className="text-xl md:text-2xl text-pink-100/40">
-                i specialize in squeezing performance out of potato servers / pcs and writing custom 
-                <span className="text-pink-300"> Minecraft Mods</span>.
-              </p>
+            <div className="p-8 md:p-12 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-6 opacity-[0.02] pointer-events-none">
+                <Terminal size={200} className="text-pink-300" />
+              </div>
+              <div className="terminal-font text-2xl md:text-3xl text-pink-50 leading-relaxed space-y-8 relative z-10">
+                <p>
+                  my work revolves around <span className="text-pink-300 font-bold decoration-dotted underline underline-offset-8">server optimisation</span>, 
+                  debloating and debugging. 
+                </p>
+                <p>
+                  i make <span className="text-pink-200 italic">mod-packs</span> of all shapes and sizes 
+                  and work on high-traffic networks too!
+                </p>
+                <p className="text-xl md:text-2xl text-pink-100/40">
+                  i specialize in squeezing performance out of potato servers / pcs and writing custom 
+                  <span className="text-pink-300"> Minecraft Mods</span>.
+                </p>
+              </div>
             </div>
           </section>
 
-          <section className="dimden-panel p-6 relative overflow-hidden group/hosting border-pink-500/10">
-            <div className="absolute top-0 right-0 p-2 opacity-10">
-              <Zap size={40} className="text-pink-400" />
-            </div>
-            <div className="flex items-center gap-3 mb-6 border-b border-pink-400/10 pb-3">
-               <ShieldCheck size={16} className="text-pink-400" />
+          <section className="dimden-panel p-0 overflow-hidden group/hosting border-pink-500/10">
+            <div className="bg-pink-900/20 p-3 border-b border-pink-400/10 flex items-center justify-between">
                <h2 className="pixel-title text-[8px] uppercase tracking-[0.2em] text-pink-300/70">Recommended Host</h2>
+               <ShieldCheck size={16} className="text-pink-400/50" />
             </div>
-            <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
-              <div className="w-20 h-20 bg-pink-900/20 border border-pink-400/20 p-1 group-hover/hosting:rotate-3 transition-all">
-                <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className="w-full h-full object-cover grayscale brightness-125 group-hover/hosting:grayscale-0 transition-all" alt="Pyro Hosting" />
-              </div>
-              <div className="flex-1 text-center sm:text-left">
-                <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-2">
-                  <h3 className="terminal-font text-2xl text-pink-100 uppercase tracking-wider">Pyro Hosting</h3>
-                  <span className="text-[10px] terminal-font text-pink-400/40 hidden sm:inline">[ STATUS: ONLINE ]</span>
+            <div className="p-6">
+              <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
+                <div className="w-20 h-20 bg-pink-900/20 border border-pink-400/20 p-1 group-hover/hosting:rotate-3 transition-all">
+                  <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className="w-full h-full object-cover grayscale brightness-125 group-hover/hosting:grayscale-0 transition-all" alt="Pyro Hosting" />
                 </div>
-                <p className="terminal-font text-pink-300/70 text-base leading-tight mb-4 max-w-md">
-                  Superior performance for modded Minecraft. High-end hardware and global low-latency nodes.
-                </p>
-                <div className="flex flex-wrap justify-center sm:justify-start gap-3">
-                   <a href="https://pyro.host/games" target="_blank" className="dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-pink-300/80 hover:text-white" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
-                     Website <ExternalLink size={14} />
-                   </a>
-                   <a href="https://portal.pyro.host/aff.php?aff=41" target="_blank" className="dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-white bg-pink-500/10 border-pink-400/40" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
-                     <span>Support Kit</span>
-                     <Heart size={14} className="text-pink-400" />
-                   </a>
+                <div className="flex-1 text-center sm:text-left">
+                  <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-2">
+                    <h3 className="terminal-font text-2xl text-pink-100 uppercase tracking-wider">Pyro Hosting</h3>
+                    <span className="text-[10px] terminal-font text-pink-400/40 hidden sm:inline">[ STATUS: ONLINE ]</span>
+                  </div>
+                  <p className="terminal-font text-pink-300/70 text-base leading-tight mb-4 max-w-md">
+                    Superior performance for modded Minecraft. High-end hardware and global low-latency nodes.
+                  </p>
+                  <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+                     <a href="https://pyro.host/games" target="_blank" className="dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-pink-300/80 hover:text-white" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
+                       Website <ExternalLink size={14} />
+                     </a>
+                     <a href="https://portal.pyro.host/aff.php?aff=41" target="_blank" className="dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-white bg-pink-500/10 border-pink-400/40" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
+                       <span>Support Kit</span>
+                       <Heart size={14} className="text-pink-400" />
+                     </a>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="bg-pink-900/10 border-t border-pink-400/5 p-3 flex items-start gap-3 rounded">
-               <AlertCircle size={14} className="text-pink-400/40 mt-1 shrink-0" />
-               <p className="terminal-font text-pink-400/40 text-[11px] leading-tight">
-                Disclaimer: This is the <span className="text-pink-300/60">ONLY</span> host I recommend. I am not paid to promote them; I simply use and trust their hardware for my own projects. Using the support link helps me out, but is entirely optional.
-               </p>
+              <div className="bg-pink-900/10 border-t border-pink-400/5 p-3 flex items-start gap-3 rounded">
+                 <AlertCircle size={14} className="text-pink-400/40 mt-1 shrink-0" />
+                 <p className="terminal-font text-pink-400/40 text-[11px] leading-tight">
+                  Disclaimer: This is the ONLY host I recommend. Trust their hardware for my own projects.
+                 </p>
+              </div>
             </div>
           </section>
         </main>
 
         <aside className="md:col-span-3 space-y-6">
-          <div className="dimden-panel p-4 bg-pink-950/10 border-pink-400/5 group/heart">
-             <h3 className="pixel-title text-[8px] mb-4 border-b border-pink-400/20 pb-2 opacity-50 flex items-center justify-between">
-               <span>HEARTBEAT_V2</span>
-               <Activity size={12} className="text-pink-300 group-hover/heart:animate-bounce" />
-             </h3>
-             <div className="terminal-font space-y-4">
+          <div className="dimden-panel p-0 overflow-hidden group/heart border-pink-400/30">
+             <div className="bg-pink-900/20 p-2 border-b border-pink-400/10 flex items-center justify-between">
+               <h3 className="pixel-title text-[7px] opacity-70 uppercase">Heartbeat</h3>
+               <Activity size={12} className="text-pink-400/50" />
+             </div>
+             <div className="p-4 terminal-font space-y-4">
                 <div className="flex justify-between items-end border-b border-pink-400/10 pb-2">
                   <span className="text-pink-400/60 text-sm">UPTIME:</span> 
                   <span className={`text-pink-100 text-lg transition-colors ${isOverload ? 'text-red-600' : ''}`}>
@@ -449,15 +406,12 @@ const App: React.FC = () => {
              </div>
           </div>
 
-          <div 
-            className="dimden-panel p-4 overflow-hidden relative group/specs"
-            onMouseEnter={() => playSound('hover')}
-          >
-             <h3 className="pixel-title text-[8px] mb-4 border-b border-pink-400/20 pb-2 opacity-50 flex items-center justify-between">
-               <span>GEAR_SPECS</span>
-               <Cpu size={12} className={`text-pink-300 transition-all ${isOverload ? 'text-red-500 animate-spin' : 'group-hover/specs:rotate-90'}`} />
-             </h3>
-             <div className="terminal-font space-y-1 relative z-10">
+          <div className="dimden-panel p-0 overflow-hidden group/specs border-pink-400/30">
+             <div className="bg-pink-900/20 p-2 border-b border-pink-400/10 flex items-center justify-between">
+               <h3 className="pixel-title text-[7px] opacity-70 uppercase">Specs</h3>
+               <Cpu size={12} className="text-pink-400/50" />
+             </div>
+             <div className="p-4 terminal-font space-y-1 relative z-10">
                 <div className="flex justify-between items-center py-1 group/item cursor-default">
                   <span className="text-pink-400/50 uppercase text-sm">CPU</span>
                   <span className={`text-pink-100 text-right transition-colors ${isOverload ? 'text-red-400' : ''}`}>
@@ -472,7 +426,7 @@ const App: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-center py-1 border-t border-pink-400/5">
                   <span className="text-pink-400/50 uppercase text-sm">SSD</span>
-                  <span className="text-pink-100 text-right">2tb NVMe Gen4</span>
+                  <span className="text-pink-100 text-right">2tb NVMe</span>
                 </div>
                 <div className="flex justify-between items-center py-1 border-t border-pink-400/5">
                   <span className="text-pink-400/50 uppercase text-sm">OS</span>
