@@ -6,7 +6,8 @@ import {
   Cpu, Terminal, ExternalLink, ShieldCheck,
   AlertCircle, Disc, Clock, Play, Trophy,
   List, Layout, Coffee, Settings2, Sun, Moon,
-  Cpu as CpuIcon, ShieldAlert
+  Cpu as CpuIcon, ShieldAlert, ShoppingCart,
+  Server, Info, Shield, ThumbsUp, Star
 } from 'lucide-react';
 
 // Using your provided "Stats spice" Last.fm API Key
@@ -70,7 +71,7 @@ const App: React.FC = () => {
         hover: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
         click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
         xp: 'https://www.myinstants.com/media/sounds/levelup.mp3', 
-        secret: 'https://www.myinstants.com/media/sounds/siren.mp3', // Intense emergency sound
+        secret: 'https://www.myinstants.com/media/sounds/siren.mp3',
         rainbow: 'https://www.myinstants.com/media/sounds/shooting-stars-meme.mp3'
       };
       audio.src = sources[type as keyof typeof sources];
@@ -128,7 +129,6 @@ const App: React.FC = () => {
           document.body.classList.add('panic-mode');
           playSound('secret');
           
-          // Panic duration before "system restart"
           setTimeout(() => {
             setIsPanic(false);
             document.body.classList.remove('panic-mode');
@@ -247,12 +247,6 @@ const App: React.FC = () => {
                 <div className={`w-2.5 h-2.5 rounded-full bg-white transition-transform ${lightMode ? 'translate-x-4' : 'translate-x-0'}`} />
               </div>
             </button>
-            
-            {rainbowMode && (
-              <div className="text-[10px] terminal-font text-center text-white animate-pulse tracking-widest uppercase font-bold">
-                CHROMA PROTOCOL: ACTIVE
-              </div>
-            )}
           </div>
         )}
         
@@ -333,95 +327,164 @@ const App: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
         <aside className="md:col-span-3 space-y-6 md:space-y-8 order-2 md:order-1">
-          <div className="dimden-panel p-0 overflow-hidden group border-pink-400/20">
-            <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
-              <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">{isPanic ? 'NULL_PTR' : 'Links'}</h3>
-              <List size={10} className="text-pink-400/30" />
-            </div>
-            <nav className="flex flex-col p-2 gap-1">
-              {[
-                { label: 'GitHub', icon: Github, href: 'https://github.com/KitsuyaDev' },
-                { label: 'Twitch', icon: Monitor, href: 'https://twitch.tv/kitsuyatv' },
-                { label: 'BlueSky', icon: Cloud, href: 'https://bsky.app/profile/kitsuya.space' }
-              ].map((link, idx) => (
-                <a key={idx} href={link.href} target="_blank" className="sidebar-link group/link" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
-                  <link.icon size={18} className="text-pink-400/40 group-hover/link:text-pink-500 transition-all" />
-                  <span className="text-xl">{isPanic ? 'SEG_FAULT' : link.label}</span>
-                </a>
-              ))}
-            </nav>
-          </div>
-
+          {/* Identity Panel */}
           <div className="dimden-panel p-0 overflow-hidden group/id border-pink-400/20">
             <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
-              <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">Info</h3>
+              <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">Identity</h3>
               <User size={10} className="text-pink-400/30" />
             </div>
-            <div className="p-4 sm:p-5 space-y-2">
+            <div className="p-4 sm:p-5 space-y-1">
                 {[
                   { label: 'Name', value: 'Kit' },
                   { label: 'Age', value: '20' },
                   { label: 'Pronouns', value: 'They/Them' },
                   { label: 'Time-zone', value: 'GMT' }
                 ].map((item, idx) => (
-                  <div key={idx} className="flex justify-between items-center py-2 border-b border-pink-400/5 last:border-0 hover:bg-pink-400/5 transition-colors px-2 rounded">
-                    <span className="terminal-font text-pink-400/40 text-base uppercase tracking-widest">{item.label}:</span>
-                    <span className={`terminal-font text-xl sm:text-2xl tracking-wider ${lightMode ? 'text-pink-700' : 'text-pink-100'} ${rainbowMode ? 'text-white' : ''}`}>
+                  <div key={idx} className="flex justify-between items-center py-1.5 border-b border-pink-400/5 last:border-0 hover:bg-pink-400/5 transition-colors px-1 rounded">
+                    <span className="terminal-font text-pink-400/40 text-sm uppercase tracking-widest">{item.label}:</span>
+                    <span className={`terminal-font text-lg sm:text-xl tracking-wider ${lightMode ? 'text-pink-700' : 'text-pink-100'} ${rainbowMode ? 'text-white' : ''}`}>
                       {isPanic ? 'UNDEFINED' : item.value}
                     </span>
                   </div>
                 ))}
             </div>
           </div>
+
+          <div className="dimden-panel p-0 overflow-hidden group border-pink-400/20">
+            <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
+              <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">{isPanic ? 'NULL_PTR' : 'Links'}</h3>
+              <List size={10} className="text-pink-400/30" />
+            </div>
+            <nav className="flex flex-col p-1.5 gap-0.5">
+              {[
+                { label: 'GitHub', icon: Github, href: 'https://github.com/KitsuyaDev' },
+                { label: 'Twitch', icon: Monitor, href: 'https://twitch.tv/kitsuyatv' },
+                { label: 'BlueSky', icon: Cloud, href: 'https://bsky.app/profile/kitsuya.space' }
+              ].map((link, idx) => (
+                <a key={idx} href={link.href} target="_blank" className="sidebar-link group/link !text-lg !py-2" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
+                  <link.icon size={16} className="text-pink-400/40 group-hover/link:text-pink-500 transition-all" />
+                  <span>{isPanic ? 'SEG_FAULT' : link.label}</span>
+                </a>
+              ))}
+            </nav>
+          </div>
+
+          {/* Minimal Listening Status */}
+          <div className="dimden-panel p-0 overflow-hidden group/music border-pink-400/20">
+             <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
+               <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest flex items-center gap-2">
+                 <Music size={10} className="text-pink-300" /> {isPanic ? 'SIG_ERR' : 'Music'}
+               </h3>
+               {track?.nowPlaying && <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_5px_green]" />}
+             </div>
+             <div className="p-3">
+               {track ? (
+                 <a href={track.url} target="_blank" className="flex items-center gap-3 group/track">
+                    <div className="w-8 h-8 rounded border border-pink-400/20 overflow-hidden shrink-0">
+                      <img src={track.image || ''} className="w-full h-full object-cover" alt="Art" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className={`terminal-font text-sm leading-tight truncate ${lightMode ? 'text-pink-600' : 'text-pink-100'}`}>{track.name}</p>
+                      <p className="terminal-font text-[10px] text-pink-400/50 truncate uppercase tracking-tighter">{track.artist}</p>
+                    </div>
+                 </a>
+               ) : (
+                 <div className="text-center py-2 opacity-30 terminal-font text-xs uppercase tracking-widest">Standby</div>
+               )}
+             </div>
+          </div>
         </aside>
 
         <main className="md:col-span-6 space-y-6 md:space-y-8 order-1 md:order-2">
-          <section className="dimden-panel p-0 overflow-hidden group border-pink-400/20 min-h-[350px] md:min-h-[420px]">
+          {/* Main About Me - Content Fully Restored */}
+          <section className="dimden-panel p-0 overflow-hidden group border-pink-400/20 min-h-[400px]">
             <div className="bg-pink-900/10 p-3 border-b border-pink-400/10 flex items-center justify-between">
               <h3 className="pixel-title text-[8px] opacity-70 uppercase tracking-[0.2em] flex items-center gap-2">
                 <Sparkles size={12} className="text-pink-300" /> {isPanic ? 'SYSTEM_OVERRIDE' : 'About me'}
               </h3>
               <Terminal size={12} className="text-pink-400/30" />
             </div>
-            <div className="p-6 sm:p-10 md:p-16 relative overflow-hidden flex flex-col justify-center min-h-[300px] md:min-h-[380px]">
-              {isPanic && (
-                <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-                  <ShieldAlert size={200} className="text-red-600 opacity-40 animate-ping" />
-                </div>
-              )}
+            <div className="p-6 sm:p-8 md:p-10 relative overflow-hidden flex flex-col justify-start">
               <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
-                <Terminal size={240} className="text-pink-200" />
+                <Terminal size={260} className="text-pink-200" />
               </div>
-              <div className={`terminal-font text-xl sm:text-2xl md:text-3xl leading-relaxed space-y-6 md:space-y-10 relative z-10 ${lightMode ? 'text-pink-900' : 'text-pink-50'} ${rainbowMode ? 'text-white' : ''}`}>
-                <p>{isPanic ? 'CORE_DUMP: [FF, AA, 01, 00, EB, 42]' : 'my work revolves around server optimisation, debloating and debugging.'}</p>
-                <p>{isPanic ? 'ALERT: HEURISTIC_THREAT_DETECTED' : 'i make mod-packs and work on high-traffic networks too!'}</p>
+              <div className={`terminal-font text-lg sm:text-xl leading-relaxed space-y-5 relative z-10 ${lightMode ? 'text-pink-900' : 'text-pink-50'} ${rainbowMode ? 'text-white' : ''}`}>
+                {isPanic ? (
+                  <div className="space-y-6">
+                    <p className="text-3xl">CORE_DUMP: [FF, AA, 01, 00, EB, 42]</p>
+                    <p className="text-2xl">ALERT: HEURISTIC_THREAT_DETECTED</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <p className="text-2xl sm:text-3xl text-pink-500 md:text-pink-300 font-bold">hihi :3 im kit</p>
+                    <p>
+                      i’ve been doing minecraft dev stuff for around <span className="font-bold border-b border-pink-500/30">7–8 years</span>, mostly focused on performance and systems. i mainly work with <span className="text-pink-400 underline decoration-pink-500/50">fabric</span> and <span className="text-pink-400 underline decoration-pink-500/50">neoforge</span>.
+                    </p>
+                    <p>
+                      i spend a lot of time fixing tps issues, digging through crash logs, and removing things that don’t need to exist. if something is slow or broken, i’ll usually keep poking at it until i understand why.
+                    </p>
+                    <p className="opacity-80">
+                      i’ve worked on some projects i’m really proud of, but unfortunately a lot of the cool ones are <span className="italic">under nda</span>, so i can’t say much about them. i also make modpacks and help optimize higher-end networks.
+                    </p>
+                    <p>i usually work alone, but working with a team is fun when it lines up.</p>
+                  </div>
+                )}
               </div>
             </div>
           </section>
 
-          <section className="dimden-panel p-0 overflow-hidden group/hosting border-pink-500/10 hover:border-pink-400/30">
+          {/* Recommended Host Section - Personal & Detailed */}
+          <section className="dimden-panel p-0 overflow-hidden group/hosting border-pink-500/20 hover:border-pink-400/40 relative">
             <div className="bg-pink-900/10 p-3 border-b border-pink-400/10 flex items-center justify-between">
-               <h2 className="pixel-title text-[8px] uppercase tracking-[0.3em] text-pink-300/60">Recommended Host</h2>
-               <ShieldCheck size={18} className="text-pink-400/40" />
+               <h2 className="pixel-title text-[8px] uppercase tracking-[0.3em] text-pink-300/60 flex items-center gap-2">
+                 <Star size={14} className="text-pink-300 animate-pulse fill-pink-300/20" /> Recommended Host
+               </h2>
+               <ShieldCheck size={16} className="text-pink-400/40" />
             </div>
-            <div className="p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mb-8">
-                <div className="w-24 h-24 bg-pink-900/10 border border-pink-400/15 p-1.5 transition-all duration-500 shadow-lg relative shrink-0">
-                  <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className={`w-full h-full object-cover transition-all duration-700 ${isPanic ? 'grayscale-0 brightness-150 saturate-200 blur-sm' : lightMode ? '' : 'grayscale brightness-110 group-hover/hosting:grayscale-0'}`} alt="Pyro" />
+            <div className="p-6">
+              <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
+                <div className="w-24 h-24 bg-pink-900/20 border-2 border-pink-400/20 p-2 shadow-2xl relative shrink-0 group-hover/hosting:border-pink-400/50 transition-all duration-500">
+                  <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className={`w-full h-full object-cover transition-all duration-500 group-hover/hosting:scale-105 ${isPanic ? 'grayscale invert' : ''}`} alt="Pyro" />
                 </div>
                 <div className="flex-1 text-center sm:text-left">
-                  <h3 className={`terminal-font text-2xl sm:text-3xl uppercase tracking-widest ${lightMode ? 'text-pink-600' : 'text-white'} ${rainbowMode ? 'text-white' : ''}`}>
-                    {isPanic ? 'DATA_LOSS' : 'Pyro'}
-                  </h3>
-                  <p className={`terminal-font text-base sm:text-lg leading-snug mb-6 max-w-lg ${lightMode ? 'text-pink-800/70' : 'text-pink-200/60'} ${rainbowMode ? 'text-white/60' : ''}`}>
-                    {isPanic ? 'SYSTEM_INTEGRITY_COMPROMISED_FORCE_EXIT' : 'Superior performance for modded Minecraft.'}
+                  <h3 className={`terminal-font text-3xl uppercase tracking-widest mb-1 ${lightMode ? 'text-pink-600' : 'text-white'}`}>Pyro</h3>
+                  <p className={`terminal-font text-lg leading-snug mb-4 ${lightMode ? 'text-pink-800/80' : 'text-pink-200/70'}`}>
+                    Superior performance and hardware stability for modded environments and high-traffic networks.
                   </p>
-                  <a href="https://pyro.host/?a=41" target="_blank" className="inline-flex dimden-panel px-6 py-2.5 items-center gap-3 terminal-font text-xl text-white hover:text-pink-100 bg-pink-500/10 border-pink-400/30 hover:bg-pink-500/20 transition-all" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
-                    <span className={lightMode ? 'text-pink-600' : ''}>{isPanic ? 'EMERGENCY' : 'Visit Website'}</span>
-                    <ExternalLink size={16} className="text-pink-400" />
-                  </a>
                 </div>
               </div>
+
+              <div className="dimden-panel border-pink-400/20 bg-pink-400/5 p-4 mb-6 relative overflow-hidden">
+                <div className="flex gap-4 items-start">
+                   <ThumbsUp size={24} className="text-pink-300 shrink-0 mt-1" />
+                   <p className={`terminal-font text-xl italic leading-relaxed ${lightMode ? 'text-pink-900' : 'text-pink-50'}`}>
+                    "Honestly the only host I trust for my own projects. Their hardware handles heavily modded environments like a dream. If you want something that actually stays up, this is it."
+                   </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                <a href="https://pyro.host/?a=41" target="_blank" className="w-full sm:w-auto inline-flex dimden-panel px-12 py-3 items-center justify-center gap-3 terminal-font text-2xl text-white bg-pink-500/10 border-pink-400/60 hover:bg-pink-500/30 hover:shadow-[0_0_25px_rgba(255,183,197,0.3)] transition-all group/btn" onClick={handleLinkClick}>
+                  <span>Visit</span>
+                  <ExternalLink size={18} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+                </a>
+                
+                <div className="flex items-center gap-3 text-pink-400/40 terminal-font text-sm uppercase tracking-[0.15em] border-l border-pink-400/10 pl-6 h-full">
+                  <Shield size={16} />
+                  <span>Verified reliable</span>
+                </div>
+              </div>
+
+              <div className="mt-8 p-3 border-t border-pink-400/10 flex items-start sm:items-center gap-4 text-pink-400/50 terminal-font text-xs sm:text-sm uppercase tracking-wider leading-relaxed">
+                <Info size={16} className="shrink-0 text-pink-400/30" />
+                <span>
+                  <span className="text-pink-400/70 font-bold">Disclaimer:</span> I'm not partnered with Pyro Hosting—I just personally use and love their service for my own work. Note: using my link supports me directly!
+                </span>
+              </div>
+            </div>
+            {/* Themed scanning effect */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03]">
+               <div className="w-full h-1 bg-pink-400 absolute animate-[scan_8s_linear_infinite]" />
             </div>
           </section>
         </main>
@@ -429,19 +492,17 @@ const App: React.FC = () => {
         <aside className="md:col-span-3 space-y-6 md:space-y-8 order-3">
           <div className="dimden-panel p-0 overflow-hidden group/heart border-pink-400/20">
              <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
-               <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">{isPanic ? 'FLATLINE' : 'Heartbeat'}</h3>
+               <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">Heartbeat</h3>
                <Activity size={12} className="text-pink-400/30" />
              </div>
-             <div className="p-4 sm:p-5 terminal-font space-y-5">
-                <div className="flex justify-between items-end border-b border-pink-400/10 pb-3">
-                  <span className="text-pink-400/50 text-base tracking-widest uppercase">UPTIME:</span> 
-                  <span className={`text-xl sm:text-2xl transition-colors ${isPanic ? 'text-red-600 font-bold italic' : (lightMode ? 'text-pink-600' : 'text-pink-100')} ${rainbowMode ? 'text-white' : ''}`}>
-                    {isPanic ? '-99.9%' : '99.9%'}
-                  </span>
+             <div className="p-4 terminal-font space-y-4">
+                <div className="flex justify-between items-end border-b border-pink-400/10 pb-2">
+                  <span className="text-pink-400/50 text-sm tracking-widest uppercase">UPTIME:</span> 
+                  <span className={`text-xl ${isPanic ? 'text-red-600' : (lightMode ? 'text-pink-600' : 'text-pink-100')}`}>99.9%</span>
                 </div>
-                <div className="flex gap-1 h-12 items-end">
+                <div className="flex gap-1 h-8 items-end">
                    {[40, 70, 30, 90, 50, 80, 20, 60, 45, 75, 55, 85].map((h, i) => (
-                     <div key={i} className={`w-full transition-all duration-700 rounded-t-sm ${isPanic ? 'bg-red-600' : 'bg-pink-400/15 hover:bg-pink-500'} ${rainbowMode ? 'bg-white/40 hover:bg-white' : ''}`} style={{height: `${isPanic ? Math.random() * 100 : h}%`}} />
+                     <div key={i} className={`w-full transition-all duration-700 rounded-t-sm bg-pink-400/15 hover:bg-pink-500`} style={{height: `${h}%`}} />
                    ))}
                 </div>
              </div>
@@ -452,27 +513,36 @@ const App: React.FC = () => {
                <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">Specs</h3>
                <Cpu size={12} className="text-pink-400/30" />
              </div>
-             <div className="p-4 sm:p-5 terminal-font space-y-2 relative z-10">
+             <div className="p-4 terminal-font space-y-1.5 relative z-10">
                 {[
-                  { label: 'CPU', value: 'Epyc 7543P', panic: 'HALTED' },
-                  { label: 'MEM', value: '28GB DDR4', panic: 'OVERFLOW' },
-                  { label: 'SSD', value: '2tb NVMe', panic: 'ERASED' },
-                  { label: 'OS', value: 'Win 11', panic: 'BSOD' }
+                  { label: 'CPU', value: 'Epyc 7543P' },
+                  { label: 'MEM', value: '28GB DDR4' },
+                  { label: 'SSD', value: '2tb NVMe' },
+                  { label: 'OS', value: 'Win 11' }
                 ].map((spec, idx) => (
-                  <div key={idx} className="flex justify-between items-center py-2 border-b border-pink-400/5 last:border-0 hover:bg-white/5 transition-colors px-2 rounded">
-                    <span className="text-pink-400/40 uppercase text-xs sm:text-sm tracking-[0.2em]">{spec.label}</span>
-                    <span className={`text-right text-base sm:text-lg transition-colors duration-500 ${isPanic ? 'text-red-400 underline font-bold' : (lightMode ? 'text-pink-700' : 'text-pink-100')} ${rainbowMode ? 'text-white' : ''}`}>
-                      {isPanic ? spec.panic : spec.value}
-                    </span>
+                  <div key={idx} className="flex justify-between items-center py-1.5 border-b border-pink-400/5 last:border-0 hover:bg-white/5 px-1 rounded transition-colors">
+                    <span className="text-pink-400/40 uppercase text-xs tracking-widest">{spec.label}</span>
+                    <span className={`text-right text-base ${lightMode ? 'text-pink-700' : 'text-pink-100'}`}>{spec.value}</span>
                   </div>
                 ))}
+             </div>
+          </div>
+
+          <div className="dimden-panel p-0 overflow-hidden group/commissions border-pink-400/20">
+             <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
+               <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest">Commissions</h3>
+               <ShoppingCart size={12} className="text-pink-400/30" />
+             </div>
+             <div className="p-5 text-center">
+                <div className="terminal-font text-xl text-pink-400">Coming soon</div>
+                <div className="text-[9px] terminal-font opacity-30 uppercase tracking-[0.2em] mt-1 animate-pulse">Wait: active</div>
              </div>
           </div>
         </aside>
       </div>
 
-      <footer className={`py-16 sm:py-24 text-center terminal-font text-pink-400/15 text-xl sm:text-2xl tracking-[0.6em] uppercase hover:text-pink-300/50 transition-all duration-1000 cursor-default select-none ${rainbowMode ? 'text-white/20' : ''}`}>
-        {isPanic ? 'PANIC: KERNEL_HALT_RESTART_REQUIRED' : '~ 2026 - the end of time ~'}
+      <footer className="py-12 text-center terminal-font text-pink-400/10 text-xl tracking-[0.5em] uppercase hover:text-pink-300/30 transition-all duration-1000">
+        ~ 2026 - the end of time ~
       </footer>
     </div>
   );

@@ -33,6 +33,11 @@
             --accent-cherry: #ff0055;
         }
 
+        @keyframes scan {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+
         /* Panic Animations */
         @keyframes panic-shake {
             0% { transform: translate(0,0) rotate(0deg); }
@@ -374,8 +379,6 @@
         const glow = document.getElementById('mouse-glow');
         const grid = document.getElementById('grid');
         const debrisContainer = document.getElementById('debris');
-        const blob1 = document.getElementById('blob-1');
-        const blob2 = document.getElementById('blob-2');
 
         document.addEventListener('mousemove', (e) => {
             if (document.body.classList.contains('performance-mode')) return;
