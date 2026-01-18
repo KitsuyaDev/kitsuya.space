@@ -384,7 +384,7 @@ const App: React.FC = () => {
               <div className="bg-pink-900/10 border-t border-pink-400/5 p-3 flex items-start gap-3 rounded">
                  <AlertCircle size={14} className="text-pink-400/40 mt-1 shrink-0" />
                  <p className="terminal-font text-pink-400/40 text-[11px] leading-tight">
-                  it saying its the only server host i reccomend but im not partnered with me, if they would like to support me they can use the affiliate link
+                  This is the only server host I recommend. I am not directly partnered with them, but if you would like to support me, you can use the affiliate link above.
                  </p>
               </div>
             </div>
