@@ -9,14 +9,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inconsolata:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #080306;
+            --bg-color: #050204;
             --text-color: #fff0f3;
             --sakura-light: #ffd1dc;
             --sakura-main: #ffb7c5;
-            --sakura-dark: #3d1a26;
-            --border-color: rgba(255, 183, 197, 0.15);
-            --panel-bg: rgba(12, 5, 9, 0.85);
-            --glow-color: rgba(255, 183, 197, 0.25);
+            --sakura-dark: #2d131b;
+            --border-color: rgba(255, 183, 197, 0.12);
+            --panel-bg: rgba(10, 4, 7, 0.75);
+            --glow-color: rgba(255, 183, 197, 0.15);
             --accent-cherry: #ffb7c5;
             --rainbow-speed: 5s;
         }
@@ -27,9 +27,9 @@
             --sakura-light: #ff7597;
             --sakura-main: #ff0055;
             --sakura-dark: #ffeef2;
-            --border-color: rgba(255, 0, 85, 0.12);
-            --panel-bg: rgba(255, 255, 255, 0.85);
-            --glow-color: rgba(255, 0, 85, 0.1);
+            --border-color: rgba(255, 0, 85, 0.08);
+            --panel-bg: rgba(255, 255, 255, 0.7);
+            --glow-color: rgba(255, 0, 85, 0.05);
             --accent-cherry: #ff0055;
         }
 
@@ -41,30 +41,15 @@
         /* Panic Animations */
         @keyframes panic-shake {
             0% { transform: translate(0,0) rotate(0deg); }
-            10% { transform: translate(-5px,-5px) rotate(-1deg); }
-            20% { transform: translate(5px,5px) rotate(1deg); }
-            30% { transform: translate(-8px,2px) rotate(-2deg); }
-            40% { transform: translate(8px,-2px) rotate(2deg); }
-            50% { transform: translate(-10px,10px) rotate(-1deg); }
-            60% { transform: translate(10px,-10px) rotate(1deg); }
+            10% { transform: translate(-3px,-3px) rotate(-0.5deg); }
+            20% { transform: translate(3px,3px) rotate(0.5deg); }
             100% { transform: translate(0,0) rotate(0deg); }
         }
 
         @keyframes panic-flicker {
-            0% { background: rgba(255, 0, 0, 0.2); }
-            20% { background: rgba(0, 0, 0, 0.4); }
-            40% { background: rgba(255, 0, 0, 0.3); }
-            60% { background: rgba(255, 255, 255, 0.1); }
-            80% { background: rgba(0, 0, 0, 0.6); }
-            100% { background: rgba(255, 0, 0, 0.2); }
-        }
-
-        @keyframes panic-text {
-            0% { filter: blur(0); transform: skew(0deg); }
-            20% { filter: blur(2px); transform: skew(10deg); color: #ff0000; }
-            40% { filter: blur(0); transform: skew(-10deg); color: #ffffff; }
-            60% { filter: blur(1px); transform: skew(5deg); color: #ff0000; }
-            100% { filter: blur(0); transform: skew(0deg); }
+            0% { background: rgba(255, 0, 0, 0.15); }
+            50% { background: rgba(0, 0, 0, 0.3); }
+            100% { background: rgba(255, 0, 0, 0.15); }
         }
 
         .panic-mode #root {
@@ -80,58 +65,18 @@
             animation: panic-flicker 0.05s infinite;
         }
 
-        .panic-mode .pixel-title, 
-        .panic-mode .terminal-font {
-            animation: panic-text 0.2s infinite;
-        }
-
-        /* Rainbow Animations */
-        @keyframes chroma-cycle {
-            0% { filter: hue-rotate(0deg); }
-            100% { filter: hue-rotate(360deg); }
-        }
-
+        /* Rainbow Mode Improvements */
         @keyframes rainbow-border {
-            0% { border-color: #ff0000; }
-            17% { border-color: #ff8800; }
-            33% { border-color: #ffff00; }
-            50% { border-color: #00ff00; }
-            67% { border-color: #0088ff; }
-            83% { border-color: #ff00ff; }
-            100% { border-color: #ff0000; }
-        }
-
-        @keyframes rainbow-text {
-            0% { color: #ff0000; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
-            20% { color: #ff8800; text-shadow: 0 0 10px rgba(255,136,0,0.5); }
-            40% { color: #ffff00; text-shadow: 0 0 10px rgba(255,255,0,0.5); }
-            60% { color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
-            80% { color: #0088ff; text-shadow: 0 0 10px rgba(0,136,255,0.5); }
-            100% { color: #ff00ff; text-shadow: 0 0 10px rgba(255,0,255,0.5); }
-        }
-
-        body.rainbow-mode {
-            --sakura-main: white;
-            --accent-cherry: #ffffff;
-            --glow-color: rgba(255, 255, 255, 0.4);
+            0% { border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.3); }
+            33% { border-color: #00ff00; box-shadow: 0 0 20px rgba(0,255,0,0.3); }
+            66% { border-color: #0000ff; box-shadow: 0 0 20px rgba(0,0,255,0.3); }
+            100% { border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.3); }
         }
 
         body.rainbow-mode .dimden-panel {
-            animation: rainbow-border 4s linear infinite;
-            border-width: 2px;
-            box-shadow: 0 0 25px var(--glow-color);
-            background: rgba(0, 0, 0, 0.9);
-        }
-
-        body.rainbow-mode .pixel-title,
-        body.rainbow-mode .terminal-font {
-            animation: rainbow-text 4s linear infinite;
-        }
-
-        body.rainbow-mode #mouse-glow {
-            animation: chroma-cycle 3s linear infinite;
-            background: radial-gradient(circle, rgba(255,0,0,0.4) 0%, transparent 70%);
-            opacity: 0.8;
+            animation: rainbow-border 6s linear infinite;
+            background: rgba(0, 0, 0, 0.85) !important;
+            backdrop-filter: blur(25px) !important;
         }
 
         body {
@@ -142,213 +87,117 @@
             overflow-x: hidden;
             min-height: 100vh;
             position: relative;
-            transition: background-color 0.5s ease, color 0.5s ease;
-        }
-
-        .performance-mode .nebula,
-        .performance-mode .grid-layer,
-        .performance-mode .rain-container,
-        .performance-mode::before,
-        .performance-mode::after {
-            display: none !important;
-            animation: none !important;
-        }
-        
-        .performance-mode .dimden-panel {
-            backdrop-filter: none !important;
-            box-shadow: none !important;
+            transition: background-color 0.8s ease, color 0.8s ease;
         }
 
         .nebula {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             z-index: -2;
-            overflow: hidden;
             pointer-events: none;
         }
+        
         .glow-blob {
             position: absolute;
             border-radius: 50%;
-            filter: blur(160px);
-            opacity: 0.12;
-            animation: drift 25s infinite alternate ease-in-out;
-            transition: background-color 0.8s ease;
+            filter: blur(140px);
+            opacity: 0.18;
+            mix-blend-mode: screen;
+            animation: drift 30s infinite alternate ease-in-out;
+            transition: background-color 1s ease, opacity 1s ease;
         }
+        
         .light-mode .glow-blob {
-            opacity: 0.08;
-        }
-        .rainbow-mode .glow-blob {
-            opacity: 0.4;
-            filter: blur(120px);
-            animation: drift 10s infinite alternate ease-in-out, chroma-cycle 5s linear infinite;
+            mix-blend-mode: multiply;
+            opacity: 0.05;
         }
 
         @keyframes drift {
-            from { transform: translate(-15%, -15%) scale(1); }
-            to { transform: translate(15%, 15%) scale(1.3); }
+            0% { transform: translate(-10%, -10%) scale(1); }
+            100% { transform: translate(10%, 10%) scale(1.2); }
         }
 
         .grid-layer {
             position: fixed;
-            top: -10%;
-            left: -10%;
-            width: 120%;
-            height: 120%;
+            inset: -10%;
             background-image: 
                 linear-gradient(var(--border-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
-            background-size: 80px 80px;
+            background-size: 100px 100px;
             z-index: -1;
-            transform: translate(var(--mx, 0), var(--my, 0));
-            transition: transform 0.4s cubic-bezier(0.1, 0.8, 0.3, 1);
-        }
-
-        body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
-            z-index: 1000;
-            background-size: 100% 3px;
-            pointer-events: none;
-            opacity: 0.2;
-        }
-
-        @keyframes flicker {
-            0% { opacity: 0.98; }
-            5% { opacity: 0.96; }
-            10% { opacity: 0.99; }
-            50% { opacity: 0.97; }
-            100% { opacity: 0.98; }
-        }
-        body::after {
-            content: " ";
-            display: block;
-            position: fixed;
-            inset: 0;
-            background: rgba(18, 16, 16, 0.02);
-            z-index: 1001;
-            pointer-events: none;
-            animation: flicker 0.15s infinite;
-        }
-
-        .rain-container {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        .bit {
-            position: absolute;
-            background: var(--accent-cherry);
-            width: 1.5px;
-            height: 1.5px;
-            opacity: 0.15;
-            animation: rise linear infinite;
-            filter: drop-shadow(0 0 2px var(--accent-cherry));
-        }
-
-        @keyframes rise {
-            from { transform: translateY(110vh) rotate(0deg); }
-            to { transform: translateY(-10vh) rotate(360deg); }
-        }
-
-        .petal {
-            position: absolute;
-            background-color: var(--accent-cherry);
-            border-radius: 150% 0 150% 0;
-            opacity: 0.15;
-            pointer-events: none;
-            animation: petal-fall linear infinite;
-            filter: blur(0.5px);
-        }
-
-        @keyframes petal-fall {
-            0% { transform: translate(0, -10vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.2; }
-            90% { opacity: 0.2; }
-            100% { transform: translate(180px, 100vh) rotate(720deg); opacity: 0; }
-        }
-
-        @keyframes particle-fade {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(calc(cos(var(--angle)) * var(--vel)), calc(sin(var(--angle)) * var(--vel))) scale(0); opacity: 0; }
-        }
-        .animate-particle-fade {
-            animation: particle-fade 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+            opacity: 0.4;
+            mask-image: radial-gradient(circle at center, black, transparent 80%);
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.4, 1);
         }
 
         .dimden-panel {
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(24px) saturate(140%);
+            -webkit-backdrop-filter: blur(24px) saturate(140%);
             position: relative;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.5s ease, border-color 0.5s ease;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 
+                0 4px 24px -1px rgba(0, 0, 0, 0.2),
+                inset 0 0 20px 0 rgba(255, 183, 197, 0.02);
         }
         
         @media (min-width: 768px) {
             .dimden-panel:hover {
-                border-color: var(--sakura-main);
-                box-shadow: 0 0 30px var(--glow-color);
-                transform: translateY(-4px);
+                border-color: rgba(255, 183, 197, 0.4);
+                box-shadow: 
+                    0 12px 40px -10px var(--glow-color),
+                    inset 0 0 12px 0 rgba(255, 183, 197, 0.05);
+                transform: translateY(-2px) scale(1.005);
             }
         }
         
         .pixel-title {
             font-family: 'Press Start 2P', cursive;
             color: var(--sakura-main);
-            text-shadow: 0 0 10px var(--glow-color);
-            letter-spacing: -0.05em;
+            text-shadow: 0 0 15px var(--glow-color);
+            letter-spacing: -0.02em;
         }
+
         .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            font-family: 'VT323', monospace;
-            font-size: 1.6rem;
-            color: var(--text-color);
-            opacity: 0.7;
-            transition: all 0.3s ease;
-            border-radius: 4px;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            background: transparent;
         }
+
         .sidebar-link:hover {
-            background: var(--glow-color);
+            background: rgba(255, 183, 197, 0.08);
+            transform: translateX(4px);
             color: var(--sakura-main);
-            opacity: 1;
-            padding-left: 20px;
-            text-shadow: 0 0 12px var(--sakura-main);
+            text-shadow: 0 0 8px rgba(255, 183, 197, 0.3);
         }
+
         .terminal-font {
             font-family: 'VT323', monospace;
+            letter-spacing: 0.02em;
         }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: var(--bg-color); }
-        ::-webkit-scrollbar-thumb { 
-            background: var(--sakura-main); 
-            border-radius: 10px;
-            opacity: 0.5;
-        }
-        
+
         #mouse-glow {
             position: fixed;
-            width: 900px;
-            height: 900px;
-            background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, var(--glow-color) 0%, transparent 75%);
             border-radius: 50%;
             pointer-events: none;
             z-index: -1;
+            opacity: 0.6;
             transform: translate(-50%, -50%);
+            transition: background 1s ease;
         }
 
-        .performance-mode #mouse-glow {
-            display: none !important;
+        .bit, .petal {
+            opacity: 0.2;
+            filter: blur(0.5px);
+        }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(to bottom, transparent, var(--sakura-main), transparent);
+            border-radius: 10px;
         }
     </style>
 <script type="importmap">
@@ -364,10 +213,9 @@
 </script>
 </head>
 <body class="p-2 sm:p-4 md:p-8">
-    <!-- Ambient Layers -->
     <div class="nebula" id="nebula">
-        <div class="glow-blob" id="blob-1" style="width: 700px; height: 700px; background: #ffb7c5; top: -15%; left: -10%;"></div>
-        <div class="glow-blob" id="blob-2" style="width: 600px; height: 600px; background: #7c3aed; bottom: -15%; right: -5%; animation-delay: -7s;"></div>
+        <div class="glow-blob" id="blob-1" style="width: 80vw; height: 80vw; background: radial-gradient(circle, #ffb7c5 0%, transparent 70%); top: -20%; left: -10%;"></div>
+        <div class="glow-blob" id="blob-2" style="width: 70vw; height: 70vw; background: radial-gradient(circle, #7c3aed 0%, transparent 70%); bottom: -20%; right: -10%; animation-delay: -5s;"></div>
     </div>
     <div class="grid-layer" id="grid"></div>
     <div id="mouse-glow"></div>
@@ -386,35 +234,24 @@
                 glow.style.left = e.clientX + 'px';
                 glow.style.top = e.clientY + 'px';
                 
-                const moveX = (e.clientX / window.innerWidth - 0.5) * 30;
-                const moveY = (e.clientY / window.innerHeight - 0.5) * 30;
-                grid.style.setProperty('--mx', moveX + 'px');
-                grid.style.setProperty('--my', moveY + 'px');
+                const moveX = (e.clientX / window.innerWidth - 0.5) * 20;
+                const moveY = (e.clientY / window.innerHeight - 0.5) * 20;
+                grid.style.transform = `translate(${moveX}px, ${moveY}px)`;
             });
         });
 
         function createDebris() {
-            for (let i = 0; i < 45; i++) {
+            for (let i = 0; i < 30; i++) {
                 const bit = document.createElement('div');
                 bit.className = 'bit';
                 bit.style.left = Math.random() * 100 + 'vw';
-                bit.style.animationDuration = (Math.random() * 12 + 12) + 's';
-                bit.style.animationDelay = (Math.random() * 12) + 's';
+                bit.style.animationDuration = (Math.random() * 15 + 15) + 's';
+                bit.style.animationDelay = (Math.random() * 10) + 's';
+                bit.style.width = '1px';
+                bit.style.height = '1px';
                 debrisContainer.appendChild(bit);
             }
-            for (let i = 0; i < 15; i++) {
-                const petal = document.createElement('div');
-                petal.className = 'petal';
-                const size = Math.random() * 6 + 3;
-                petal.style.width = size + 'px';
-                petal.style.height = size + 'px';
-                petal.style.left = Math.random() * 100 + 'vw';
-                petal.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                petal.style.animationDelay = (Math.random() * 6) + 's';
-                debrisContainer.appendChild(petal);
-            }
         }
-
         createDebris();
     </script>
     <script type="module" src="./index.tsx"></script>
