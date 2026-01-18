@@ -6,7 +6,7 @@ import {
   Cpu, Terminal, ExternalLink, ShieldCheck,
   AlertCircle, Disc, Clock, Play, Trophy,
   List, Layout, Coffee, Settings2, Sun, Moon,
-  Cpu as CpuIcon, Eye
+  Cpu as CpuIcon
 } from 'lucide-react';
 
 // Using your provided "Stats spice" Last.fm API Key
@@ -60,24 +60,28 @@ const App: React.FC = () => {
   const toggleLightMode = () => {
     setLightMode(!lightMode);
     document.body.classList.toggle('light-mode');
+    // Switched to 'click' for a subtle feel similar to the other toggle
     playSound('click'); 
   };
 
-  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'secret' | 'rainbow') => {
+  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'secret' | 'rainbow' | 'lumine') => {
     if (!hasInteracted) return;
     try {
       const audio = new Audio();
       const sources = {
         hover: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
         click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
-        // Minecraft XP Orb pickup sound
-        xp: 'https://files.catbox.moe/9f5iia.mp3', 
+        lumine: 'https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3', 
+        // Highly reliable direct link for Minecraft Level Up
+        xp: 'https://www.myinstants.com/media/sounds/levelup.mp3', 
         secret: 'https://assets.mixkit.co/active_storage/sfx/2534/2534-preview.mp3',
         rainbow: 'https://www.myinstants.com/media/sounds/shooting-stars-meme.mp3'
       };
       audio.src = sources[type as keyof typeof sources];
-      audio.volume = type === 'hover' ? 0.04 : (type === 'rainbow' ? 0.2 : 0.25);
-      audio.play().catch(() => {});
+      audio.volume = type === 'hover' ? 0.04 : (type === 'rainbow' ? 0.2 : 0.4);
+      audio.play().catch((err) => {
+        console.warn(`Audio playback failed for ${type}:`, err.message);
+      });
     } catch (e) {}
   }, [hasInteracted]);
 
@@ -111,7 +115,6 @@ const App: React.FC = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
       
-      // Rainbow trigger
       rainbowInput.current += key;
       if (rainbowInput.current.endsWith("rainbow")) {
         setRainbowMode(prev => !prev);
@@ -121,7 +124,6 @@ const App: React.FC = () => {
         rainbowInput.current = rainbowInput.current.slice(-10);
       }
 
-      // Konami
       const targetKey = konamiCode[konamiIndex.current].toLowerCase();
       if (key === targetKey || e.key === konamiCode[konamiIndex.current]) {
         konamiIndex.current++;
@@ -142,7 +144,6 @@ const App: React.FC = () => {
   useEffect(() => {
     document.body.classList.toggle('rainbow-mode', rainbowMode);
     
-    // Animate background blobs in rainbow mode
     let hue = 0;
     let frame: number;
     const blob1 = document.getElementById('blob-1');
@@ -230,7 +231,6 @@ const App: React.FC = () => {
           <div className="dimden-panel p-4 w-56 space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
             <h4 className="pixel-title text-[8px] opacity-70 border-b border-pink-400/10 pb-2 mb-2 uppercase">Configuration</h4>
             
-            {/* performanceMode = false means FX is ON. Switch should be right-aligned/colored when FX is ON */}
             <button 
               onClick={togglePerformance}
               className={`w-full flex items-center justify-between p-2 rounded terminal-font text-base transition-colors ${!performanceMode ? 'bg-pink-500/20 text-pink-200' : 'hover:bg-pink-500/10 text-pink-400/60'}`}
@@ -326,7 +326,7 @@ const App: React.FC = () => {
           <div className="flex md:flex lg:flex gap-6 sm:gap-12 md:border-l border-pink-400/10 md:pl-8 lg:pl-12 relative z-10">
              <div className="flex flex-col items-center group/stat">
                <span className="text-pink-400/60 font-bold uppercase tracking-[0.3em] mb-1 md:mb-2" style={{fontSize: '8px'}}>MEM_ALLOC</span>
-               <span className={`terminal-font text-xl sm:text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-all duration-700 ${isOverload ? 'text-red-500' : (lightMode ? 'text-pink-700' : 'text-pink-50')}`}>
+               <span className={`terminal-font text-xl sm:text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-all duration-700 ${isOverload ? 'text-red-500' : (lightMode ? 'text-pink-700' : 'text-pink-100')}`}>
                 {liveMem.toFixed(2)}GB <span className="text-pink-400/30 text-xs sm:text-sm">/ 28GB</span>
                </span>
              </div>
