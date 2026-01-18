@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { 
   Github, Sparkles, Activity, 
   Cloud, Monitor, Heart, Zap, Music, User,
@@ -362,6 +363,8 @@ const App: React.FC = () => {
       >
         ~ 2026 - the end of time ~
       </footer>
+
+      <SpeedInsights />
     </div>
   );
 };
