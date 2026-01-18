@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inconsolata:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Dark Mode (Default) */
             --bg-color: #080306;
             --text-color: #fff0f3;
             --sakura-light: #ffd1dc;
@@ -23,7 +22,6 @@
         }
 
         body.light-mode {
-            /* Light Mode (Bright Cherry) */
             --bg-color: #fffcfd;
             --text-color: #2a1a1f;
             --sakura-light: #ff7597;
@@ -35,6 +33,21 @@
             --accent-cherry: #ff0055;
         }
 
+        @keyframes chroma-cycle {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes rainbow-border {
+            0% { border-color: #ff0000; }
+            17% { border-color: #ff8800; }
+            33% { border-color: #ffff00; }
+            50% { border-color: #00ff00; }
+            67% { border-color: #0088ff; }
+            83% { border-color: #ff00ff; }
+            100% { border-color: #ff0000; }
+        }
+
         @keyframes rainbow-text {
             0% { color: #ff0000; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
             20% { color: #ff8800; text-shadow: 0 0 10px rgba(255,136,0,0.5); }
@@ -44,28 +57,28 @@
             100% { color: #ff00ff; text-shadow: 0 0 10px rgba(255,0,255,0.5); }
         }
 
-        @keyframes rainbow-bg {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
         body.rainbow-mode {
             --sakura-main: white;
-            --border-color: rgba(255, 255, 255, 0.2);
             --accent-cherry: #ffffff;
-        }
-
-        body.rainbow-mode .pixel-title,
-        body.rainbow-mode .terminal-font.text-3xl,
-        body.rainbow-mode .terminal-font.text-4xl {
-            animation: rainbow-text var(--rainbow-speed) infinite alternate linear;
-            color: white !important;
+            --glow-color: rgba(255, 255, 255, 0.4);
         }
 
         body.rainbow-mode .dimden-panel {
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+            animation: rainbow-border 4s linear infinite;
+            border-width: 2px;
+            box-shadow: 0 0 25px var(--glow-color);
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        body.rainbow-mode .pixel-title,
+        body.rainbow-mode .terminal-font {
+            animation: rainbow-text 4s linear infinite;
+        }
+
+        body.rainbow-mode #mouse-glow {
+            animation: chroma-cycle 3s linear infinite;
+            background: radial-gradient(circle, rgba(255,0,0,0.4) 0%, transparent 70%);
+            opacity: 0.8;
         }
 
         body {
@@ -79,7 +92,6 @@
             transition: background-color 0.5s ease, color 0.5s ease;
         }
 
-        /* Performance Mode Toggles */
         .performance-mode .nebula,
         .performance-mode .grid-layer,
         .performance-mode .rain-container,
@@ -94,7 +106,6 @@
             box-shadow: none !important;
         }
 
-        /* Ambient Nebula Glows */
         .nebula {
             position: fixed;
             top: 0;
@@ -117,8 +128,9 @@
             opacity: 0.08;
         }
         .rainbow-mode .glow-blob {
-            opacity: 0.3;
+            opacity: 0.4;
             filter: blur(120px);
+            animation: drift 10s infinite alternate ease-in-out, chroma-cycle 5s linear infinite;
         }
 
         @keyframes drift {
@@ -126,7 +138,6 @@
             to { transform: translate(15%, 15%) scale(1.3); }
         }
 
-        /* Parallax Grid Layer */
         .grid-layer {
             position: fixed;
             top: -10%;
@@ -142,7 +153,6 @@
             transition: transform 0.4s cubic-bezier(0.1, 0.8, 0.3, 1);
         }
 
-        /* CRT Scanline Effect */
         body::before {
             content: " ";
             display: block;

@@ -51,7 +51,6 @@ const App: React.FC = () => {
   const rainbowInput = useRef("");
 
   const togglePerformance = () => {
-    // performanceMode = true means FX are DISABLED
     setPerformanceMode(!performanceMode);
     document.body.classList.toggle('performance-mode');
     playSound('click');
@@ -60,25 +59,22 @@ const App: React.FC = () => {
   const toggleLightMode = () => {
     setLightMode(!lightMode);
     document.body.classList.toggle('light-mode');
-    // Switched to 'click' for a subtle feel similar to the other toggle
     playSound('click'); 
   };
 
-  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'secret' | 'rainbow' | 'lumine') => {
+  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'secret' | 'rainbow') => {
     if (!hasInteracted) return;
     try {
       const audio = new Audio();
       const sources = {
         hover: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
         click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
-        lumine: 'https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3', 
-        // Highly reliable direct link for Minecraft Level Up
         xp: 'https://www.myinstants.com/media/sounds/levelup.mp3', 
         secret: 'https://assets.mixkit.co/active_storage/sfx/2534/2534-preview.mp3',
         rainbow: 'https://www.myinstants.com/media/sounds/shooting-stars-meme.mp3'
       };
       audio.src = sources[type as keyof typeof sources];
-      audio.volume = type === 'hover' ? 0.04 : (type === 'rainbow' ? 0.2 : 0.4);
+      audio.volume = type === 'hover' ? 0.04 : (type === 'rainbow' ? 0.15 : 0.4);
       audio.play().catch((err) => {
         console.warn(`Audio playback failed for ${type}:`, err.message);
       });
@@ -115,22 +111,24 @@ const App: React.FC = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
       
+      // Rainbow trigger: "rainbow"
       rainbowInput.current += key;
       if (rainbowInput.current.endsWith("rainbow")) {
         setRainbowMode(prev => !prev);
         playSound('rainbow');
         rainbowInput.current = "";
-      } else if (rainbowInput.current.length > 20) {
-        rainbowInput.current = rainbowInput.current.slice(-10);
+      } else if (rainbowInput.current.length > 10) {
+        rainbowInput.current = rainbowInput.current.slice(-7);
       }
 
+      // Konami trigger
       const targetKey = konamiCode[konamiIndex.current].toLowerCase();
       if (key === targetKey || e.key === konamiCode[konamiIndex.current]) {
         konamiIndex.current++;
         if (konamiIndex.current === konamiCode.length) {
           setIsOverload(true);
           playSound('secret');
-          setTimeout(() => setIsOverload(false), 5000);
+          setTimeout(() => setIsOverload(false), 8000);
           konamiIndex.current = 0;
         }
       } else {
@@ -144,26 +142,13 @@ const App: React.FC = () => {
   useEffect(() => {
     document.body.classList.toggle('rainbow-mode', rainbowMode);
     
-    let hue = 0;
-    let frame: number;
-    const blob1 = document.getElementById('blob-1');
-    const blob2 = document.getElementById('blob-2');
-    
-    if (rainbowMode && blob1 && blob2) {
-      const animate = () => {
-        hue = (hue + 1) % 360;
-        blob1.style.backgroundColor = `hsl(${hue}, 80%, 60%)`;
-        blob2.style.backgroundColor = `hsl(${(hue + 180) % 360}, 80%, 60%)`;
-        frame = requestAnimationFrame(animate);
-      };
-      animate();
-    } else if (blob1 && blob2) {
-      blob1.style.backgroundColor = lightMode ? '#ff0055' : '#ffb7c5';
-      blob2.style.backgroundColor = '#7c3aed';
+    // Animate background blobs more aggressively in rainbow mode
+    if (rainbowMode) {
+      document.documentElement.style.setProperty('--rainbow-speed', '2s');
+    } else {
+      document.documentElement.style.setProperty('--rainbow-speed', '5s');
     }
-
-    return () => cancelAnimationFrame(frame);
-  }, [rainbowMode, lightMode]);
+  }, [rainbowMode]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -213,7 +198,7 @@ const App: React.FC = () => {
       const next = prev + 1;
       if (next > 0 && next % 10 === 0) {
         playSound('xp'); 
-        createParticles(e, 30, lightMode ? '#ff0055' : '#4ade80');
+        createParticles(e, 40, lightMode ? '#ff0055' : '#4ade80');
       } else {
         playSound('click');
         createParticles(e, 5);
@@ -258,8 +243,8 @@ const App: React.FC = () => {
             </button>
             
             {rainbowMode && (
-              <div className="text-[10px] terminal-font text-center text-white/50 animate-pulse tracking-widest uppercase">
-                Rainbow Protocol Active
+              <div className="text-[10px] terminal-font text-center text-white animate-pulse tracking-widest uppercase font-bold">
+                CHROMA PROTOCOL: ACTIVE
               </div>
             )}
           </div>
@@ -277,7 +262,7 @@ const App: React.FC = () => {
         {!performanceMode && particles.map(p => (
           <div 
             key={p.id}
-            className="absolute w-1 h-1 shadow-[0_0_12px_currentColor] animate-particle-fade"
+            className={`absolute w-1.5 h-1.5 shadow-[0_0_12px_currentColor] animate-particle-fade ${rainbowMode ? 'chroma-particle' : ''}`}
             style={{ 
               left: p.x, 
               top: p.y, 
@@ -290,7 +275,7 @@ const App: React.FC = () => {
         ))}
       </div>
 
-      <header className={`dimden-panel p-0 overflow-hidden group border-pink-400/20 hover:border-pink-400/40 ${rainbowMode ? 'shadow-[0_0_30px_rgba(255,255,255,0.1)]' : ''}`}>
+      <header className={`dimden-panel p-0 overflow-hidden group border-pink-400/20 hover:border-pink-400/40 ${rainbowMode ? 'shadow-[0_0_30px_rgba(255,255,255,0.3)]' : ''}`}>
         <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
           <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-[0.2em] flex items-center gap-2">
             <Coffee size={10} className="text-pink-300" /> Me :3
@@ -306,7 +291,7 @@ const App: React.FC = () => {
               onMouseEnter={() => playSound('hover')}
             >
                <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
-                    className={`w-full h-full object-cover transition-all duration-700 rounded-full drop-shadow-[0_0_10px_rgba(255,183,197,0.3)] ${isOverload ? 'sepia hue-rotate-180 brightness-150 scale-125' : ''} ${rainbowMode ? 'brightness-125' : ''}`} alt="pfp" />
+                    className={`w-full h-full object-cover transition-all duration-700 rounded-full drop-shadow-[0_0_10px_rgba(255,183,197,0.3)] ${isOverload ? 'sepia hue-rotate-180 brightness-150 scale-125' : ''} ${rainbowMode ? 'brightness-125 saturate-150' : ''}`} alt="pfp" />
             </div>
             <div className="cursor-pointer select-none" onClick={handleHeaderClick}>
               <h1 className="pixel-title text-xl sm:text-2xl md:text-3xl mb-2 transition-all md:group-hover:tracking-[0.15em] uppercase flex items-center justify-center sm:justify-start gap-3">
@@ -341,7 +326,6 @@ const App: React.FC = () => {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
-        {/* Left Side (Desktop) / Top Order (Mobile) */}
         <aside className="md:col-span-3 space-y-6 md:space-y-8 order-2 md:order-1">
           <div className="dimden-panel p-0 overflow-hidden group border-pink-400/20">
             <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
@@ -389,14 +373,7 @@ const App: React.FC = () => {
             </div>
             <div className="p-4 sm:p-5">
               {track ? (
-                <a 
-                  href={track.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="block space-y-4 no-underline group/track"
-                  onClick={handleLinkClick}
-                  onMouseEnter={() => playSound('hover')}
-                >
+                <a href={track.url} target="_blank" rel="noopener noreferrer" className="block space-y-4 no-underline group/track" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
                   <div className="flex gap-4">
                     <div className="w-14 h-14 border border-pink-400/15 p-1 shrink-0 relative overflow-hidden shadow-inner group-hover/track:shadow-[0_0_15px_rgba(255,183,197,0.2)] transition-all">
                       {track.image ? (
@@ -406,7 +383,6 @@ const App: React.FC = () => {
                           <Disc size={24} className="text-pink-400/20 animate-spin-slow" />
                         </div>
                       )}
-                      {!performanceMode && track.nowPlaying && <div className="absolute inset-0 bg-pink-400/10 animate-pulse pointer-events-none" />}
                     </div>
                     <div className="terminal-font overflow-hidden flex flex-col justify-center gap-1">
                       <div className={`text-lg sm:text-xl truncate leading-tight group-hover/track:text-pink-600 transition-colors ${lightMode ? 'text-pink-900' : 'text-pink-100'} ${rainbowMode ? 'text-white' : ''}`}>
@@ -415,12 +391,6 @@ const App: React.FC = () => {
                       <div className="text-pink-400/50 text-sm sm:text-base truncate uppercase tracking-tighter">
                         {track.artist}
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] text-pink-400/30 uppercase tracking-[0.2em] pt-3 border-t border-pink-400/10">
-                    <div className="flex items-center gap-2">
-                      {track.nowPlaying ? <Play size={10} className={`fill-green-400 text-green-400 ${lightMode ? 'text-pink-600 fill-pink-600' : ''}`} /> : <Clock size={10} />}
-                      <span className={track.nowPlaying ? (lightMode ? 'text-pink-600' : 'text-green-400/60') : ''}>{track.nowPlaying ? 'NOW PLAYING' : track.lastSeen}</span>
                     </div>
                   </div>
                 </a>
@@ -434,7 +404,6 @@ const App: React.FC = () => {
           </div>
         </aside>
 
-        {/* Center Main (Desktop) / Middle Order (Mobile) */}
         <main className="md:col-span-6 space-y-6 md:space-y-8 order-1 md:order-2">
           <section className="dimden-panel p-0 overflow-hidden group border-pink-400/20 min-h-[350px] md:min-h-[420px]">
             <div className="bg-pink-900/10 p-3 border-b border-pink-400/10 flex items-center justify-between">
@@ -444,22 +413,12 @@ const App: React.FC = () => {
               <Terminal size={12} className="text-pink-400/30" />
             </div>
             <div className="p-6 sm:p-10 md:p-16 relative overflow-hidden flex flex-col justify-center min-h-[300px] md:min-h-[380px]">
-              <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none transition-opacity duration-700">
+              <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
                 <Terminal size={240} className="text-pink-200" />
               </div>
               <div className={`terminal-font text-xl sm:text-2xl md:text-3xl leading-relaxed space-y-6 md:space-y-10 relative z-10 ${lightMode ? 'text-pink-900' : 'text-pink-50'} ${rainbowMode ? 'text-white' : ''}`}>
-                <p className="md:hover:translate-x-2 transition-transform duration-500">
-                  my work revolves around <span className="text-pink-500 md:text-pink-300 font-bold decoration-dotted underline underline-offset-8 drop-shadow-[0_0_10px_rgba(255,183,197,0.3)]">server optimisation</span>, 
-                  debloating and debugging. 
-                </p>
-                <p className="md:hover:translate-x-2 transition-transform duration-500 delay-75">
-                  i make <span className={`${lightMode ? 'text-pink-400' : 'text-pink-200'} italic`}>mod-packs</span> of all shapes and sizes 
-                  and work on high-traffic networks too!
-                </p>
-                <p className="text-lg sm:text-xl md:text-2xl opacity-40 italic">
-                  i specialize in squeezing performance out of potato servers / pcs and writing custom 
-                  <span className="text-pink-500 md:text-pink-300 font-medium"> Minecraft Mods</span>.
-                </p>
+                <p>my work revolves around <span className="text-pink-500 md:text-pink-300 font-bold decoration-dotted underline underline-offset-8">server optimisation</span>, debloating and debugging.</p>
+                <p>i make <span className={`${lightMode ? 'text-pink-400' : 'text-pink-200'} italic`}>mod-packs</span> and work on high-traffic networks too!</p>
               </div>
             </div>
           </section>
@@ -475,32 +434,18 @@ const App: React.FC = () => {
                   <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className={`w-full h-full object-cover transition-all duration-700 ${lightMode ? '' : 'grayscale brightness-110 group-hover/hosting:grayscale-0'}`} alt="Pyro" />
                 </div>
                 <div className="flex-1 text-center sm:text-left">
-                  <div className="flex flex-col sm:flex-row sm:items-baseline gap-3 mb-3">
-                    <h3 className={`terminal-font text-2xl sm:text-3xl uppercase tracking-widest ${lightMode ? 'text-pink-600' : 'text-white'} ${rainbowMode ? 'text-white' : ''}`}>Pyro</h3>
-                    <span className="text-[10px] terminal-font text-pink-400/40 hidden sm:inline tracking-[0.2em]">[ STATUS: OPTIMAL ]</span>
-                  </div>
-                  <p className={`terminal-font text-base sm:text-lg leading-snug mb-6 max-w-lg ${lightMode ? 'text-pink-800/70' : 'text-pink-200/60'} ${rainbowMode ? 'text-white/60' : ''}`}>
-                    Superior performance for modded Minecraft. Enterprise-grade hardware and global low-latency nodes.
-                  </p>
-                  <div className="flex flex-wrap justify-center sm:justify-start gap-4">
-                     <a href="https://pyro.host/?a=41" target="_blank" className="dimden-panel px-6 py-2.5 flex items-center gap-3 terminal-font text-xl text-white hover:text-pink-100 bg-pink-500/10 border-pink-400/30 hover:bg-pink-500/20 transition-all group/btn" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
-                       <span className={lightMode ? 'text-pink-600' : ''}>Visit Website</span>
-                       <ExternalLink size={16} className="text-pink-400" />
-                     </a>
-                  </div>
+                  <h3 className={`terminal-font text-2xl sm:text-3xl uppercase tracking-widest ${lightMode ? 'text-pink-600' : 'text-white'} ${rainbowMode ? 'text-white' : ''}`}>Pyro</h3>
+                  <p className={`terminal-font text-base sm:text-lg leading-snug mb-6 max-w-lg ${lightMode ? 'text-pink-800/70' : 'text-pink-200/60'} ${rainbowMode ? 'text-white/60' : ''}`}>Superior performance for modded Minecraft.</p>
+                  <a href="https://pyro.host/?a=41" target="_blank" className="inline-flex dimden-panel px-6 py-2.5 items-center gap-3 terminal-font text-xl text-white hover:text-pink-100 bg-pink-500/10 border-pink-400/30 hover:bg-pink-500/20 transition-all" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
+                    <span className={lightMode ? 'text-pink-600' : ''}>Visit Website</span>
+                    <ExternalLink size={16} className="text-pink-400" />
+                  </a>
                 </div>
-              </div>
-              <div className="bg-pink-900/5 border border-pink-400/10 p-4 flex items-start gap-4 rounded-lg">
-                 <AlertCircle size={16} className="text-pink-400/50 mt-1 shrink-0" />
-                 <p className={`terminal-font text-pink-300/50 text-xs sm:text-sm leading-relaxed tracking-wide ${rainbowMode ? 'text-white/30' : ''}`}>
-                  This is the only server host I recommend. I am not directly partnered with them, but if you would like to support me, you can use the affiliate link above.
-                 </p>
               </div>
             </div>
           </section>
         </main>
 
-        {/* Right Side (Desktop) / Bottom Order (Mobile) */}
         <aside className="md:col-span-3 space-y-6 md:space-y-8 order-3">
           <div className="dimden-panel p-0 overflow-hidden group/heart border-pink-400/20">
              <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
@@ -516,7 +461,7 @@ const App: React.FC = () => {
                 </div>
                 <div className="flex gap-1 h-12 items-end">
                    {[40, 70, 30, 90, 50, 80, 20, 60, 45, 75, 55, 85].map((h, i) => (
-                     <div key={i} className={`w-full transition-all duration-700 rounded-t-sm ${isOverload ? 'bg-red-600' : 'bg-pink-400/15 hover:bg-pink-500'} ${rainbowMode ? 'bg-white/10 hover:bg-white' : ''}`} style={{height: `${isOverload ? Math.random() * 15 : h}%`}} />
+                     <div key={i} className={`w-full transition-all duration-700 rounded-t-sm ${isOverload ? 'bg-red-600' : 'bg-pink-400/15 hover:bg-pink-500'} ${rainbowMode ? 'bg-white/40 hover:bg-white' : ''}`} style={{height: `${isOverload ? Math.random() * 15 : h}%`}} />
                    ))}
                 </div>
              </div>
@@ -552,7 +497,7 @@ const App: React.FC = () => {
         </aside>
       </div>
 
-      <footer className={`py-16 sm:py-24 text-center terminal-font text-pink-400/15 text-xl sm:text-2xl tracking-[0.6em] uppercase hover:text-pink-300/50 transition-all duration-1000 cursor-default select-none ${rainbowMode ? 'text-white/10' : ''}`} onMouseEnter={() => playSound('hover')} onClick={handleLinkClick}>
+      <footer className={`py-16 sm:py-24 text-center terminal-font text-pink-400/15 text-xl sm:text-2xl tracking-[0.6em] uppercase hover:text-pink-300/50 transition-all duration-1000 cursor-default select-none ${rainbowMode ? 'text-white/20' : ''}`}>
         {isOverload ? 'SYSTEM_OVERLOAD_HALT' : '~ 2026 - the end of time ~'}
       </footer>
     </div>
