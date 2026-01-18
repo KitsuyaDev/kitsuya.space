@@ -5,7 +5,7 @@ import {
   Cloud, Monitor, Heart, Zap, Music, User,
   Cpu, HardDrive, Terminal,
   ExternalLink, ShieldCheck,
-  AlertCircle, Disc, Clock, Play
+  AlertCircle, Disc, Clock, Play, Trophy
 } from 'lucide-react';
 
 // Using your provided "Stats spice" Last.fm API Key
@@ -28,37 +28,49 @@ interface Particle {
   y: number;
   angle: number;
   velocity: number;
+  color?: string;
 }
 
 const App: React.FC = () => {
   const [track, setTrack] = useState<Track | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
+  const [isOverload, setIsOverload] = useState(false);
+  const [headerClicks, setHeaderClicks] = useState(0);
+  const [liveMem, setLiveMem] = useState(24.50);
+  
   const particleIdCounter = useRef(0);
+  const konamiIndex = useRef(0);
+  const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
 
-  const playSound = useCallback((type: 'hover' | 'click') => {
+  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'secret') => {
     if (!hasInteracted) return;
     try {
       const audio = new Audio();
-      audio.src = type === 'hover' 
-        ? 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3' 
-        : 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
-      audio.volume = type === 'hover' ? 0.05 : 0.1;
+      const sources = {
+        hover: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
+        click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+        xp: 'https://www.myinstants.com/media/sounds/levelup.mp3',
+        secret: 'https://assets.mixkit.co/active_storage/sfx/2534/2534-preview.mp3'
+      };
+      audio.src = sources[type as keyof typeof sources];
+      audio.volume = type === 'hover' ? 0.05 : 0.15;
       audio.play().catch(() => {});
     } catch (e) {}
   }, [hasInteracted]);
 
-  const createParticles = (e: React.MouseEvent) => {
+  const createParticles = (e: React.MouseEvent | { clientX: number, clientY: number }, count = 12, color = '#ffb7c5') => {
     const centerX = e.clientX;
     const centerY = e.clientY;
     const newParticles: Particle[] = [];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < count; i++) {
       newParticles.push({
         id: particleIdCounter.current++,
         x: centerX,
         y: centerY,
-        angle: (Math.PI * 2 / 12) * i + (Math.random() * 0.5),
-        velocity: 2 + Math.random() * 4
+        angle: (Math.PI * 2 / count) * i + (Math.random() * 0.5),
+        velocity: 2 + Math.random() * 4,
+        color
       });
     }
     setParticles(prev => [...prev, ...newParticles]);
@@ -71,6 +83,37 @@ const App: React.FC = () => {
     playSound('click');
     createParticles(e);
   };
+
+  // Konami Code Listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+      const targetKey = konamiCode[konamiIndex.current].toLowerCase();
+      
+      if (key === targetKey || e.key === konamiCode[konamiIndex.current]) {
+        konamiIndex.current++;
+        if (konamiIndex.current === konamiCode.length) {
+          setIsOverload(true);
+          playSound('secret');
+          setTimeout(() => setIsOverload(false), 5000);
+          konamiIndex.current = 0;
+        }
+      } else {
+        konamiIndex.current = 0;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [playSound]);
+
+  // Live Heartbeat for Specs - Wider range (16GB - 28GB)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Simulate server memory fluctuation between 16 and 28
+      setLiveMem(16 + (Math.random() * 12));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleFirstInteraction = () => {
@@ -87,70 +130,103 @@ const App: React.FC = () => {
         `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${LASTFM_API_KEY}&format=json&limit=1`
       );
       const data = await response.json();
-      
       if (data?.recenttracks?.track?.length > 0) {
         const latest = data.recenttracks.track[0];
-        const isNowPlaying = latest['@attr']?.nowplaying === 'true';
-        
         setTrack({
           name: latest.name,
           artist: latest.artist['#text'],
           album: latest.album['#text'],
-          image: latest.image[2]['#text'] || '', // Large image
-          nowPlaying: isNowPlaying,
+          image: latest.image[2]['#text'] || '',
+          nowPlaying: latest['@attr']?.nowplaying === 'true',
           url: latest.url,
           lastSeen: latest.date?.['#text'] || 'Recently'
         });
       }
-    } catch (error) {
-      console.error("Error fetching Last.fm:", error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
     fetchLastFm();
-    const interval = setInterval(fetchLastFm, 15000); // Check every 15 seconds
+    const interval = setInterval(fetchLastFm, 15000);
     return () => clearInterval(interval);
   }, []);
 
+  const handleHeaderClick = (e: React.MouseEvent) => {
+    setHeaderClicks(prev => {
+      const next = prev + 1;
+      if (next % 5 === 0) {
+        playSound('xp');
+        createParticles(e, 30, '#4ade80');
+      } else {
+        playSound('click');
+        createParticles(e, 5);
+      }
+      return next;
+    });
+  };
+
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6 relative z-10 py-4 px-2 md:px-6">
+    <div className={`max-w-[1400px] mx-auto space-y-6 relative z-10 py-4 px-2 md:px-6 transition-all duration-700 ${isOverload ? 'bg-red-950/40' : ''}`}>
       {/* Click Particles */}
       <div className="fixed inset-0 pointer-events-none z-[100]">
         {particles.map(p => (
           <div 
             key={p.id}
-            className="absolute w-1 h-1 bg-pink-300 shadow-[0_0_8px_#ffb7c5] animate-particle-fade"
-            style={{ left: p.x, top: p.y, '--angle': `${p.angle}rad`, '--vel': `${p.velocity * 50}px` } as any}
+            className="absolute w-1 h-1 shadow-[0_0_8px_currentColor] animate-particle-fade"
+            style={{ 
+              left: p.x, 
+              top: p.y, 
+              '--angle': `${p.angle}rad`, 
+              '--vel': `${p.velocity * 50}px`,
+              color: p.color || '#ffb7c5',
+              backgroundColor: 'currentColor'
+            } as any}
           />
         ))}
       </div>
 
-      <header className="dimden-panel p-6 flex items-center justify-between group">
-        <div className="flex items-center gap-5">
+      {isOverload && (
+        <div className="fixed inset-0 z-[200] pointer-events-none flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="text-red-500 terminal-font text-6xl animate-pulse text-center">
+            SYSTEM OVERLOAD<br/>
+            <span className="text-2xl opacity-50">BYPASSING SECURITY PROTOCOLS...</span>
+          </div>
+        </div>
+      )}
+
+      <header className="dimden-panel p-6 flex items-center justify-between group overflow-hidden">
+        {isOverload && <div className="absolute inset-0 bg-red-600/20 animate-flicker pointer-events-none" />}
+        <div className="flex items-center gap-5 relative z-10">
           <div 
             className="relative w-16 h-16 bg-pink-900/10 border border-pink-400/30 p-1 transition-all duration-500 group-hover:rotate-3 group-hover:scale-105 overflow-hidden cursor-crosshair shadow-lg"
             onMouseEnter={() => playSound('hover')}
           >
              <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
-                  className="w-full h-full object-cover" alt="pfp" />
+                  className={`w-full h-full object-cover transition-all ${isOverload ? 'sepia hue-rotate-180 brightness-150 scale-125' : ''}`} alt="pfp" />
           </div>
-          <div>
-            <h1 className="pixel-title text-xl md:text-2xl mb-1 transition-all group-hover:tracking-widest uppercase">KITSUYA.SPACE</h1>
+          <div className="cursor-pointer select-none" onClick={handleHeaderClick}>
+            <h1 className="pixel-title text-xl md:text-2xl mb-1 transition-all group-hover:tracking-widest uppercase flex items-center gap-2">
+              KITSUYA.SPACE
+              {headerClicks >= 25 && <Trophy size={16} className="text-yellow-400 animate-bounce" />}
+            </h1>
             <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full animate-pulse ${track?.nowPlaying ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-pink-400 shadow-[0_0_8px_#ffb7c5]'}`} />
+              <span className={`w-2 h-2 rounded-full animate-pulse ${isOverload ? 'bg-red-500 shadow-[0_0_8px_red]' : track?.nowPlaying ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-pink-400 shadow-[0_0_8px_#ffb7c5]'}`} />
               <p className="terminal-font text-pink-300 text-lg opacity-80 uppercase tracking-widest">~ root@kitsuya: /dev/minecraft</p>
             </div>
           </div>
         </div>
-        <div className="hidden lg:flex gap-8 border-l border-pink-400/10 pl-8">
+        <div className="hidden lg:flex gap-8 border-l border-pink-400/10 pl-8 relative z-10">
            <div className="flex flex-col items-center">
              <span className="text-[8px] text-pink-400 font-bold uppercase tracking-[0.2em] mb-1">MEM_ALLOC</span>
-             <span className="terminal-font text-pink-100 text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.4)]">28GB/28GB</span>
+             <span className={`terminal-font text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.4)] transition-all duration-500 ${isOverload ? 'text-red-500' : 'text-pink-100'}`}>
+              {liveMem.toFixed(2)}GB/28GB
+             </span>
            </div>
            <div className="flex flex-col items-center">
              <span className="text-[8px] text-pink-400 font-bold uppercase tracking-[0.2em] mb-1">TPS_SYNC</span>
-             <span className="terminal-font text-green-400 text-3xl drop-shadow-[0_0_8px_rgba(74,222,128,0.5)]">20.00</span>
+             <span className={`terminal-font text-3xl drop-shadow-[0_0_8px_rgba(74,222,128,0.5)] transition-colors duration-300 ${isOverload ? 'text-red-600 animate-pulse' : 'text-green-400'}`}>
+              {isOverload ? '0.00' : '20.00'}
+             </span>
            </div>
         </div>
       </header>
@@ -178,10 +254,10 @@ const App: React.FC = () => {
             </nav>
           </div>
 
-          <div className="dimden-panel p-4 overflow-hidden">
+          <div className="dimden-panel p-4 overflow-hidden group/id">
             <h3 className="pixel-title text-[8px] mb-4 border-b border-pink-400/20 pb-2 opacity-50 flex items-center justify-between">
               <span>ID_MODULE</span>
-              <User size={12} className="text-pink-300" />
+              <User size={12} className="text-pink-300 group-hover/id:scale-125 transition-transform" />
             </h3>
             <div className="terminal-font text-base space-y-1">
               <div className="flex justify-between items-center py-1">
@@ -189,17 +265,18 @@ const App: React.FC = () => {
                 <span className="text-pink-100 font-bold">Kit</span>
               </div>
               <div className="flex justify-between items-center py-1 border-t border-pink-400/5">
-                <span className="text-pink-400/50 uppercase">Age</span>
-                <span className="text-pink-100">20</span>
+                <span className="text-pink-400/50 uppercase">LVL</span>
+                <span className={`text-pink-100 font-bold transition-all ${headerClicks % 5 === 0 && headerClicks > 0 ? 'scale-150 text-green-400' : ''}`}>
+                  {Math.floor(headerClicks / 5)}
+                </span>
               </div>
               <div className="flex justify-between items-center py-1 border-t border-pink-400/5">
-                <span className="text-pink-400/50 uppercase">Prns</span>
+                <span className="text-pink-400/50 uppercase">PRNS</span>
                 <span className="text-pink-100 text-[10px]">They/Them</span>
               </div>
             </div>
           </div>
 
-          {/* Audio Log / Last.fm with User's Key */}
           <div className={`dimden-panel p-4 overflow-hidden group transition-all duration-500 ${track?.nowPlaying ? 'border-pink-300 ring-1 ring-pink-400/20' : 'border-pink-900/30'}`}>
             <h3 className="pixel-title text-[8px] mb-4 border-b border-pink-400/20 pb-2 opacity-50 flex items-center justify-between">
               <span>{track?.nowPlaying ? 'LIVE_AUDIO' : 'LAST_SCROBBLE'}</span>
@@ -339,29 +416,38 @@ const App: React.FC = () => {
              <div className="terminal-font space-y-4">
                 <div className="flex justify-between items-end border-b border-pink-400/10 pb-2">
                   <span className="text-pink-400/60 text-sm">UPTIME:</span> 
-                  <span className="text-pink-100 text-lg">99.9%</span>
+                  <span className={`text-pink-100 text-lg transition-colors ${isOverload ? 'text-red-600' : ''}`}>
+                    {isOverload ? '0.00%' : '99.9%'}
+                  </span>
                 </div>
                 <div className="flex gap-1 h-8 items-end">
                    {[40, 70, 30, 90, 50, 80, 20, 60, 45, 75, 55, 85].map((h, i) => (
-                     <div key={i} className="bg-pink-400/20 w-full hover:bg-pink-400 transition-all duration-300" style={{height: `${h}%`}} />
+                     <div key={i} className={`w-full transition-all duration-300 ${isOverload ? 'bg-red-600' : 'bg-pink-400/20 hover:bg-pink-400'}`} style={{height: `${isOverload ? Math.random() * 10 : h}%`}} />
                    ))}
                 </div>
              </div>
           </div>
 
-          <div className="dimden-panel p-4 overflow-hidden relative group/specs">
+          <div 
+            className="dimden-panel p-4 overflow-hidden relative group/specs"
+            onMouseEnter={() => playSound('hover')}
+          >
              <h3 className="pixel-title text-[8px] mb-4 border-b border-pink-400/20 pb-2 opacity-50 flex items-center justify-between">
                <span>GEAR_SPECS</span>
-               <Cpu size={12} className="text-pink-300" />
+               <Cpu size={12} className={`text-pink-300 transition-all ${isOverload ? 'text-red-500 animate-spin' : 'group-hover/specs:rotate-90'}`} />
              </h3>
              <div className="terminal-font space-y-1 relative z-10">
                 <div className="flex justify-between items-center py-1 group/item cursor-default">
                   <span className="text-pink-400/50 uppercase text-sm">CPU</span>
-                  <span className="text-pink-100 text-right">Epyc 7543P</span>
+                  <span className={`text-pink-100 text-right transition-colors ${isOverload ? 'text-red-400' : ''}`}>
+                    {isOverload ? 'ERR_HALT' : 'Epyc 7543P'}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-1 border-t border-pink-400/5">
                   <span className="text-pink-400/50 uppercase text-sm">MEM</span>
-                  <span className="text-pink-100 text-right">28GB DDR5</span>
+                  <span className={`text-pink-100 text-right transition-all duration-500 ${isOverload ? 'text-red-400' : ''}`}>
+                    {isOverload ? 'CRITICAL' : `${liveMem.toFixed(2)}GB / 28GB`}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-1 border-t border-pink-400/5">
                   <span className="text-pink-400/50 uppercase text-sm">SSD</span>
@@ -382,7 +468,7 @@ const App: React.FC = () => {
       </div>
 
       <footer className="py-20 text-center terminal-font text-pink-400/20 text-xl tracking-[0.5em] uppercase hover:text-pink-300/60 transition-all duration-700 cursor-default" onMouseEnter={() => playSound('hover')} onClick={handleLinkClick}>
-        ~ 2026 - the end of time ~
+        {isOverload ? 'OVERLOAD_DETECTED - HALT' : '~ 2026 - the end of time ~'}
       </footer>
     </div>
   );
