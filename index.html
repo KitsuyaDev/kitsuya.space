@@ -33,6 +33,20 @@
             --accent-cherry: #d00045;
         }
 
+        /* Performance Mode Global Fixes */
+        body.performance-mode .glow-blob {
+            animation: none !important;
+            opacity: 0.1 !important;
+        }
+        body.performance-mode .grid-layer {
+            animation: none !important;
+            transform: none !important;
+        }
+        body.performance-mode * {
+            animation-duration: 0s !important;
+            transition-duration: 0.1s !important;
+        }
+
         @keyframes scan {
             0% { top: -10%; }
             100% { top: 110%; }
