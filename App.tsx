@@ -5,7 +5,7 @@ import {
   Cloud, Monitor, Heart, Zap, Music, User,
   Cpu, Terminal, ExternalLink, ShieldCheck,
   AlertCircle, Disc, Clock, Play, Trophy,
-  List, Layout
+  List, Layout, Coffee
 } from 'lucide-react';
 
 // Using your provided "Stats spice" Last.fm API Key
@@ -180,40 +180,50 @@ const App: React.FC = () => {
         ))}
       </div>
 
-      <header className="dimden-panel p-6 flex items-center justify-between group overflow-hidden">
-        {isOverload && <div className="absolute inset-0 bg-red-600/20 animate-flicker pointer-events-none" />}
-        <div className="flex items-center gap-5 relative z-10">
-          <div 
-            className="relative w-16 h-16 bg-pink-900/10 border border-pink-400/30 p-1 transition-all duration-500 group-hover:rotate-3 group-hover:scale-105 overflow-hidden cursor-crosshair shadow-lg"
-            onMouseEnter={() => playSound('hover')}
-          >
-             <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
-                  className={`w-full h-full object-cover transition-all ${isOverload ? 'sepia hue-rotate-180 brightness-150 scale-125' : ''}`} alt="pfp" />
-          </div>
-          <div className="cursor-pointer select-none" onClick={handleHeaderClick}>
-            <h1 className="pixel-title text-xl md:text-2xl mb-1 transition-all group-hover:tracking-widest uppercase flex items-center gap-2">
-              KITSUYA.SPACE
-              {headerClicks >= 50 && <Trophy size={16} className="text-yellow-400 animate-bounce" />}
-            </h1>
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full animate-pulse ${isOverload ? 'bg-red-500 shadow-[0_0_8px_red]' : track?.nowPlaying ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-pink-400 shadow-[0_0_8px_#ffb7c5]'}`} />
-              <p className="terminal-font text-pink-300 text-lg opacity-80 uppercase tracking-widest">~ root@kitsuya: /dev/minecraft</p>
+      <header className="dimden-panel p-0 overflow-hidden group border-pink-400/30">
+        <div className="bg-pink-900/20 p-2 border-b border-pink-400/10 flex items-center justify-between">
+          <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-widest flex items-center gap-2">
+            <Coffee size={10} /> Me :3
+          </h3>
+          <Layout size={10} className="text-pink-400/50" />
+        </div>
+        <div className="p-6 flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
+          {isOverload && <div className="absolute inset-0 bg-red-600/20 animate-flicker pointer-events-none" />}
+          
+          <div className="flex items-center gap-5 relative z-10">
+            <div 
+              className="relative w-16 h-16 bg-pink-900/10 border border-pink-400/30 p-1 transition-all duration-500 group-hover:rotate-3 group-hover:scale-105 overflow-hidden cursor-crosshair shadow-lg shrink-0"
+              onMouseEnter={() => playSound('hover')}
+            >
+               <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
+                    className={`w-full h-full object-cover transition-all ${isOverload ? 'sepia hue-rotate-180 brightness-150 scale-125' : ''}`} alt="pfp" />
+            </div>
+            <div className="cursor-pointer select-none" onClick={handleHeaderClick}>
+              <h1 className="pixel-title text-xl md:text-2xl mb-1 transition-all group-hover:tracking-widest uppercase flex items-center gap-2">
+                KITSUYA.SPACE
+                {headerClicks >= 50 && <Trophy size={16} className="text-yellow-400 animate-bounce" />}
+              </h1>
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full animate-pulse ${isOverload ? 'bg-red-500 shadow-[0_0_8px_red]' : track?.nowPlaying ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-pink-400 shadow-[0_0_8px_#ffb7c5]'}`} />
+                <p className="terminal-font text-pink-300 text-lg opacity-80 uppercase tracking-widest">~ root@kitsuya: /dev/minecraft</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="hidden lg:flex gap-8 border-l border-pink-400/10 pl-8 relative z-10">
-           <div className="flex flex-col items-center">
-             <span className="text-[8px] text-pink-400 font-bold uppercase tracking-[0.2em] mb-1">MEM_ALLOC</span>
-             <span className={`terminal-font text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.4)] transition-all duration-500 ${isOverload ? 'text-red-500' : 'text-pink-100'}`}>
-              {liveMem.toFixed(2)}GB/28GB
-             </span>
-           </div>
-           <div className="flex flex-col items-center">
-             <span className="text-[8px] text-pink-400 font-bold uppercase tracking-[0.2em] mb-1">TPS_SYNC</span>
-             <span className={`terminal-font text-3xl drop-shadow-[0_0_8px_rgba(74,222,128,0.5)] transition-colors duration-300 ${isOverload ? 'text-red-600 animate-pulse' : 'text-green-400'}`}>
-              {isOverload ? '0.00' : '20.00'}
-             </span>
-           </div>
+
+          <div className="hidden lg:flex gap-8 border-l border-pink-400/10 pl-8 relative z-10">
+             <div className="flex flex-col items-center">
+               <span className="text-[8px] text-pink-400 font-bold uppercase tracking-[0.2em] mb-1">MEM_ALLOC</span>
+               <span className={`terminal-font text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.4)] transition-all duration-500 ${isOverload ? 'text-red-500' : 'text-pink-100'}`}>
+                {liveMem.toFixed(2)}GB/28GB
+               </span>
+             </div>
+             <div className="flex flex-col items-center">
+               <span className="text-[8px] text-pink-400 font-bold uppercase tracking-[0.2em] mb-1">TPS_SYNC</span>
+               <span className={`terminal-font text-3xl drop-shadow-[0_0_8px_rgba(74,222,128,0.5)] transition-colors duration-300 ${isOverload ? 'text-red-600 animate-pulse' : 'text-green-400'}`}>
+                {isOverload ? '0.00' : '20.00'}
+               </span>
+             </div>
+          </div>
         </div>
       </header>
 
