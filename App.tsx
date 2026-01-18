@@ -5,7 +5,8 @@ import {
   Cloud, Monitor, Heart, Zap, Music, User,
   Cpu, HardDrive, Terminal,
   ExternalLink, ShieldCheck,
-  AlertCircle, Disc, Clock, Play, Trophy
+  AlertCircle, Disc, Clock, Play, Trophy,
+  Star
 } from 'lucide-react';
 
 // Using your provided "Stats spice" Last.fm API Key
@@ -106,10 +107,9 @@ const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [playSound]);
 
-  // Live Heartbeat for Specs - Wider range (16GB - 28GB)
+  // Live Heartbeat for Specs
   useEffect(() => {
     const interval = setInterval(() => {
-      // Simulate server memory fluctuation between 16 and 28
       setLiveMem(16 + (Math.random() * 12));
     }, 3000);
     return () => clearInterval(interval);
@@ -154,7 +154,7 @@ const App: React.FC = () => {
   const handleHeaderClick = (e: React.MouseEvent) => {
     setHeaderClicks(prev => {
       const next = prev + 1;
-      if (next % 5 === 0) {
+      if (next > 0 && next % 5 === 0) {
         playSound('xp');
         createParticles(e, 30, '#4ade80');
       } else {
@@ -184,15 +184,6 @@ const App: React.FC = () => {
           />
         ))}
       </div>
-
-      {isOverload && (
-        <div className="fixed inset-0 z-[200] pointer-events-none flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="text-red-500 terminal-font text-6xl animate-pulse text-center">
-            SYSTEM OVERLOAD<br/>
-            <span className="text-2xl opacity-50">BYPASSING SECURITY PROTOCOLS...</span>
-          </div>
-        </div>
-      )}
 
       <header className="dimden-panel p-6 flex items-center justify-between group overflow-hidden">
         {isOverload && <div className="absolute inset-0 bg-red-600/20 animate-flicker pointer-events-none" />}
@@ -254,26 +245,66 @@ const App: React.FC = () => {
             </nav>
           </div>
 
-          <div className="dimden-panel p-4 overflow-hidden group/id">
+          <div className="dimden-panel p-5 overflow-hidden group/id relative">
             <h3 className="pixel-title text-[8px] mb-4 border-b border-pink-400/20 pb-2 opacity-50 flex items-center justify-between">
               <span>ID_MODULE</span>
-              <User size={12} className="text-pink-300 group-hover/id:scale-125 transition-transform" />
+              <Heart size={12} className="text-pink-300 group-hover/id:scale-125 transition-transform" />
             </h3>
-            <div className="terminal-font text-base space-y-1">
-              <div className="flex justify-between items-center py-1">
-                <span className="text-pink-400/50 uppercase">Name</span>
-                <span className="text-pink-100 font-bold">Kit</span>
+            
+            <div className="text-center terminal-font text-pink-300/40 text-[10px] mb-2 tracking-widest">
+              ***•┈┈┈•✦ ♡ ✦•┈┈┈•***
+            </div>
+
+            <div className="terminal-font text-lg space-y-2 px-1">
+              <div className="flex items-center gap-2 group/line">
+                <span className="text-pink-400 drop-shadow-[0_0_5px_currentColor]">♡</span>
+                <span className="italic text-pink-300/60 font-bold">Name:</span>
+                <span className="text-pink-100 ml-auto">Kit</span>
               </div>
-              <div className="flex justify-between items-center py-1 border-t border-pink-400/5">
-                <span className="text-pink-400/50 uppercase">LVL</span>
-                <span className={`text-pink-100 font-bold transition-all ${headerClicks % 5 === 0 && headerClicks > 0 ? 'scale-150 text-green-400' : ''}`}>
-                  {Math.floor(headerClicks / 5)}
+              <div className="flex items-center gap-2 group/line">
+                <span className="text-pink-400 drop-shadow-[0_0_5px_currentColor]">♡</span>
+                <span className="italic text-pink-300/60 font-bold">Age:</span>
+                <span className="text-pink-100 ml-auto">20</span>
+              </div>
+              <div className="flex items-center gap-2 group/line">
+                <span className="text-pink-400 drop-shadow-[0_0_5px_currentColor]">♡</span>
+                <span className="italic text-pink-300/60 font-bold">Pronouns:</span>
+                <span className="text-pink-100 ml-auto text-sm">They/Them</span>
+              </div>
+              <div className="flex items-center gap-2 group/line">
+                <span className="text-pink-400 drop-shadow-[0_0_5px_currentColor]">♡</span>
+                <span className="italic text-pink-300/60 font-bold">Time-zone:</span>
+                <span className="text-pink-100 ml-auto">GMT</span>
+              </div>
+              <div className="flex flex-col gap-1 mt-3 border-t border-pink-400/10 pt-2">
+                <div className="flex items-center gap-2">
+                   <span className="text-pink-400 drop-shadow-[0_0_5px_currentColor]">♡</span>
+                   <span className="italic text-pink-300/60 font-bold">Quote:</span>
+                </div>
+                <span className="text-pink-100/90 italic text-sm text-center bg-pink-900/10 py-1 border border-pink-400/5 rounded">
+                  "someday i'll get it"
                 </span>
               </div>
-              <div className="flex justify-between items-center py-1 border-t border-pink-400/5">
-                <span className="text-pink-400/50 uppercase">PRNS</span>
-                <span className="text-pink-100 text-[10px]">They/Them</span>
-              </div>
+            </div>
+
+            <div className="text-center terminal-font text-pink-300/40 text-[10px] mt-4 tracking-widest">
+              ***•┈┈┈•✦ ♡ ✦•┈┈┈•***
+            </div>
+
+            {/* Exp system overlayed elegantly */}
+            <div className="mt-4 flex flex-col gap-1">
+               <div className="flex justify-between items-center text-[10px] uppercase tracking-tighter text-pink-400/60 font-bold px-1">
+                  <span>Power LVL</span>
+                  <span className={`transition-all duration-300 ${headerClicks % 5 === 0 && headerClicks > 0 ? 'scale-150 text-green-400' : ''}`}>
+                    {Math.floor(headerClicks / 5)}
+                  </span>
+               </div>
+               <div className="w-full bg-pink-950/40 h-1 overflow-hidden rounded-full border border-pink-400/10">
+                  <div 
+                    className="bg-pink-400 h-full transition-all duration-500 shadow-[0_0_8px_rgba(255,183,197,0.5)]"
+                    style={{ width: `${(headerClicks % 5) * 20}%` }}
+                  />
+               </div>
             </div>
           </div>
 
@@ -333,12 +364,6 @@ const App: React.FC = () => {
                 Polling signal...
               </div>
             )}
-            <style>{`
-              @keyframes equalizer {
-                0%, 100% { height: 2px; }
-                50% { height: 12px; }
-              }
-            `}</style>
           </div>
         </aside>
 
