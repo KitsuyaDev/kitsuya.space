@@ -19,6 +19,7 @@
             --panel-bg: rgba(12, 5, 9, 0.85);
             --glow-color: rgba(255, 183, 197, 0.25);
             --accent-cherry: #ffb7c5;
+            --rainbow-speed: 5s;
         }
 
         body.light-mode {
@@ -32,6 +33,39 @@
             --panel-bg: rgba(255, 255, 255, 0.85);
             --glow-color: rgba(255, 0, 85, 0.1);
             --accent-cherry: #ff0055;
+        }
+
+        @keyframes rainbow-text {
+            0% { color: #ff0000; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
+            20% { color: #ff8800; text-shadow: 0 0 10px rgba(255,136,0,0.5); }
+            40% { color: #ffff00; text-shadow: 0 0 10px rgba(255,255,0,0.5); }
+            60% { color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
+            80% { color: #0088ff; text-shadow: 0 0 10px rgba(0,136,255,0.5); }
+            100% { color: #ff00ff; text-shadow: 0 0 10px rgba(255,0,255,0.5); }
+        }
+
+        @keyframes rainbow-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body.rainbow-mode {
+            --sakura-main: white;
+            --border-color: rgba(255, 255, 255, 0.2);
+            --accent-cherry: #ffffff;
+        }
+
+        body.rainbow-mode .pixel-title,
+        body.rainbow-mode .terminal-font.text-3xl,
+        body.rainbow-mode .terminal-font.text-4xl {
+            animation: rainbow-text var(--rainbow-speed) infinite alternate linear;
+            color: white !important;
+        }
+
+        body.rainbow-mode .dimden-panel {
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
         }
 
         body {
@@ -81,6 +115,10 @@
         }
         .light-mode .glow-blob {
             opacity: 0.08;
+        }
+        .rainbow-mode .glow-blob {
+            opacity: 0.3;
+            filter: blur(120px);
         }
 
         @keyframes drift {
@@ -264,9 +302,9 @@
 </head>
 <body class="p-2 sm:p-4 md:p-8">
     <!-- Ambient Layers -->
-    <div class="nebula">
-        <div class="glow-blob" style="width: 700px; height: 700px; background: #ffb7c5; top: -15%; left: -10%;"></div>
-        <div class="glow-blob" style="width: 600px; height: 600px; background: #7c3aed; bottom: -15%; right: -5%; animation-delay: -7s;"></div>
+    <div class="nebula" id="nebula">
+        <div class="glow-blob" id="blob-1" style="width: 700px; height: 700px; background: #ffb7c5; top: -15%; left: -10%;"></div>
+        <div class="glow-blob" id="blob-2" style="width: 600px; height: 600px; background: #7c3aed; bottom: -15%; right: -5%; animation-delay: -7s;"></div>
     </div>
     <div class="grid-layer" id="grid"></div>
     <div id="mouse-glow"></div>
@@ -278,6 +316,8 @@
         const glow = document.getElementById('mouse-glow');
         const grid = document.getElementById('grid');
         const debrisContainer = document.getElementById('debris');
+        const blob1 = document.getElementById('blob-1');
+        const blob2 = document.getElementById('blob-2');
 
         document.addEventListener('mousemove', (e) => {
             if (document.body.classList.contains('performance-mode')) return;

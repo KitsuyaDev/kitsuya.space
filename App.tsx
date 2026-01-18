@@ -37,6 +37,7 @@ const App: React.FC = () => {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [isOverload, setIsOverload] = useState(false);
+  const [rainbowMode, setRainbowMode] = useState(false);
   const [headerClicks, setHeaderClicks] = useState(0);
   const [liveMem, setLiveMem] = useState(24.50);
   const [performanceMode, setPerformanceMode] = useState(false);
@@ -46,8 +47,11 @@ const App: React.FC = () => {
   const particleIdCounter = useRef(0);
   const konamiIndex = useRef(0);
   const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+  
+  const rainbowInput = useRef("");
 
   const togglePerformance = () => {
+    // performanceMode = true means FX are DISABLED
     setPerformanceMode(!performanceMode);
     document.body.classList.toggle('performance-mode');
     playSound('click');
@@ -56,21 +60,23 @@ const App: React.FC = () => {
   const toggleLightMode = () => {
     setLightMode(!lightMode);
     document.body.classList.toggle('light-mode');
-    playSound('xp');
+    playSound('click'); 
   };
 
-  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'secret') => {
+  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'secret' | 'rainbow') => {
     if (!hasInteracted) return;
     try {
       const audio = new Audio();
       const sources = {
         hover: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
         click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
-        xp: 'https://www.myinstants.com/media/sounds/levelup.mp3',
-        secret: 'https://assets.mixkit.co/active_storage/sfx/2534/2534-preview.mp3'
+        // Minecraft XP Orb pickup sound
+        xp: 'https://files.catbox.moe/9f5iia.mp3', 
+        secret: 'https://assets.mixkit.co/active_storage/sfx/2534/2534-preview.mp3',
+        rainbow: 'https://www.myinstants.com/media/sounds/shooting-stars-meme.mp3'
       };
       audio.src = sources[type as keyof typeof sources];
-      audio.volume = type === 'hover' ? 0.04 : 0.12;
+      audio.volume = type === 'hover' ? 0.04 : (type === 'rainbow' ? 0.2 : 0.25);
       audio.play().catch(() => {});
     } catch (e) {}
   }, [hasInteracted]);
@@ -87,7 +93,7 @@ const App: React.FC = () => {
         y: centerY,
         angle: (Math.PI * 2 / count) * i + (Math.random() * 0.5),
         velocity: 2 + Math.random() * 4,
-        color
+        color: rainbowMode ? `hsl(${Math.random() * 360}, 100%, 70%)` : color
       });
     }
     setParticles(prev => [...prev, ...newParticles]);
@@ -104,6 +110,18 @@ const App: React.FC = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
+      
+      // Rainbow trigger
+      rainbowInput.current += key;
+      if (rainbowInput.current.endsWith("rainbow")) {
+        setRainbowMode(prev => !prev);
+        playSound('rainbow');
+        rainbowInput.current = "";
+      } else if (rainbowInput.current.length > 20) {
+        rainbowInput.current = rainbowInput.current.slice(-10);
+      }
+
+      // Konami
       const targetKey = konamiCode[konamiIndex.current].toLowerCase();
       if (key === targetKey || e.key === konamiCode[konamiIndex.current]) {
         konamiIndex.current++;
@@ -120,6 +138,31 @@ const App: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [playSound]);
+
+  useEffect(() => {
+    document.body.classList.toggle('rainbow-mode', rainbowMode);
+    
+    // Animate background blobs in rainbow mode
+    let hue = 0;
+    let frame: number;
+    const blob1 = document.getElementById('blob-1');
+    const blob2 = document.getElementById('blob-2');
+    
+    if (rainbowMode && blob1 && blob2) {
+      const animate = () => {
+        hue = (hue + 1) % 360;
+        blob1.style.backgroundColor = `hsl(${hue}, 80%, 60%)`;
+        blob2.style.backgroundColor = `hsl(${(hue + 180) % 360}, 80%, 60%)`;
+        frame = requestAnimationFrame(animate);
+      };
+      animate();
+    } else if (blob1 && blob2) {
+      blob1.style.backgroundColor = lightMode ? '#ff0055' : '#ffb7c5';
+      blob2.style.backgroundColor = '#7c3aed';
+    }
+
+    return () => cancelAnimationFrame(frame);
+  }, [rainbowMode, lightMode]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -168,7 +211,7 @@ const App: React.FC = () => {
     setHeaderClicks(prev => {
       const next = prev + 1;
       if (next > 0 && next % 10 === 0) {
-        playSound('xp');
+        playSound('xp'); 
         createParticles(e, 30, lightMode ? '#ff0055' : '#4ade80');
       } else {
         playSound('click');
@@ -187,16 +230,17 @@ const App: React.FC = () => {
           <div className="dimden-panel p-4 w-56 space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
             <h4 className="pixel-title text-[8px] opacity-70 border-b border-pink-400/10 pb-2 mb-2 uppercase">Configuration</h4>
             
+            {/* performanceMode = false means FX is ON. Switch should be right-aligned/colored when FX is ON */}
             <button 
               onClick={togglePerformance}
-              className={`w-full flex items-center justify-between p-2 rounded terminal-font text-base transition-colors ${performanceMode ? 'bg-pink-500/20 text-pink-200' : 'hover:bg-pink-500/10 text-pink-400/60'}`}
+              className={`w-full flex items-center justify-between p-2 rounded terminal-font text-base transition-colors ${!performanceMode ? 'bg-pink-500/20 text-pink-200' : 'hover:bg-pink-500/10 text-pink-400/60'}`}
             >
               <div className="flex items-center gap-2">
                 <CpuIcon size={14} />
                 <span>FX: {performanceMode ? 'OFF' : 'ON'}</span>
               </div>
-              <div className={`w-8 h-4 rounded-full p-0.5 border border-pink-400/30 transition-colors ${performanceMode ? 'bg-pink-500' : 'bg-transparent'}`}>
-                <div className={`w-2.5 h-2.5 rounded-full bg-white transition-transform ${performanceMode ? 'translate-x-4' : 'translate-x-0'}`} />
+              <div className={`w-8 h-4 rounded-full p-0.5 border border-pink-400/30 transition-colors ${!performanceMode ? 'bg-pink-500' : 'bg-transparent'}`}>
+                <div className={`w-2.5 h-2.5 rounded-full bg-white transition-transform ${!performanceMode ? 'translate-x-4' : 'translate-x-0'}`} />
               </div>
             </button>
 
@@ -212,6 +256,12 @@ const App: React.FC = () => {
                 <div className={`w-2.5 h-2.5 rounded-full bg-white transition-transform ${lightMode ? 'translate-x-4' : 'translate-x-0'}`} />
               </div>
             </button>
+            
+            {rainbowMode && (
+              <div className="text-[10px] terminal-font text-center text-white/50 animate-pulse tracking-widest uppercase">
+                Rainbow Protocol Active
+              </div>
+            )}
           </div>
         )}
         
@@ -240,7 +290,7 @@ const App: React.FC = () => {
         ))}
       </div>
 
-      <header className="dimden-panel p-0 overflow-hidden group border-pink-400/20 hover:border-pink-400/40">
+      <header className={`dimden-panel p-0 overflow-hidden group border-pink-400/20 hover:border-pink-400/40 ${rainbowMode ? 'shadow-[0_0_30px_rgba(255,255,255,0.1)]' : ''}`}>
         <div className="bg-pink-900/10 p-2 border-b border-pink-400/10 flex items-center justify-between">
           <h3 className="pixel-title text-[7px] opacity-70 uppercase tracking-[0.2em] flex items-center gap-2">
             <Coffee size={10} className="text-pink-300" /> Me :3
@@ -256,7 +306,7 @@ const App: React.FC = () => {
               onMouseEnter={() => playSound('hover')}
             >
                <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
-                    className={`w-full h-full object-cover transition-all duration-700 rounded-full drop-shadow-[0_0_10px_rgba(255,183,197,0.3)] ${isOverload ? 'sepia hue-rotate-180 brightness-150 scale-125' : ''}`} alt="pfp" />
+                    className={`w-full h-full object-cover transition-all duration-700 rounded-full drop-shadow-[0_0_10px_rgba(255,183,197,0.3)] ${isOverload ? 'sepia hue-rotate-180 brightness-150 scale-125' : ''} ${rainbowMode ? 'brightness-125' : ''}`} alt="pfp" />
             </div>
             <div className="cursor-pointer select-none" onClick={handleHeaderClick}>
               <h1 className="pixel-title text-xl sm:text-2xl md:text-3xl mb-2 transition-all md:group-hover:tracking-[0.15em] uppercase flex items-center justify-center sm:justify-start gap-3">
@@ -268,20 +318,20 @@ const App: React.FC = () => {
                   <span className={`w-2.5 h-2.5 rounded-full ${isOverload ? 'bg-red-500' : track?.nowPlaying ? (lightMode ? 'bg-pink-600' : 'bg-green-400') : 'bg-pink-400'}`} />
                   {!performanceMode && <span className={`absolute w-4 h-4 rounded-full animate-ping opacity-75 ${isOverload ? 'bg-red-500' : track?.nowPlaying ? (lightMode ? 'bg-pink-600' : 'bg-green-400') : 'bg-pink-400'}`} />}
                 </div>
-                <p className={`terminal-font text-lg sm:text-xl opacity-70 uppercase tracking-widest ${lightMode ? 'text-pink-600' : 'text-pink-300'}`}>~ root@kitsuya: /dev/minecraft</p>
+                <p className={`terminal-font text-lg sm:text-xl opacity-70 uppercase tracking-widest ${lightMode ? 'text-pink-600' : 'text-pink-300'} ${rainbowMode ? 'text-white' : ''}`}>~ root@kitsuya: /dev/minecraft</p>
               </div>
             </div>
           </div>
 
           <div className="flex md:flex lg:flex gap-6 sm:gap-12 md:border-l border-pink-400/10 md:pl-8 lg:pl-12 relative z-10">
              <div className="flex flex-col items-center group/stat">
-               <span className="text-[8px] text-pink-400/60 font-bold uppercase tracking-[0.3em] mb-1 md:mb-2">MEM_ALLOC</span>
+               <span className="text-pink-400/60 font-bold uppercase tracking-[0.3em] mb-1 md:mb-2" style={{fontSize: '8px'}}>MEM_ALLOC</span>
                <span className={`terminal-font text-xl sm:text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-all duration-700 ${isOverload ? 'text-red-500' : (lightMode ? 'text-pink-700' : 'text-pink-50')}`}>
                 {liveMem.toFixed(2)}GB <span className="text-pink-400/30 text-xs sm:text-sm">/ 28GB</span>
                </span>
              </div>
              <div className="flex flex-col items-center group/stat">
-               <span className="text-[8px] text-pink-400/60 font-bold uppercase tracking-[0.3em] mb-1 md:mb-2">TPS_SYNC</span>
+               <span className="text-pink-400/60 font-bold uppercase tracking-[0.3em] mb-1 md:mb-2" style={{fontSize: '8px'}}>TPS_SYNC</span>
                <span className={`terminal-font text-3xl sm:text-4xl drop-shadow-[0_0_12px_rgba(74,222,128,0.3)] transition-colors duration-500 ${isOverload ? 'text-red-600 animate-pulse' : (lightMode ? 'text-pink-600' : 'text-green-400')}`}>
                 {isOverload ? '0.00' : '20.00'}
                </span>
@@ -326,7 +376,7 @@ const App: React.FC = () => {
                 ].map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center py-2 border-b border-pink-400/5 last:border-0 hover:bg-pink-400/5 transition-colors px-2 rounded">
                     <span className="terminal-font text-pink-400/40 text-base uppercase tracking-widest">{item.label}:</span>
-                    <span className={`terminal-font text-xl sm:text-2xl tracking-wider ${lightMode ? 'text-pink-700' : 'text-pink-100'}`}>{item.value}</span>
+                    <span className={`terminal-font text-xl sm:text-2xl tracking-wider ${lightMode ? 'text-pink-700' : 'text-pink-100'} ${rainbowMode ? 'text-white' : ''}`}>{item.value}</span>
                   </div>
                 ))}
             </div>
@@ -359,7 +409,7 @@ const App: React.FC = () => {
                       {!performanceMode && track.nowPlaying && <div className="absolute inset-0 bg-pink-400/10 animate-pulse pointer-events-none" />}
                     </div>
                     <div className="terminal-font overflow-hidden flex flex-col justify-center gap-1">
-                      <div className={`text-lg sm:text-xl truncate leading-tight group-hover/track:text-pink-600 transition-colors ${lightMode ? 'text-pink-900' : 'text-pink-100'}`}>
+                      <div className={`text-lg sm:text-xl truncate leading-tight group-hover/track:text-pink-600 transition-colors ${lightMode ? 'text-pink-900' : 'text-pink-100'} ${rainbowMode ? 'text-white' : ''}`}>
                         {track.name}
                       </div>
                       <div className="text-pink-400/50 text-sm sm:text-base truncate uppercase tracking-tighter">
@@ -397,7 +447,7 @@ const App: React.FC = () => {
               <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none transition-opacity duration-700">
                 <Terminal size={240} className="text-pink-200" />
               </div>
-              <div className={`terminal-font text-xl sm:text-2xl md:text-3xl leading-relaxed space-y-6 md:space-y-10 relative z-10 ${lightMode ? 'text-pink-900' : 'text-pink-50'}`}>
+              <div className={`terminal-font text-xl sm:text-2xl md:text-3xl leading-relaxed space-y-6 md:space-y-10 relative z-10 ${lightMode ? 'text-pink-900' : 'text-pink-50'} ${rainbowMode ? 'text-white' : ''}`}>
                 <p className="md:hover:translate-x-2 transition-transform duration-500">
                   my work revolves around <span className="text-pink-500 md:text-pink-300 font-bold decoration-dotted underline underline-offset-8 drop-shadow-[0_0_10px_rgba(255,183,197,0.3)]">server optimisation</span>, 
                   debloating and debugging. 
@@ -426,10 +476,10 @@ const App: React.FC = () => {
                 </div>
                 <div className="flex-1 text-center sm:text-left">
                   <div className="flex flex-col sm:flex-row sm:items-baseline gap-3 mb-3">
-                    <h3 className={`terminal-font text-2xl sm:text-3xl uppercase tracking-widest ${lightMode ? 'text-pink-600' : 'text-white'}`}>Pyro</h3>
+                    <h3 className={`terminal-font text-2xl sm:text-3xl uppercase tracking-widest ${lightMode ? 'text-pink-600' : 'text-white'} ${rainbowMode ? 'text-white' : ''}`}>Pyro</h3>
                     <span className="text-[10px] terminal-font text-pink-400/40 hidden sm:inline tracking-[0.2em]">[ STATUS: OPTIMAL ]</span>
                   </div>
-                  <p className={`terminal-font text-base sm:text-lg leading-snug mb-6 max-w-lg ${lightMode ? 'text-pink-800/70' : 'text-pink-200/60'}`}>
+                  <p className={`terminal-font text-base sm:text-lg leading-snug mb-6 max-w-lg ${lightMode ? 'text-pink-800/70' : 'text-pink-200/60'} ${rainbowMode ? 'text-white/60' : ''}`}>
                     Superior performance for modded Minecraft. Enterprise-grade hardware and global low-latency nodes.
                   </p>
                   <div className="flex flex-wrap justify-center sm:justify-start gap-4">
@@ -442,7 +492,7 @@ const App: React.FC = () => {
               </div>
               <div className="bg-pink-900/5 border border-pink-400/10 p-4 flex items-start gap-4 rounded-lg">
                  <AlertCircle size={16} className="text-pink-400/50 mt-1 shrink-0" />
-                 <p className="terminal-font text-pink-300/50 text-xs sm:text-sm leading-relaxed tracking-wide">
+                 <p className={`terminal-font text-pink-300/50 text-xs sm:text-sm leading-relaxed tracking-wide ${rainbowMode ? 'text-white/30' : ''}`}>
                   This is the only server host I recommend. I am not directly partnered with them, but if you would like to support me, you can use the affiliate link above.
                  </p>
               </div>
@@ -460,13 +510,13 @@ const App: React.FC = () => {
              <div className="p-4 sm:p-5 terminal-font space-y-5">
                 <div className="flex justify-between items-end border-b border-pink-400/10 pb-3">
                   <span className="text-pink-400/50 text-base tracking-widest uppercase">UPTIME:</span> 
-                  <span className={`text-xl sm:text-2xl transition-colors ${isOverload ? 'text-red-600' : (lightMode ? 'text-pink-600' : 'text-pink-100')}`}>
+                  <span className={`text-xl sm:text-2xl transition-colors ${isOverload ? 'text-red-600' : (lightMode ? 'text-pink-600' : 'text-pink-100')} ${rainbowMode ? 'text-white' : ''}`}>
                     {isOverload ? '0.00%' : '99.9%'}
                   </span>
                 </div>
                 <div className="flex gap-1 h-12 items-end">
                    {[40, 70, 30, 90, 50, 80, 20, 60, 45, 75, 55, 85].map((h, i) => (
-                     <div key={i} className={`w-full transition-all duration-700 rounded-t-sm ${isOverload ? 'bg-red-600' : 'bg-pink-400/15 hover:bg-pink-500'}`} style={{height: `${isOverload ? Math.random() * 15 : h}%`}} />
+                     <div key={i} className={`w-full transition-all duration-700 rounded-t-sm ${isOverload ? 'bg-red-600' : 'bg-pink-400/15 hover:bg-pink-500'} ${rainbowMode ? 'bg-white/10 hover:bg-white' : ''}`} style={{height: `${isOverload ? Math.random() * 15 : h}%`}} />
                    ))}
                 </div>
              </div>
@@ -486,7 +536,7 @@ const App: React.FC = () => {
                 ].map((spec, idx) => (
                   <div key={idx} className="flex justify-between items-center py-2 border-b border-pink-400/5 last:border-0 hover:bg-white/5 transition-colors px-2 rounded">
                     <span className="text-pink-400/40 uppercase text-xs sm:text-sm tracking-[0.2em]">{spec.label}</span>
-                    <span className={`text-right text-base sm:text-lg transition-colors duration-500 ${isOverload ? 'text-red-400' : (lightMode ? 'text-pink-700' : 'text-pink-100')}`}>
+                    <span className={`text-right text-base sm:text-lg transition-colors duration-500 ${isOverload ? 'text-red-400' : (lightMode ? 'text-pink-700' : 'text-pink-100')} ${rainbowMode ? 'text-white' : ''}`}>
                       {isOverload ? spec.overload : spec.value}
                     </span>
                   </div>
@@ -502,7 +552,7 @@ const App: React.FC = () => {
         </aside>
       </div>
 
-      <footer className="py-16 sm:py-24 text-center terminal-font text-pink-400/15 text-xl sm:text-2xl tracking-[0.6em] uppercase hover:text-pink-300/50 transition-all duration-1000 cursor-default select-none" onMouseEnter={() => playSound('hover')} onClick={handleLinkClick}>
+      <footer className={`py-16 sm:py-24 text-center terminal-font text-pink-400/15 text-xl sm:text-2xl tracking-[0.6em] uppercase hover:text-pink-300/50 transition-all duration-1000 cursor-default select-none ${rainbowMode ? 'text-white/10' : ''}`} onMouseEnter={() => playSound('hover')} onClick={handleLinkClick}>
         {isOverload ? 'SYSTEM_OVERLOAD_HALT' : '~ 2026 - the end of time ~'}
       </footer>
     </div>
