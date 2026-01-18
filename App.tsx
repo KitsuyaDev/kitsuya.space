@@ -364,23 +364,19 @@ const App: React.FC = () => {
             <div className="p-6">
               <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
                 <div className="w-20 h-20 bg-pink-900/20 border border-pink-400/20 p-1 group-hover/hosting:rotate-3 transition-all">
-                  <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className="w-full h-full object-cover grayscale brightness-125 group-hover/hosting:grayscale-0 transition-all" alt="Pyro Hosting" />
+                  <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className="w-full h-full object-cover grayscale brightness-125 group-hover/hosting:grayscale-0 transition-all" alt="Pyro" />
                 </div>
                 <div className="flex-1 text-center sm:text-left">
                   <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-2">
-                    <h3 className="terminal-font text-2xl text-pink-100 uppercase tracking-wider">Pyro Hosting</h3>
+                    <h3 className="terminal-font text-2xl text-pink-100 uppercase tracking-wider">Pyro</h3>
                     <span className="text-[10px] terminal-font text-pink-400/40 hidden sm:inline">[ STATUS: ONLINE ]</span>
                   </div>
                   <p className="terminal-font text-pink-300/70 text-base leading-tight mb-4 max-w-md">
                     Superior performance for modded Minecraft. High-end hardware and global low-latency nodes.
                   </p>
                   <div className="flex flex-wrap justify-center sm:justify-start gap-3">
-                     <a href="https://pyro.host/games" target="_blank" className="dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-pink-300/80 hover:text-white" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
+                     <a href="https://pyro.host/?a=41" target="_blank" className="dimden-panel px-4 py-2 flex items-center gap-2 terminal-font text-lg text-pink-300/80 hover:text-white" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
                        Website <ExternalLink size={14} />
-                     </a>
-                     <a href="https://portal.pyro.host/aff.php?aff=41" target="_blank" className="dimden-panel px-3 py-1 flex items-center gap-2 terminal-font text-lg text-white bg-pink-500/10 border-pink-400/40" onClick={handleLinkClick} onMouseEnter={() => playSound('hover')}>
-                       <span>Support Kit</span>
-                       <Heart size={14} className="text-pink-400" />
                      </a>
                   </div>
                 </div>
@@ -388,7 +384,7 @@ const App: React.FC = () => {
               <div className="bg-pink-900/10 border-t border-pink-400/5 p-3 flex items-start gap-3 rounded">
                  <AlertCircle size={14} className="text-pink-400/40 mt-1 shrink-0" />
                  <p className="terminal-font text-pink-400/40 text-[11px] leading-tight">
-                  Disclaimer: This is the ONLY host I recommend. Trust their hardware for my own projects.
+                  it saying its the only server host i reccomend but im not partnered with me, if they would like to support me they can use the affiliate link
                  </p>
               </div>
             </div>
