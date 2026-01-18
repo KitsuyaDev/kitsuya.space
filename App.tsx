@@ -135,8 +135,8 @@ const App: React.FC = () => {
             className="w-16 h-16 bg-pink-900/10 border border-pink-400/30 p-1 transition-all duration-500 group-hover:rotate-3 group-hover:scale-105 overflow-hidden cursor-crosshair shadow-lg"
             onMouseEnter={() => playSound('hover')}
           >
-             <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Ivan" 
-                  className="w-full h-full object-cover rendering-pixelated" alt="pfp" />
+             <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
+                  className="w-full h-full object-cover" alt="pfp" />
           </div>
           <div>
             <h1 className="pixel-title text-xl md:text-2xl mb-1 transition-all group-hover:tracking-widest">KITSUYA.SPACE</h1>
@@ -306,7 +306,6 @@ const App: React.FC = () => {
              </div>
           </div>
 
-          {/* UPDATED GEAR_SPECS SECTION */}
           <div className="dimden-panel p-4 overflow-hidden relative group/specs">
              <div className="absolute top-0 left-0 w-full h-[1px] bg-pink-400/40 animate-[fall_4s_linear_infinite] shadow-[0_0_10px_#ffb7c5] pointer-events-none z-0" />
              <h3 className="pixel-title text-[8px] mb-4 border-b border-pink-400/20 pb-2 opacity-50 flex items-center justify-between relative z-10">
