@@ -45,7 +45,7 @@ const App: React.FC = () => {
   
   const particleIdCounter = useRef(0);
 
-  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'parry' | 'glitch') => {
+  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'glitch') => {
     if (!hasInteracted) return;
     try {
       const audio = new Audio();
@@ -53,7 +53,6 @@ const App: React.FC = () => {
         hover: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
         click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
         xp: 'https://www.myinstants.com/media/sounds/levelup.mp3', 
-        parry: 'https://www.myinstants.com/media/sounds/ultrakill-parry.mp3',
         glitch: 'https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3'
       };
       audio.src = (sources as any)[type] || sources.click;
@@ -65,9 +64,8 @@ const App: React.FC = () => {
   const addSecret = useCallback((id: string) => {
     if (!foundSecrets.includes(id)) {
       setFoundSecrets(prev => [...prev, id]);
-      playSound('parry');
     }
-  }, [foundSecrets, playSound]);
+  }, [foundSecrets]);
 
   useEffect(() => {
     const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
@@ -153,16 +151,6 @@ const App: React.FC = () => {
     }
   };
 
-  const styleRank = (() => {
-    const count = foundSecrets.length;
-    if (count >= 3) return 'SSS';
-    if (count === 2) return 'A';
-    if (count === 1) return 'B';
-    return 'D';
-  })();
-
-  const styleProgress = (foundSecrets.length / 3) * 100;
-
   useEffect(() => {
     const fetchTrack = async () => {
       try {
@@ -222,7 +210,7 @@ const App: React.FC = () => {
         ))}
       </div>
 
-      <header className={`dimden-panel p-0 overflow-hidden group border-pink-400/10 hover:border-pink-500/30 transition-all ${isUltrakillMode || styleRank === 'SSS' ? 'shadow-[0_0_40px_rgba(239,68,68,0.3)] border-red-500/40' : ''}`}>
+      <header className={`dimden-panel p-0 overflow-hidden group border-pink-400/10 hover:border-pink-500/30 transition-all ${isUltrakillMode ? 'shadow-[0_0_40px_rgba(239,68,68,0.3)] border-red-500/40' : ''}`}>
         <div className="bg-black/[0.1] dark:bg-white/[0.03] p-2 border-b border-black/10 dark:border-white/10 flex items-center justify-between">
           <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-[0.3em] flex items-center gap-2">
             {isUltrakillMode ? <ShieldAlert size={10} className="text-red-500" /> : <Coffee size={10} className="text-pink-500" />}
@@ -238,12 +226,12 @@ const App: React.FC = () => {
               style={{ filter: isUltrakillMode ? 'drop-shadow(0 0 20px #ef4444)' : 'drop-shadow(0 0 15px #ff4d7a)' }}
             >
                <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
-                    className={`w-full h-full object-cover transition-all duration-1000 rounded-full ${isUltrakillMode || styleRank === 'SSS' ? 'hue-rotate-[320deg] saturate-150' : ''}`} alt="pfp" />
+                    className={`w-full h-full object-cover transition-all duration-1000 rounded-full ${isUltrakillMode ? 'hue-rotate-[320deg] saturate-150' : ''}`} alt="pfp" />
                <div className="absolute inset-0 rounded-full border border-white/10" />
             </div>
             <div onClick={handleHeaderClick} className="cursor-pointer select-none group/name">
               <h1 className="pixel-title text-2xl sm:text-3xl md:text-4xl mb-3 transition-all tracking-tight uppercase flex items-center justify-center sm:justify-start gap-4">
-                {isUltrakillMode || styleRank === 'SSS' ? 'ULTRA_KIT' : 'KITSUYA.SPACE'}
+                {isUltrakillMode ? 'ULTRA_KIT' : 'KITSUYA.SPACE'}
                 {(headerClicks >= 10 || isUltrakillMode) && <Trophy size={20} className="text-yellow-400 animate-bounce" />}
               </h1>
               <div className="flex items-center justify-center sm:justify-start gap-4">
@@ -252,26 +240,15 @@ const App: React.FC = () => {
                   {!performanceMode && <span className={`absolute w-6 h-6 rounded-full animate-ping opacity-30 ${track?.nowPlaying ? 'bg-green-500' : (isUltrakillMode ? 'bg-red-500' : 'bg-pink-500')}`} />}
                 </div>
                 <p className={`terminal-font text-xl sm:text-2xl opacity-70 uppercase tracking-widest ${isUltrakillMode ? 'text-red-400' : 'text-pink-100'}`}>
-                   {isUltrakillMode || styleRank === 'SSS' ? '~ blood_is_fuel: /dev/null' : '~ root@kitsuya: /dev/minecraft'}
+                   {isUltrakillMode ? '~ blood_is_fuel: /dev/null' : '~ root@kitsuya: /dev/minecraft'}
                 </p>
               </div>
             </div>
           </div>
-
-          <div className="flex flex-col items-center sm:items-end gap-2 md:border-l border-black/5 dark:border-white/5 md:pl-12 lg:pl-16 relative z-10 w-full sm:w-auto">
-             <div className="flex items-baseline gap-4 mb-1">
-                <div className={`terminal-font font-black italic tracking-tighter transition-all duration-300 ${isUltrakillMode || styleRank === 'SSS' ? 'text-7xl scale-110 text-red-500 animate-pulse' : 'text-6xl text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]'}`}>
-                  {styleRank}
-                </div>
-                <div className="pixel-title text-[9px] opacity-40 uppercase tracking-tighter">{isUltrakillMode ? 'BLOOD_RANK' : 'Style Rank'}</div>
-             </div>
-             <div className="w-48 sm:w-64 h-2 bg-white/5 rounded-full overflow-hidden border border-white/10 shadow-inner">
-                <div className={`h-full transition-all duration-1000 shadow-[0_0_15px_#ef4444] ${isUltrakillMode || styleRank === 'SSS' ? 'bg-red-500' : 'bg-red-600'}`} style={{ width: `${styleProgress}%` }} />
-             </div>
-             <div className="flex justify-between w-48 sm:w-64 terminal-font text-xs opacity-40 uppercase italic tracking-widest mt-1">
-                <span>{foundSecrets.length}/3 Secrets</span>
-                <span className="text-red-500 animate-pulse">{(isUltrakillMode || styleRank === 'SSS') ? 'MAXIMUM' : ''}</span>
-             </div>
+          
+          <div className="hidden md:flex flex-col items-end gap-1 opacity-20">
+             <div className="terminal-font text-xs uppercase tracking-[0.4em] italic">Session Active</div>
+             <div className="w-32 h-[1px] bg-white/20" />
           </div>
         </div>
       </header>
@@ -324,7 +301,6 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Moved Track Info to left sidebar */}
           <div className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/20' : ''}`}>
              <div className="bg-black/[0.05] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
                <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-widest flex items-center gap-2">
@@ -397,11 +373,10 @@ const App: React.FC = () => {
                     High end game servers with super fast connections. Powerful AMD Ryzen processors.
                   </p>
                   
-                  {/* Styled Disclaimer Box */}
                   <div className={`mt-4 p-4 rounded border terminal-font text-base text-left flex gap-3 ${isUltrakillMode ? 'bg-red-950/30 border-red-500/20 text-red-300' : 'bg-pink-950/20 border-pink-400/10 text-pink-100/60'}`}>
                     <Info size={18} className="shrink-0 mt-0.5" />
                     <p>
-                      kitsuya.space is not affiliated or partnered with Pyro, but the above link does support them. It's the only server host i use for my projects because of their outstanding quality and price.
+                      <span className="font-bold">Disclaimer:</span> Kit is not partnered with Pyro, but the link below does support them. It's the only server host i use for my projects because of their outstanding quality and price.
                     </p>
                   </div>
                 </div>
@@ -434,7 +409,6 @@ const App: React.FC = () => {
              </div>
           </div>
 
-          {/* Discovery Log is in the right sidebar */}
           <div className={`dimden-panel p-4 border-red-500/10 bg-red-500/[0.01] overflow-hidden relative group/secret ${isUltrakillMode ? 'border-red-500/40' : ''}`}>
              <div className="pixel-title text-[8px] opacity-20 uppercase tracking-[0.2em] mb-3">{isUltrakillMode ? 'MEMORY_FRAGMENT_LOG' : 'Discovery Log'}</div>
              <div className="space-y-2">
