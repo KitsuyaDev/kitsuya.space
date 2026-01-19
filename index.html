@@ -15,10 +15,10 @@
             --sakura-main: #ffb7c5;
             --sakura-dark: #2d131b;
             --border-color: rgba(255, 183, 197, 0.12);
-            --panel-bg: rgba(10, 4, 7, 0.75);
+            --panel-bg: rgba(10, 4, 7, 0.65);
             --glow-color: rgba(255, 183, 197, 0.15);
             --accent-cherry: #ffb7c5;
-            --rainbow-speed: 5s;
+            --panel-glow: 0 0 15px rgba(255, 183, 197, 0.08);
         }
 
         body.light-mode {
@@ -28,69 +28,10 @@
             --sakura-main: #d00045;
             --sakura-dark: #ffeef2;
             --border-color: rgba(0, 0, 0, 0.1);
-            --panel-bg: rgba(255, 255, 255, 0.9);
+            --panel-bg: rgba(255, 255, 255, 0.7);
             --glow-color: rgba(208, 0, 69, 0.08);
             --accent-cherry: #d00045;
-        }
-
-        /* Performance Mode Global Fixes */
-        body.performance-mode .glow-blob {
-            animation: none !important;
-            opacity: 0.1 !important;
-        }
-        body.performance-mode .grid-layer {
-            animation: none !important;
-            transform: none !important;
-        }
-        body.performance-mode * {
-            animation-duration: 0s !important;
-            transition-duration: 0.1s !important;
-        }
-
-        @keyframes scan {
-            0% { top: -10%; }
-            100% { top: 110%; }
-        }
-
-        /* Panic Animations */
-        @keyframes panic-shake {
-            0% { transform: translate(0,0) rotate(0deg); }
-            10% { transform: translate(-3px,-3px) rotate(-0.5deg); }
-            20% { transform: translate(3px,3px) rotate(0.5deg); }
-            100% { transform: translate(0,0) rotate(0deg); }
-        }
-
-        @keyframes panic-flicker {
-            0% { background: rgba(255, 0, 0, 0.15); }
-            50% { background: rgba(0, 0, 0, 0.3); }
-            100% { background: rgba(255, 0, 0, 0.15); }
-        }
-
-        .panic-mode #root {
-            animation: panic-shake 0.1s infinite;
-        }
-
-        .panic-mode::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            pointer-events: none;
-            animation: panic-flicker 0.05s infinite;
-        }
-
-        /* Rainbow Mode Improvements */
-        @keyframes rainbow-border {
-            0% { border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.3); }
-            33% { border-color: #00ff00; box-shadow: 0 0 20px rgba(0,255,0,0.3); }
-            66% { border-color: #0000ff; box-shadow: 0 0 20px rgba(0,0,255,0.3); }
-            100% { border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.3); }
-        }
-
-        body.rainbow-mode .dimden-panel {
-            animation: rainbow-border 6s linear infinite;
-            background: rgba(0, 0, 0, 0.85) !important;
-            backdrop-filter: blur(25px) !important;
+            --panel-glow: 0 0 10px rgba(208, 0, 69, 0.05);
         }
 
         body {
@@ -102,6 +43,7 @@
             min-height: 100vh;
             position: relative;
             transition: background-color 0.8s ease, color 0.8s ease;
+            margin: 0;
         }
 
         .nebula {
@@ -115,15 +57,15 @@
             position: absolute;
             border-radius: 50%;
             filter: blur(140px);
-            opacity: 0.18;
+            opacity: 0.25;
             mix-blend-mode: screen;
             animation: drift 30s infinite alternate ease-in-out;
-            transition: background-color 1s ease, opacity 1s ease;
+            transition: all 1s ease;
         }
         
         .light-mode .glow-blob {
             mix-blend-mode: multiply;
-            opacity: 0.1;
+            opacity: 0.15;
         }
 
         @keyframes drift {
@@ -147,47 +89,30 @@
         .dimden-panel {
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
-            backdrop-filter: blur(24px) saturate(140%);
-            -webkit-backdrop-filter: blur(24px) saturate(140%);
+            backdrop-filter: blur(16px) saturate(160%);
+            -webkit-backdrop-filter: blur(16px) saturate(160%);
             position: relative;
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             box-shadow: 
-                0 4px 24px -1px rgba(0, 0, 0, 0.2),
-                inset 0 0 20px 0 rgba(255, 183, 197, 0.02);
+                0 4px 30px rgba(0, 0, 0, 0.1),
+                var(--panel-glow),
+                inset 0 0 20px rgba(255, 183, 197, 0.03);
+            border-radius: 4px;
         }
         
         @media (min-width: 768px) {
             .dimden-panel:hover {
                 border-color: rgba(255, 183, 197, 0.4);
-                box-shadow: 
-                    0 12px 40px -10px var(--glow-color),
-                    inset 0 0 12px 0 rgba(255, 183, 197, 0.05);
-                transform: translateY(-2px) scale(1.005);
+                box-shadow: 0 0 30px var(--glow-color);
+                transform: translateY(-2px);
             }
         }
         
         .pixel-title {
             font-family: 'Press Start 2P', cursive;
             color: var(--sakura-main);
-            text-shadow: 0 0 15px var(--glow-color);
+            text-shadow: 0 0 10px var(--glow-color);
             letter-spacing: -0.02em;
-        }
-
-        .sidebar-link {
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            background: transparent;
-        }
-
-        .sidebar-link:hover {
-            background: rgba(255, 183, 197, 0.08);
-            transform: translateX(4px);
-            color: var(--sakura-main);
-            text-shadow: 0 0 8px rgba(255, 183, 197, 0.3);
-        }
-
-        .terminal-font {
-            font-family: 'VT323', monospace;
-            letter-spacing: 0.02em;
         }
 
         #mouse-glow {
@@ -198,20 +123,13 @@
             border-radius: 50%;
             pointer-events: none;
             z-index: -1;
-            opacity: 0.6;
+            opacity: 0.8;
             transform: translate(-50%, -50%);
-            transition: background 1s ease;
         }
 
-        .bit, .petal {
-            opacity: 0.2;
-            filter: blur(0.5px);
-        }
-        
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { 
-            background: var(--sakura-main);
-            border-radius: 10px;
+        .terminal-font {
+            font-family: 'VT323', monospace;
+            letter-spacing: 0.02em;
         }
     </style>
 <script type="importmap">
@@ -226,47 +144,30 @@
 }
 </script>
 </head>
-<body class="p-2 sm:p-4 md:p-8">
+<body>
     <div class="nebula" id="nebula">
         <div class="glow-blob" id="blob-1" style="width: 80vw; height: 80vw; background: radial-gradient(circle, #ffb7c5 0%, transparent 70%); top: -20%; left: -10%;"></div>
         <div class="glow-blob" id="blob-2" style="width: 70vw; height: 70vw; background: radial-gradient(circle, #7c3aed 0%, transparent 70%); bottom: -20%; right: -10%; animation-delay: -5s;"></div>
     </div>
     <div class="grid-layer" id="grid"></div>
     <div id="mouse-glow"></div>
-    <div class="rain-container" id="debris"></div>
     
-    <div id="root" class="relative z-10"></div>
+    <div id="root"></div>
 
     <script>
         const glow = document.getElementById('mouse-glow');
         const grid = document.getElementById('grid');
-        const debrisContainer = document.getElementById('debris');
 
         document.addEventListener('mousemove', (e) => {
-            if (document.body.classList.contains('performance-mode')) return;
             requestAnimationFrame(() => {
                 glow.style.left = e.clientX + 'px';
                 glow.style.top = e.clientY + 'px';
                 
-                const moveX = (e.clientX / window.innerWidth - 0.5) * 20;
-                const moveY = (e.clientY / window.innerHeight - 0.5) * 20;
+                const moveX = (e.clientX / window.innerWidth - 0.5) * 15;
+                const moveY = (e.clientY / window.innerHeight - 0.5) * 15;
                 grid.style.transform = `translate(${moveX}px, ${moveY}px)`;
             });
         });
-
-        function createDebris() {
-            for (let i = 0; i < 30; i++) {
-                const bit = document.createElement('div');
-                bit.className = 'bit';
-                bit.style.left = Math.random() * 100 + 'vw';
-                bit.style.animationDuration = (Math.random() * 15 + 15) + 's';
-                bit.style.animationDelay = (Math.random() * 10) + 's';
-                bit.style.width = '1px';
-                bit.style.height = '1px';
-                debrisContainer.appendChild(bit);
-            }
-        }
-        createDebris();
     </script>
     <script type="module" src="./index.tsx"></script>
 </body>

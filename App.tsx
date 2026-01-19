@@ -45,12 +45,10 @@ const App: React.FC = () => {
   const [performanceMode, setPerformanceMode] = useState(false);
   const [lightMode, setLightMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [konamiProgress, setKonamiProgress] = useState<string[]>([]);
   const [isUltrakillMode, setIsUltrakillMode] = useState(false);
   
   const particleIdCounter = useRef(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'parry') => {
     if (!hasInteracted) return;
@@ -76,7 +74,6 @@ const App: React.FC = () => {
     }
   }, [foundSecrets, playSound]);
 
-  // Konami Code Logic with Full Transformation
   useEffect(() => {
     const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -87,7 +84,6 @@ const App: React.FC = () => {
           addSecret('konami');
           setIsUltrakillMode(true);
           setKonamiProgress([]);
-          // Visual feedback for the transformation
           createParticles(window.innerWidth / 2, window.innerHeight / 2, 100, '#ef4444', 8);
         } else {
           setKonamiProgress(next);
@@ -99,23 +95,6 @@ const App: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [konamiProgress, addSecret, hasInteracted]);
-
-  const toggleMusic = () => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio('https://files.catbox.moe/0v2u0y.mp3');
-      audioRef.current.loop = true;
-      audioRef.current.volume = 0.1;
-    }
-    
-    if (isMusicPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch(() => {});
-      addSecret('music');
-    }
-    setIsMusicPlaying(!isMusicPlaying);
-    if (!hasInteracted) setHasInteracted(true);
-  };
 
   const createParticles = (x: number, y: number, count = 8, color = '#ffb7c5', size = 4) => {
     if (performanceMode) return;
@@ -180,14 +159,13 @@ const App: React.FC = () => {
 
   const styleRank = (() => {
     const count = foundSecrets.length;
-    if (count >= 4) return 'SSS';
-    if (count === 3) return 'S';
-    if (count === 2) return 'A';
-    if (count === 1) return 'B';
+    if (count >= 3) return 'SSS';
+    if (count === 2) return 'S';
+    if (count === 1) return 'A';
     return 'D';
   })();
 
-  const styleProgress = (foundSecrets.length / 4) * 100;
+  const styleProgress = (foundSecrets.length / 3) * 100;
 
   useEffect(() => {
     const fetchTrack = async () => {
@@ -213,27 +191,22 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const themeAccent = isUltrakillMode ? 'red-500' : 'pink-500';
-  const themeText = isUltrakillMode ? 'text-red-500' : 'text-pink-500';
-
   return (
     <div 
       id="root-container" 
       onMouseDown={handleGlobalClick}
-      className={`max-w-[1400px] mx-auto space-y-6 md:space-y-8 relative z-10 py-4 px-3 md:px-6 transition-colors duration-700 ${isUltrakillMode ? 'bg-black text-red-500' : (lightMode ? 'bg-pink-50 text-black' : 'bg-black text-white')}`}
+      className={`max-w-[1400px] mx-auto space-y-6 md:space-y-8 relative z-10 py-4 px-3 md:px-6 transition-all duration-700 bg-transparent ${isUltrakillMode ? 'text-red-500' : (lightMode ? 'text-black' : 'text-white')}`}
     >
       
-      {/* Dynamic Background Overrides for UK Mode */}
       {isUltrakillMode && (
         <style dangerouslySetInnerHTML={{ __html: `
           #grid { background-image: linear-gradient(rgba(239, 68, 68, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(239, 68, 68, 0.1) 1px, transparent 1px) !important; }
-          #mouse-glow { background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 75%) !important; }
-          #blob-1 { background: radial-gradient(circle, #ef4444 0%, transparent 70%) !important; opacity: 0.1 !important; }
-          #blob-2 { background: radial-gradient(circle, #facc15 0%, transparent 70%) !important; opacity: 0.05 !important; }
+          #mouse-glow { background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, transparent 75%) !important; }
+          #blob-1 { background: radial-gradient(circle, #ef4444 0%, transparent 70%) !important; opacity: 0.15 !important; }
+          #blob-2 { background: radial-gradient(circle, #facc15 0%, transparent 70%) !important; opacity: 0.1 !important; }
         `}} />
       )}
 
-      {/* Particles Overlay */}
       <div className="fixed inset-0 pointer-events-none z-[300]">
         {particles.map(p => (
           <div 
@@ -255,21 +228,19 @@ const App: React.FC = () => {
       </div>
 
       <header className={`dimden-panel p-0 overflow-hidden group border-pink-400/10 hover:border-pink-500/30 transition-all ${isUltrakillMode || styleRank === 'SSS' ? 'shadow-[0_0_40px_rgba(239,68,68,0.3)] border-red-500/40' : ''}`}>
-        <div className="bg-black/[0.03] dark:bg-white/[0.03] p-2 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
+        <div className="bg-black/[0.1] dark:bg-white/[0.03] p-2 border-b border-black/10 dark:border-white/10 flex items-center justify-between">
           <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-[0.3em] flex items-center gap-2">
             {isUltrakillMode ? <ShieldAlert size={10} className="text-red-500" /> : <Coffee size={10} className="text-pink-500" />}
             {isUltrakillMode ? 'ULTRAKILL_SESSION.v1' : 'user_identity.init()'}
           </h3>
-          <div className="flex gap-2">
-             {isMusicPlaying && <div className="w-1.5 h-1.5 bg-red-500 animate-pulse rounded-full shadow-[0_0_5px_red]" />}
-             <Layout size={10} className="text-black/10 dark:text-white/10" />
-          </div>
+          <Layout size={10} className="text-black/10 dark:text-white/10" />
         </div>
         <div className="p-4 sm:p-6 md:p-10 flex flex-col md:flex-row items-center justify-between relative overflow-hidden gap-6">
           <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 relative z-10 text-center sm:text-left">
             <div 
-              className="relative w-32 h-32 md:w-40 md:h-40 transition-all duration-1000 md:group-hover:scale-105 cursor-crosshair shrink-0 p-1.5 border border-black/10 dark:border-white/10 rounded-full shadow-2xl"
+              className={`relative w-32 h-32 md:w-40 md:h-40 transition-all duration-1000 md:group-hover:scale-105 cursor-crosshair shrink-0 p-1.5 border rounded-full ${isUltrakillMode ? 'border-red-500 shadow-[0_0_25px_rgba(239,68,68,0.5)]' : 'border-[#ff4d7a] shadow-[0_0_20px_rgba(255,77,122,0.4)]'}`}
               onMouseEnter={() => playSound('hover')}
+              style={{ filter: isUltrakillMode ? 'drop-shadow(0 0 15px #ef4444)' : 'drop-shadow(0 0 10px #ff4d7a)' }}
             >
                <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
                     className={`w-full h-full object-cover transition-all duration-1000 rounded-full ${isUltrakillMode || styleRank === 'SSS' ? 'hue-rotate-[320deg] saturate-150' : ''}`} alt="pfp" />
@@ -303,7 +274,7 @@ const App: React.FC = () => {
                 <div className={`h-full transition-all duration-1000 shadow-[0_0_15px_#ef4444] ${isUltrakillMode || styleRank === 'SSS' ? 'bg-red-500' : 'bg-red-600'}`} style={{ width: `${styleProgress}%` }} />
              </div>
              <div className="flex justify-between w-48 sm:w-64 terminal-font text-xs opacity-40 uppercase italic tracking-widest mt-1">
-                <span>{foundSecrets.length}/4 {isUltrakillMode ? 'PARRIES' : 'Secrets'}</span>
+                <span>{foundSecrets.length}/3 {isUltrakillMode ? 'PARRIES' : 'Secrets'}</span>
                 <span className="text-red-500 animate-pulse">{(isUltrakillMode || styleRank === 'SSS') ? 'MAXIMUM' : ''}</span>
              </div>
           </div>
@@ -313,7 +284,7 @@ const App: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10">
         <aside className="md:col-span-3 space-y-8 order-2 md:order-1">
           <div className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/20' : ''}`}>
-            <div className="bg-black/[0.02] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
+            <div className="bg-black/[0.05] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
               <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-widest">{isUltrakillMode ? 'ACCESS_NODES' : 'Links'}</h3>
               <LinkIcon size={12} className="text-black/20 dark:text-white/10" />
             </div>
@@ -332,7 +303,7 @@ const App: React.FC = () => {
           </div>
 
           <div className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/20' : ''}`}>
-            <div className="bg-black/[0.02] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
+            <div className="bg-black/[0.05] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
               <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-widest">{isUltrakillMode ? 'SUBJECT_DATA' : 'Profile'}</h3>
               <User size={12} className="text-black/20 dark:text-white/10" />
             </div>
@@ -354,7 +325,7 @@ const App: React.FC = () => {
           <div className={`dimden-panel p-4 border-red-500/10 bg-red-500/[0.01] overflow-hidden relative group/secret ${isUltrakillMode ? 'border-red-500/40' : ''}`}>
              <div className="pixel-title text-[8px] opacity-20 uppercase tracking-[0.2em] mb-3">{isUltrakillMode ? 'MEMORY_FRAGMENT_LOG' : 'Discovery Log'}</div>
              <div className="space-y-2">
-                {['xp_egg', 'music', 'theme', 'konami', 'profile'].map((s) => (
+                {['xp_egg', 'theme', 'konami', 'profile'].map((s) => (
                   <div key={s} className="flex items-center gap-3">
                     <div className={`w-1.5 h-1.5 rounded-full ${foundSecrets.includes(s) ? 'bg-red-500 shadow-[0_0_5px_red]' : 'bg-white/5'}`} />
                     <span className={`terminal-font text-xs uppercase tracking-widest ${foundSecrets.includes(s) ? (isUltrakillMode ? 'text-red-500/80' : 'text-white/60') : 'text-white/10'}`}>
@@ -363,15 +334,12 @@ const App: React.FC = () => {
                   </div>
                 ))}
              </div>
-             <div className="absolute top-0 right-0 p-2 opacity-5">
-                <ShieldAlert size={24} />
-             </div>
           </div>
         </aside>
 
         <main className="md:col-span-6 space-y-8 order-1 md:order-2">
           <section className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.05)]' : ''}`}>
-            <div className={`bg-black/[0.02] dark:bg-white/[0.02] p-4 border-b border-black/5 dark:border-white/5 flex items-center justify-between ${isUltrakillMode ? 'bg-red-950/20' : ''}`}>
+            <div className={`bg-black/[0.05] dark:bg-white/[0.02] p-4 border-b border-black/5 dark:border-white/5 flex items-center justify-between ${isUltrakillMode ? 'bg-red-950/20' : ''}`}>
               <h3 className="pixel-title text-[8px] opacity-40 uppercase tracking-[0.3em] flex items-center gap-2">
                 {isUltrakillMode ? <Terminal size={14} className="text-red-500" /> : <Sparkles size={14} className="text-pink-600 dark:text-pink-300" />}
                 {isUltrakillMode ? 'MANIFEST_LOG.txt' : 'About_Me.txt'}
@@ -383,15 +351,12 @@ const App: React.FC = () => {
                 <p className={`text-3xl sm:text-4xl ${isUltrakillMode ? 'text-red-500 uppercase italic font-black' : 'text-pink-700 dark:text-pink-400 font-bold'} tracking-tight drop-shadow-md`}>
                   {isUltrakillMode ? 'SUBJECT_01: KIT' : 'hihi :3 im kit'}
                 </p>
-                
                 <p className="opacity-90 leading-relaxed">
                   i’ve been doing minecraft dev stuff for around <span className={`${isUltrakillMode ? 'text-red-500' : 'text-pink-800 dark:text-pink-300'} font-bold border-b border-red-500/30`}>7–8 years</span>, mostly focused on performance and systems. i mainly work with fabric and neoforge.
                 </p>
-                
                 <p className="opacity-90 leading-relaxed">
                   i spend a lot of time fixing tps issues, digging through crash logs, and removing things that don’t need to exist. if something is slow or broken, i’ll usually keep poking at it until i understand why.
                 </p>
-                
                 <p className="opacity-90 leading-relaxed">
                   i’ve worked on some projects i’m really proud of, but unfortunately a lot of the cool ones are under nda, so i can’t say much about them. i also make modpacks and help optimize higher-end networks.
                 </p>
@@ -429,7 +394,7 @@ const App: React.FC = () => {
 
         <aside className="md:col-span-3 space-y-8 order-3">
           <div className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/20' : ''}`}>
-             <div className="bg-black/[0.02] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
+             <div className="bg-black/[0.05] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
                <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-widest">{isUltrakillMode ? 'HARDWARE_SPECS' : 'Hardware'}</h3>
                <Cpu size={14} className="text-black/20 dark:text-white/10" />
              </div>
@@ -449,7 +414,7 @@ const App: React.FC = () => {
           </div>
 
           <div className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/20' : ''}`}>
-             <div className="bg-black/[0.02] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
+             <div className="bg-black/[0.05] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
                <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-widest flex items-center gap-2">
                  {track?.nowPlaying ? <><Radio size={12} className="text-green-400" /> Now Playing</> : <><History size={12} className="text-pink-400/60" /> Last Track</>}
                </h3>
@@ -473,7 +438,6 @@ const App: React.FC = () => {
         </aside>
       </div>
 
-      {/* Reset Button (Only visible in UK mode) */}
       {isUltrakillMode && (
         <button 
           onClick={() => setIsUltrakillMode(false)}
@@ -500,10 +464,6 @@ const App: React.FC = () => {
             <button onClick={() => { setLightMode(!lightMode); addSecret('theme'); if(!hasInteracted) setHasInteracted(true); }} className="w-full text-left p-2 hover:bg-pink-500/10 rounded terminal-font flex justify-between items-center">
               <span>Theme</span>
               <span>{lightMode ? <Sun size={14} /> : <Moon size={14} />}</span>
-            </button>
-            <button onClick={toggleMusic} className="w-full text-left p-2 hover:bg-pink-500/10 rounded terminal-font flex justify-between items-center">
-              <span>ULTRACHURCH</span>
-              <span className={`text-[10px] ${isMusicPlaying ? 'text-red-500 animate-pulse' : 'text-white/20'}`}>{isMusicPlaying ? 'PLAYING' : 'STOPPED'}</span>
             </button>
           </div>
         )}
