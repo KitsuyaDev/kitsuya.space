@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { 
   Github, Sparkles, Activity, 
   Cloud, Monitor, User,
@@ -455,6 +456,8 @@ const App: React.FC = () => {
       <footer className={`py-20 text-center terminal-font text-2xl tracking-[0.6em] uppercase hover:text-red-500 transition-all duration-1000 ${isUltrakillMode ? 'text-red-950/40' : 'text-white/5 footer-glow'}`}>
         ~ 2026 - the end of time ~
       </footer>
+
+      <SpeedInsights />
     </div>
   );
 };
