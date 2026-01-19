@@ -4,8 +4,9 @@ import {
   Github, Sparkles, Activity, 
   Cloud, Monitor, User,
   Cpu, Terminal, ExternalLink, ShieldCheck,
-  Trophy, Layout, Coffee, Settings2, Sun, Moon,
-  ShieldAlert, Star, History, Radio, Link as LinkIcon, Power
+  Trophy, Layout, Coffee, Settings2, Power,
+  ShieldAlert, Star, History, Radio, Link as LinkIcon,
+  Info
 } from 'lucide-react';
 
 const LASTFM_USER = 'IvanPurr'; 
@@ -38,14 +39,13 @@ const App: React.FC = () => {
   const [headerClicks, setHeaderClicks] = useState(0);
   const [foundSecrets, setFoundSecrets] = useState<string[]>([]);
   const [performanceMode, setPerformanceMode] = useState(false);
-  const [lightMode, setLightMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [konamiProgress, setKonamiProgress] = useState<string[]>([]);
   const [isUltrakillMode, setIsUltrakillMode] = useState(false);
   
   const particleIdCounter = useRef(0);
 
-  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'parry') => {
+  const playSound = useCallback((type: 'hover' | 'click' | 'xp' | 'parry' | 'glitch') => {
     if (!hasInteracted) return;
     try {
       const audio = new Audio();
@@ -53,11 +53,11 @@ const App: React.FC = () => {
         hover: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
         click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
         xp: 'https://www.myinstants.com/media/sounds/levelup.mp3', 
-        parry: 'https://www.myinstants.com/media/sounds/ultrakill-parry.mp3'
+        parry: 'https://www.myinstants.com/media/sounds/ultrakill-parry.mp3',
+        glitch: 'https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3'
       };
-      audio.src = sources[type] || sources.click;
-      const volumes = { hover: 0.04, click: 0.2, xp: 0.15, parry: 0.4 };
-      audio.volume = volumes[type] || 0.2;
+      audio.src = (sources as any)[type] || sources.click;
+      audio.volume = type === 'hover' ? 0.04 : 0.25;
       audio.play().catch(() => {});
     } catch (e) {}
   }, [hasInteracted]);
@@ -134,22 +134,20 @@ const App: React.FC = () => {
   const handleGlobalClick = (e: React.MouseEvent) => {
     if (!hasInteracted) setHasInteracted(true);
     playSound('click');
-    const color = isUltrakillMode ? '#ef4444' : (lightMode ? '#ff0055' : '#ffb7c5');
+    const color = isUltrakillMode ? '#ef4444' : '#ffb7c5';
     createParticles(e.clientX, e.clientY, 10, color);
   };
 
   const handleHeaderClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!hasInteracted) setHasInteracted(true);
-    
     const nextClicks = headerClicks + 1;
     setHeaderClicks(nextClicks);
-    
     if (nextClicks === 10) {
       playSound('xp');
       addSecret('xp_egg');
       createParticles(e.clientX, e.clientY, 60, '#4ade80', 6);
-    } else if (nextClicks < 10) {
+    } else {
       playSound('click');
       createParticles(e.clientX, e.clientY, 8, isUltrakillMode ? '#ef4444' : '#ffb7c5');
     }
@@ -157,14 +155,13 @@ const App: React.FC = () => {
 
   const styleRank = (() => {
     const count = foundSecrets.length;
-    if (count >= 4) return 'SSS';
-    if (count === 3) return 'S';
+    if (count >= 3) return 'SSS';
     if (count === 2) return 'A';
     if (count === 1) return 'B';
     return 'D';
   })();
 
-  const styleProgress = (foundSecrets.length / 4) * 100;
+  const styleProgress = (foundSecrets.length / 3) * 100;
 
   useEffect(() => {
     const fetchTrack = async () => {
@@ -193,7 +190,7 @@ const App: React.FC = () => {
     <div 
       id="root-container" 
       onMouseDown={handleGlobalClick}
-      className={`max-w-[1400px] mx-auto space-y-6 md:space-y-8 relative z-10 py-4 px-3 md:px-6 transition-all duration-700 bg-transparent ${isUltrakillMode ? 'text-red-500' : (lightMode ? 'text-black' : 'text-white')}`}
+      className={`max-w-[1400px] mx-auto space-y-6 md:space-y-8 relative z-10 py-4 px-3 md:px-6 transition-all duration-700 bg-transparent ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}
     >
       
       {isUltrakillMode && (
@@ -236,7 +233,7 @@ const App: React.FC = () => {
         <div className="p-4 sm:p-6 md:p-10 flex flex-col md:flex-row items-center justify-between relative overflow-hidden gap-6">
           <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 relative z-10 text-center sm:text-left">
             <div 
-              className={`relative w-32 h-32 md:w-40 md:h-40 transition-all duration-1000 md:group-hover:scale-105 cursor-crosshair shrink-0 p-1 border-2 rounded-full overflow-visible ${isUltrakillMode ? 'border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.6)]' : 'border-[#ff4d7a] shadow-[0_0_25px_rgba(255,77,122,0.5)]'}`}
+              className={`relative w-32 h-32 md:w-40 md:h-40 transition-all duration-1000 md:group-hover:scale-105 cursor-crosshair shrink-0 p-1 border-2 rounded-full overflow-visible ${isUltrakillMode ? 'border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.6)]' : 'border-[#ff4d7a] shadow-[0_0_25px_rgba(255,77,122,0.6)]'}`}
               onMouseEnter={() => playSound('hover')}
               style={{ filter: isUltrakillMode ? 'drop-shadow(0 0 20px #ef4444)' : 'drop-shadow(0 0 15px #ff4d7a)' }}
             >
@@ -254,7 +251,7 @@ const App: React.FC = () => {
                   <span className={`w-3 h-3 rounded-full ${track?.nowPlaying ? 'bg-green-500' : (isUltrakillMode ? 'bg-red-500' : 'bg-pink-500')}`} />
                   {!performanceMode && <span className={`absolute w-6 h-6 rounded-full animate-ping opacity-30 ${track?.nowPlaying ? 'bg-green-500' : (isUltrakillMode ? 'bg-red-500' : 'bg-pink-500')}`} />}
                 </div>
-                <p className={`terminal-font text-xl sm:text-2xl opacity-70 uppercase tracking-widest ${isUltrakillMode ? 'text-red-400' : (lightMode ? 'text-pink-700' : 'text-pink-100')}`}>
+                <p className={`terminal-font text-xl sm:text-2xl opacity-70 uppercase tracking-widest ${isUltrakillMode ? 'text-red-400' : 'text-pink-100'}`}>
                    {isUltrakillMode || styleRank === 'SSS' ? '~ blood_is_fuel: /dev/null' : '~ root@kitsuya: /dev/minecraft'}
                 </p>
               </div>
@@ -263,7 +260,7 @@ const App: React.FC = () => {
 
           <div className="flex flex-col items-center sm:items-end gap-2 md:border-l border-black/5 dark:border-white/5 md:pl-12 lg:pl-16 relative z-10 w-full sm:w-auto">
              <div className="flex items-baseline gap-4 mb-1">
-                <div className={`terminal-font font-black italic tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] transition-all duration-300 ${isUltrakillMode || styleRank === 'SSS' ? 'text-7xl scale-110 text-red-500 animate-pulse' : 'text-6xl'}`}>
+                <div className={`terminal-font font-black italic tracking-tighter transition-all duration-300 ${isUltrakillMode || styleRank === 'SSS' ? 'text-7xl scale-110 text-red-500 animate-pulse' : 'text-6xl text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]'}`}>
                   {styleRank}
                 </div>
                 <div className="pixel-title text-[9px] opacity-40 uppercase tracking-tighter">{isUltrakillMode ? 'BLOOD_RANK' : 'Style Rank'}</div>
@@ -272,7 +269,7 @@ const App: React.FC = () => {
                 <div className={`h-full transition-all duration-1000 shadow-[0_0_15px_#ef4444] ${isUltrakillMode || styleRank === 'SSS' ? 'bg-red-500' : 'bg-red-600'}`} style={{ width: `${styleProgress}%` }} />
              </div>
              <div className="flex justify-between w-48 sm:w-64 terminal-font text-xs opacity-40 uppercase italic tracking-widest mt-1">
-                <span>{foundSecrets.length}/4 {isUltrakillMode ? 'PARRIES' : 'Secrets'}</span>
+                <span>{foundSecrets.length}/3 Secrets</span>
                 <span className="text-red-500 animate-pulse">{(isUltrakillMode || styleRank === 'SSS') ? 'MAXIMUM' : ''}</span>
              </div>
           </div>
@@ -292,20 +289,27 @@ const App: React.FC = () => {
                 { label: 'Twitch', icon: Monitor, href: 'https://twitch.tv/kitsuyatv' },
                 { label: 'BlueSky', icon: Cloud, href: 'https://bsky.app/profile/kitsuya.space' }
               ].map((link, idx) => (
-                <a key={idx} href={link.href} target="_blank" className={`sidebar-link group/link !text-xl !py-3 px-4 rounded-lg flex items-center gap-4 ${isUltrakillMode ? 'text-red-400 hover:text-red-500' : (lightMode ? 'text-pink-800' : 'text-white')}`}>
-                  <link.icon size={18} className={`text-black/20 group-hover/link:${isUltrakillMode ? 'text-red-500' : 'text-pink-500'} transition-all`} />
+                <a key={idx} href={link.href} target="_blank" className={`sidebar-link group/link !text-2xl !py-3 px-4 rounded-lg flex items-center gap-4 terminal-font ${isUltrakillMode ? 'text-red-400 hover:text-red-500' : 'text-white'}`}>
+                  <link.icon size={18} className={`${isUltrakillMode ? 'text-red-500' : 'text-pink-400'} transition-all`} />
                   <span>{link.label}</span>
                 </a>
               ))}
             </nav>
           </div>
 
-          <div className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/20' : ''}`}>
+          <div 
+            className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 cursor-pointer ${isUltrakillMode ? 'border-red-500/20' : ''}`}
+            onClick={(e) => {
+              addSecret('profile');
+              playSound('glitch');
+              createParticles(e.clientX, e.clientY, 15, '#ff00ff', 6);
+            }}
+          >
             <div className="bg-black/[0.05] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
               <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-widest">{isUltrakillMode ? 'SUBJECT_DATA' : 'Profile'}</h3>
               <User size={12} className="text-black/20 dark:text-white/10" />
             </div>
-            <div className="p-5 space-y-2 cursor-pointer" onClick={() => addSecret('profile')}>
+            <div className="p-5 space-y-2">
                 {[
                   { label: 'Name', value: 'Kit' },
                   { label: 'Age', value: '20' },
@@ -314,43 +318,55 @@ const App: React.FC = () => {
                 ].map((item, idx) => (
                   <div key={idx} className={`flex justify-between items-center py-2 border-b border-black/[0.03] dark:border-white/[0.03] last:border-0 hover:${isUltrakillMode ? 'bg-red-500/5' : 'bg-pink-500/5'} transition-all px-2 rounded`}>
                     <span className="terminal-font text-black/40 dark:text-white/30 text-base uppercase tracking-widest">{item.label}</span>
-                    <span className={`terminal-font text-xl ${isUltrakillMode ? 'text-red-400' : 'text-pink-900 dark:text-pink-100'}`}>{item.value}</span>
+                    <span className={`terminal-font text-xl ${isUltrakillMode ? 'text-red-400' : 'text-pink-100'}`}>{item.value}</span>
                   </div>
                 ))}
             </div>
           </div>
 
-          <div className={`dimden-panel p-4 border-red-500/10 bg-red-500/[0.01] overflow-hidden relative group/secret ${isUltrakillMode ? 'border-red-500/40' : ''}`}>
-             <div className="pixel-title text-[8px] opacity-20 uppercase tracking-[0.2em] mb-3">{isUltrakillMode ? 'MEMORY_FRAGMENT_LOG' : 'Discovery Log'}</div>
-             <div className="space-y-2">
-                {['xp_egg', 'theme', 'konami', 'profile'].map((s) => (
-                  <div key={s} className="flex items-center gap-3">
-                    <div className={`w-1.5 h-1.5 rounded-full ${foundSecrets.includes(s) ? 'bg-red-500 shadow-[0_0_5px_red]' : 'bg-white/5'}`} />
-                    <span className={`terminal-font text-xs uppercase tracking-widest ${foundSecrets.includes(s) ? (isUltrakillMode ? 'text-red-500/80' : 'text-white/60') : 'text-white/10'}`}>
-                      {foundSecrets.includes(s) ? s.replace('_', ' ') : '??????'}
-                    </span>
-                  </div>
-                ))}
+          {/* Moved Track Info to left sidebar */}
+          <div className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/20' : ''}`}>
+             <div className="bg-black/[0.05] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
+               <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-widest flex items-center gap-2">
+                 {track?.nowPlaying ? <><Radio size={12} className="text-green-400" /> Now Playing</> : <><History size={12} className="text-pink-400/60" /> Last Track</>}
+               </h3>
+             </div>
+             <div className="p-4">
+               {track ? (
+                 <a href={track.url} target="_blank" className="flex items-center gap-4 group/track">
+                    <div className="w-14 h-14 rounded-lg border border-black/10 dark:border-white/10 overflow-hidden shrink-0 shadow-lg">
+                      <img src={track.image || ''} className={`w-full h-full object-cover ${isUltrakillMode ? 'sepia hue-rotate-[320deg]' : ''}`} alt="Art" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className={`terminal-font text-lg leading-tight truncate font-bold ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>{track.name}</p>
+                      <p className="terminal-font text-sm text-black/50 dark:text-white/40 truncate uppercase mt-0.5">{track.artist}</p>
+                    </div>
+                 </a>
+               ) : (
+                 <div className="text-center py-4 opacity-10 terminal-font text-sm uppercase tracking-widest">No Signal</div>
+               )}
              </div>
           </div>
         </aside>
 
         <main className="md:col-span-6 space-y-8 order-1 md:order-2">
           <section className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.1)]' : ''}`}>
-            <div className={`bg-black/[0.05] dark:bg-white/[0.02] p-4 border-b border-black/5 dark:border-white/5 flex items-center justify-between ${isUltrakillMode ? 'bg-red-950/20' : ''}`}>
+            <div 
+              className={`bg-black/[0.05] dark:bg-white/[0.02] p-4 border-b border-black/5 dark:border-white/5 flex items-center justify-between ${isUltrakillMode ? 'bg-red-950/20' : ''}`}
+            >
               <h3 className="pixel-title text-[8px] opacity-40 uppercase tracking-[0.3em] flex items-center gap-2">
-                {isUltrakillMode ? <Terminal size={14} className="text-red-500" /> : <Sparkles size={14} className="text-pink-600 dark:text-pink-300" />}
+                {isUltrakillMode ? <Terminal size={14} className="text-red-500" /> : <Sparkles size={14} className="text-pink-300" />}
                 {isUltrakillMode ? 'MANIFEST_LOG.txt' : 'About_Me.txt'}
               </h3>
               <Activity size={14} className="text-black/10 dark:text-white/10" />
             </div>
             <div className="p-5 sm:p-6 relative overflow-hidden flex flex-col justify-start">
-              <div className={`terminal-font text-xl sm:text-2xl space-y-4 relative z-10 ${isUltrakillMode ? 'text-red-100' : (lightMode ? 'text-black' : 'text-pink-50')}`}>
-                <p className={`text-3xl sm:text-4xl ${isUltrakillMode ? 'text-red-500 uppercase italic font-black' : 'text-pink-700 dark:text-pink-400 font-bold'} tracking-tight drop-shadow-md`}>
-                  {isUltrakillMode ? 'SUBJECT_01: KIT' : 'hihi :3 im kit'}
+              <div className={`terminal-font text-xl sm:text-2xl space-y-6 relative z-10 ${isUltrakillMode ? 'text-red-100' : 'text-pink-50'}`}>
+                <p className={`text-3xl sm:text-4xl ${isUltrakillMode ? 'text-red-500 uppercase italic font-black' : 'text-pink-400 font-bold'} tracking-tight drop-shadow-md`}>
+                  hihi :3 im kit
                 </p>
                 <p className="opacity-90 leading-relaxed">
-                  i’ve been doing minecraft dev stuff for around <span className={`${isUltrakillMode ? 'text-red-500' : 'text-pink-800 dark:text-pink-300'} font-bold border-b border-red-500/30`}>7–8 years</span>, mostly focused on performance and systems. i mainly work with fabric and neoforge.
+                  i’ve been doing minecraft dev stuff for around <span className={`${isUltrakillMode ? 'text-red-500' : 'text-pink-300'} font-bold border-b border-red-500/30`}>7–8 years</span>, mostly focused on performance and systems. i mainly work with fabric and neoforge.
                 </p>
                 <p className="opacity-90 leading-relaxed">
                   i spend a lot of time fixing tps issues, digging through crash logs, and removing things that don’t need to exist. if something is slow or broken, i’ll usually keep poking at it until i understand why.
@@ -364,25 +380,33 @@ const App: React.FC = () => {
 
           <section className={`dimden-panel p-0 overflow-hidden group/hosting border-pink-500/20 hover:border-pink-500/40 relative ${isUltrakillMode ? 'border-red-500/40 bg-red-950/5' : ''}`}>
             <div className={`p-4 border-b flex items-center justify-between ${isUltrakillMode ? 'bg-red-500/10 border-red-500/20' : 'bg-pink-500/[0.04] border-pink-500/10'}`}>
-               <h2 className={`pixel-title text-[8px] uppercase tracking-[0.4em] flex items-center gap-2 ${isUltrakillMode ? 'text-red-500' : 'text-pink-700 dark:text-pink-300/40'}`}>
-                 <Star size={16} className={`${isUltrakillMode ? 'text-red-500 fill-red-500/20' : 'text-pink-600 dark:text-pink-300 fill-pink-500/10'}`} />
+               <h2 className={`pixel-title text-[8px] uppercase tracking-[0.4em] flex items-center gap-2 ${isUltrakillMode ? 'text-red-500' : 'text-pink-300/40'}`}>
+                 <Star size={16} className={`${isUltrakillMode ? 'text-red-500 fill-red-500/20' : 'text-pink-300 fill-pink-500/10'}`} />
                  {isUltrakillMode ? 'OPTIMIZED_INFRASTRUCTURE' : 'Recommended Host'}
                </h2>
                <ShieldCheck size={18} className="text-black/10 dark:text-white/10" />
             </div>
-            <div className="p-8">
+            <div className="p-8 text-center sm:text-left">
               <div className="flex flex-col sm:flex-row items-center gap-8 mb-8">
                 <div className={`w-28 h-28 p-3 shadow-2xl relative shrink-0 group-hover/hosting:scale-105 transition-all border-2 ${isUltrakillMode ? 'bg-red-500/10 border-red-500/40' : 'bg-pink-500/10 border-pink-500/20'}`}>
                   <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className={`w-full h-full object-cover ${isUltrakillMode ? 'grayscale saturate-200' : ''}`} alt="Pyro" />
                 </div>
-                <div className="flex-1 text-center sm:text-left">
-                  <h3 className={`terminal-font text-4xl uppercase tracking-[0.2em] mb-2 font-bold ${isUltrakillMode ? 'text-red-500' : 'text-black dark:text-white'}`}>Pyro</h3>
-                  <p className={`terminal-font text-xl leading-tight ${isUltrakillMode ? 'text-red-200/60' : 'text-pink-900 dark:text-pink-200/60'}`}>
-                    High end game servers with super fast connections. Powered by Powerful AMD Ryzen processors.
+                <div className="flex-1">
+                  <h3 className={`terminal-font text-4xl uppercase tracking-[0.2em] mb-2 font-bold ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>Pyro</h3>
+                  <p className={`terminal-font text-xl leading-tight ${isUltrakillMode ? 'text-red-200/60' : 'text-pink-200/60'}`}>
+                    High end game servers with super fast connections. Powerful AMD Ryzen processors.
                   </p>
+                  
+                  {/* Styled Disclaimer Box */}
+                  <div className={`mt-4 p-4 rounded border terminal-font text-base text-left flex gap-3 ${isUltrakillMode ? 'bg-red-950/30 border-red-500/20 text-red-300' : 'bg-pink-950/20 border-pink-400/10 text-pink-100/60'}`}>
+                    <Info size={18} className="shrink-0 mt-0.5" />
+                    <p>
+                      kitsuya.space is not affiliated or partnered with Pyro, but the above link does support them. It's the only server host i use for my projects because of their outstanding quality and price.
+                    </p>
+                  </div>
                 </div>
               </div>
-              <a href="https://pyro.host/?a=41" target="_blank" className={`w-full sm:w-auto inline-flex dimden-panel px-16 py-4 items-center justify-center gap-4 terminal-font text-3xl text-white transition-all rounded-lg ${isUltrakillMode ? 'bg-red-600 border-red-400 hover:bg-red-700' : 'bg-pink-600 dark:bg-pink-500/10 border-pink-500/40 hover:bg-pink-700 dark:hover:bg-pink-500/20'}`}>
+              <a href="https://pyro.host/?a=41" target="_blank" className={`w-full sm:w-auto inline-flex items-center justify-center gap-4 terminal-font text-3xl transition-all border-2 rounded-lg py-5 px-12 ${isUltrakillMode ? 'bg-red-900/20 border-red-500 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:bg-red-900/40' : 'bg-pink-950/30 border-pink-400/40 text-pink-200 shadow-[0_0_25px_rgba(255,77,122,0.1)] hover:border-pink-400 hover:shadow-[0_0_40px_rgba(255,77,122,0.3)]'}`}>
                 <span>{isUltrakillMode ? 'SECURE_LINK' : 'Visit Pyro'}</span>
                 <ExternalLink size={20} />
               </a>
@@ -400,37 +424,28 @@ const App: React.FC = () => {
                 {[
                   { label: 'CPU', value: 'Epyc 7543P' },
                   { label: 'MEM', value: '28GB DDR4' },
-                  { label: 'SSD', value: '2tb NVMe' },
-                  { label: 'OS', value: 'Win 11' }
+                  { label: 'SSD', value: '2tb NVMe' }
                 ].map((spec, idx) => (
-                  <div key={idx} className={`flex justify-between items-center py-3 border-b border-black/[0.03] dark:border-white/[0.03] last:border-0 hover:${isUltrakillMode ? 'bg-red-500/5' : 'bg-pink-500/5'} px-3 rounded-lg border-l-2 border-transparent hover:border-red-500/30`}>
+                  <div key={idx} className={`flex justify-between items-center py-3 border-b border-black/[0.03] dark:border-white/[0.03] last:border-0 hover:${isUltrakillMode ? 'bg-red-500/5' : 'bg-pink-500/5'} px-3 rounded-lg`}>
                     <span className="text-black/50 dark:text-white/40 uppercase text-sm tracking-[0.2em] font-bold">{spec.label}</span>
-                    <span className={`text-right text-2xl font-bold ${isUltrakillMode ? 'text-red-500' : 'text-pink-900 dark:text-pink-100'}`}>{spec.value}</span>
+                    <span className={`text-right text-2xl font-bold ${isUltrakillMode ? 'text-red-500' : 'text-pink-100'}`}>{spec.value}</span>
                   </div>
                 ))}
              </div>
           </div>
 
-          <div className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/20' : ''}`}>
-             <div className="bg-black/[0.05] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
-               <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-widest flex items-center gap-2">
-                 {track?.nowPlaying ? <><Radio size={12} className="text-green-400" /> Now Playing</> : <><History size={12} className="text-pink-400/60" /> Last Track</>}
-               </h3>
-             </div>
-             <div className="p-4">
-               {track ? (
-                 <a href={track.url} target="_blank" className="flex items-center gap-4 group/track">
-                    <div className="w-14 h-14 rounded-lg border border-black/10 dark:border-white/10 overflow-hidden shrink-0 shadow-lg">
-                      <img src={track.image || ''} className={`w-full h-full object-cover ${isUltrakillMode ? 'sepia hue-rotate-[320deg]' : ''}`} alt="Art" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className={`terminal-font text-lg leading-tight truncate font-bold ${isUltrakillMode ? 'text-red-500' : 'text-black dark:text-white'}`}>{track.name}</p>
-                      <p className="terminal-font text-sm text-black/50 dark:text-white/40 truncate uppercase mt-0.5">{track.artist}</p>
-                    </div>
-                 </a>
-               ) : (
-                 <div className="text-center py-4 opacity-10 terminal-font text-sm uppercase tracking-widest">No Signal</div>
-               )}
+          {/* Discovery Log is in the right sidebar */}
+          <div className={`dimden-panel p-4 border-red-500/10 bg-red-500/[0.01] overflow-hidden relative group/secret ${isUltrakillMode ? 'border-red-500/40' : ''}`}>
+             <div className="pixel-title text-[8px] opacity-20 uppercase tracking-[0.2em] mb-3">{isUltrakillMode ? 'MEMORY_FRAGMENT_LOG' : 'Discovery Log'}</div>
+             <div className="space-y-2">
+                {['xp_egg', 'konami', 'profile'].map((s) => (
+                  <div key={s} className="flex items-center gap-3">
+                    <div className={`w-1.5 h-1.5 rounded-full ${foundSecrets.includes(s) ? 'bg-red-500 shadow-[0_0_5px_red]' : 'bg-white/5'}`} />
+                    <span className={`terminal-font text-xs uppercase tracking-widest ${foundSecrets.includes(s) ? (isUltrakillMode ? 'text-red-500/80' : 'text-white/60') : 'text-white/10'}`}>
+                      {foundSecrets.includes(s) ? s.replace('_', ' ') : '??????'}
+                    </span>
+                  </div>
+                ))}
              </div>
           </div>
         </aside>
@@ -455,20 +470,16 @@ const App: React.FC = () => {
         </button>
         {showSettings && (
           <div className={`absolute bottom-16 left-0 dimden-panel p-4 w-64 space-y-2 animate-in slide-in-from-bottom-2 shadow-2xl bg-black/90 backdrop-blur-xl border-pink-500/20 ${isUltrakillMode ? 'border-red-500/40' : ''}`}>
-            <button onClick={() => setPerformanceMode(!performanceMode)} className="w-full text-left p-2 hover:bg-pink-500/10 rounded terminal-font flex justify-between items-center">
+            <button onClick={() => setPerformanceMode(!performanceMode)} className="w-full text-left p-2 hover:bg-pink-500/10 rounded terminal-font flex justify-between items-center text-white">
               <span>Performance FX</span>
               <span className={`text-[10px] ${performanceMode ? 'text-red-500' : 'text-green-500'}`}>{performanceMode ? 'OFF' : 'ON'}</span>
-            </button>
-            <button onClick={() => { setLightMode(!lightMode); addSecret('theme'); if(!hasInteracted) setHasInteracted(true); }} className="w-full text-left p-2 hover:bg-pink-500/10 rounded terminal-font flex justify-between items-center">
-              <span>Theme</span>
-              <span>{lightMode ? <Sun size={14} /> : <Moon size={14} />}</span>
             </button>
           </div>
         )}
       </div>
 
-      <footer className={`py-20 text-center terminal-font text-2xl tracking-[0.6em] uppercase hover:text-red-500 transition-all duration-1000 ${isUltrakillMode ? 'text-red-950/40' : 'text-black/5 dark:text-white/5'}`}>
-        ~ 2026 - {isUltrakillMode || styleRank === 'SSS' ? 'mankind is dead' : 'kit\'s corner'} ~
+      <footer className={`py-20 text-center terminal-font text-2xl tracking-[0.6em] uppercase hover:text-red-500 transition-all duration-1000 ${isUltrakillMode ? 'text-red-950/40' : 'text-white/5 footer-glow'}`}>
+        ~ 2026 - the end of time ~
       </footer>
     </div>
   );

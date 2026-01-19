@@ -11,27 +11,12 @@
         :root {
             --bg-color: #050204;
             --text-color: #fff0f3;
-            --sakura-light: #ffd1dc;
             --sakura-main: #ffb7c5;
-            --sakura-dark: #2d131b;
             --border-color: rgba(255, 183, 197, 0.12);
             --panel-bg: rgba(10, 4, 7, 0.65);
             --glow-color: rgba(255, 183, 197, 0.25);
-            --accent-cherry: #ffb7c5;
-            --panel-glow: 0 0 20px rgba(255, 183, 197, 0.1);
-        }
-
-        body.light-mode {
-            --bg-color: #fffcfd;
-            --text-color: #1a0f12;
-            --sakura-light: #ff4d7a;
-            --sakura-main: #d00045;
-            --sakura-dark: #ffeef2;
-            --border-color: rgba(0, 0, 0, 0.1);
-            --panel-bg: rgba(255, 255, 255, 0.75);
-            --glow-color: rgba(208, 0, 69, 0.15);
-            --accent-cherry: #d00045;
-            --panel-glow: 0 0 15px rgba(208, 0, 69, 0.08);
+            --panel-glow: 0 0 20px rgba(255, 183, 197, 0.12);
+            --cherry-glow: #ff4d7a;
         }
 
         body {
@@ -42,7 +27,6 @@
             overflow-x: hidden;
             min-height: 100vh;
             position: relative;
-            transition: background-color 0.8s ease, color 0.8s ease;
             margin: 0;
         }
 
@@ -62,11 +46,6 @@
             animation: drift 30s infinite alternate ease-in-out;
             transition: all 1s ease;
         }
-        
-        .light-mode .glow-blob {
-            mix-blend-mode: multiply;
-            opacity: 0.15;
-        }
 
         @keyframes drift {
             0% { transform: translate(-10%, -10%) scale(1); }
@@ -79,7 +58,7 @@
             background-image: 
                 linear-gradient(var(--border-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
-            background-size: 100px 100px;
+            background-size: 80px 80px;
             z-index: -1;
             opacity: 0.4;
             mask-image: radial-gradient(circle at center, black, transparent 80%);
@@ -89,10 +68,10 @@
         .dimden-panel {
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
-            backdrop-filter: blur(16px) saturate(160%);
-            -webkit-backdrop-filter: blur(16px) saturate(160%);
+            backdrop-filter: blur(12px) saturate(160%);
+            -webkit-backdrop-filter: blur(12px) saturate(160%);
             position: relative;
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             box-shadow: 
                 0 4px 30px rgba(0, 0, 0, 0.1),
                 var(--panel-glow),
@@ -102,8 +81,8 @@
         
         @media (min-width: 768px) {
             .dimden-panel:hover {
-                border-color: rgba(255, 183, 197, 0.4);
-                box-shadow: 0 0 40px var(--glow-color);
+                border-color: var(--sakura-main);
+                box-shadow: 0 0 35px var(--glow-color);
                 transform: translateY(-2px);
             }
         }
@@ -111,25 +90,35 @@
         .pixel-title {
             font-family: 'Press Start 2P', cursive;
             color: var(--sakura-main);
-            text-shadow: 0 0 10px var(--glow-color);
+            text-shadow: 0 0 8px var(--glow-color);
             letter-spacing: -0.02em;
         }
 
         #mouse-glow {
             position: fixed;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, var(--glow-color) 0%, transparent 75%);
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
             z-index: -1;
-            opacity: 0.8;
+            opacity: 0.6;
             transform: translate(-50%, -50%);
         }
 
         .terminal-font {
             font-family: 'VT323', monospace;
             letter-spacing: 0.02em;
+        }
+
+        .footer-glow {
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+            animation: footerPulse 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes footerPulse {
+            0% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.1); opacity: 0.2; }
+            100% { text-shadow: 0 0 15px rgba(255, 255, 255, 0.3); opacity: 0.4; }
         }
     </style>
 <script type="importmap">
@@ -144,7 +133,7 @@
 }
 </script>
 </head>
-<body>
+<body id="body-tag">
     <div class="nebula" id="nebula">
         <div class="glow-blob" id="blob-1" style="width: 80vw; height: 80vw; background: radial-gradient(circle, #ffb7c5 0%, transparent 70%); top: -20%; left: -10%;"></div>
         <div class="glow-blob" id="blob-2" style="width: 70vw; height: 70vw; background: radial-gradient(circle, #7c3aed 0%, transparent 70%); bottom: -20%; right: -10%; animation-delay: -5s;"></div>
