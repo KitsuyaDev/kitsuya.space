@@ -6,7 +6,7 @@ import {
   Cpu, Terminal, ExternalLink, ShieldCheck,
   Trophy, Layout, Coffee, Settings2, Power,
   ShieldAlert, Star, History, Radio, Link as LinkIcon,
-  Info
+  Info, Heart
 } from 'lucide-react';
 
 const LASTFM_USER = 'IvanPurr'; 
@@ -301,6 +301,25 @@ const App: React.FC = () => {
             </div>
           </div>
 
+          <div className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : ''}`}>
+             <div className="bg-black/[0.05] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
+               <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-widest flex items-center gap-2">
+                 {isUltrakillMode ? 'ENERGY_RESERVE' : 'Support Me'}
+               </h3>
+               <Heart size={14} className={isUltrakillMode ? 'text-red-500 heartbeat' : 'text-pink-400/60 heartbeat'} />
+             </div>
+             <div className="p-4">
+               <a 
+                href="https://ko-fi.com/kitsuyadev" 
+                target="_blank" 
+                className={`w-full flex items-center justify-center gap-3 p-4 rounded border terminal-font text-2xl transition-all group/kofi ${isUltrakillMode ? 'bg-red-500/10 border-red-500/40 text-red-500 hover:bg-red-500/20' : 'bg-pink-500/10 border-pink-400/20 text-pink-300 hover:bg-pink-500/20'}`}
+               >
+                 <Coffee size={20} className="group-hover/kofi:rotate-12 transition-transform" />
+                 <span>Support on Ko-fi</span>
+               </a>
+             </div>
+          </div>
+
           <div className={`dimden-panel p-0 overflow-hidden group border-black/5 dark:border-white/5 ${isUltrakillMode ? 'border-red-500/20' : ''}`}>
              <div className="bg-black/[0.05] dark:bg-white/[0.02] p-3 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
                <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-widest flex items-center gap-2">
@@ -435,19 +454,29 @@ const App: React.FC = () => {
         </button>
       )}
 
-      <div className="fixed bottom-6 left-6 z-[100] flex flex-col gap-3">
+      {/* REINFORCED SETTINGS BUTTON */}
+      <div className="fixed bottom-6 left-6 z-[1000] flex flex-col gap-3">
          <button 
-          onClick={() => setShowSettings(!showSettings)}
-          className={`dimden-panel p-4 rounded-full transition-all shadow-xl bg-black/80 backdrop-blur-md ${isUltrakillMode ? 'text-red-500 border-red-500/40' : 'text-pink-500'}`}
+          onClick={() => {
+            playSound('click');
+            setShowSettings(!showSettings);
+          }}
+          className={`dimden-panel p-5 rounded-full transition-all shadow-[0_0_30px_rgba(0,0,0,0.5)] bg-black/90 backdrop-blur-xl flex items-center justify-center ${isUltrakillMode ? 'text-red-500 border-red-500/60' : 'text-pink-400 border-pink-400/30'}`}
+          aria-label="Open Settings"
         >
-          <Settings2 size={24} className={showSettings ? 'rotate-90' : ''} />
+          <Settings2 size={28} className={showSettings ? 'rotate-90 transition-transform duration-500' : 'transition-transform duration-500'} />
         </button>
         {showSettings && (
-          <div className={`absolute bottom-16 left-0 dimden-panel p-4 w-64 space-y-2 animate-in slide-in-from-bottom-2 shadow-2xl bg-black/90 backdrop-blur-xl border-pink-500/20 ${isUltrakillMode ? 'border-red-500/40' : ''}`}>
-            <button onClick={() => setPerformanceMode(!performanceMode)} className="w-full text-left p-2 hover:bg-pink-500/10 rounded terminal-font flex justify-between items-center text-white">
+          <div className={`absolute bottom-20 left-0 dimden-panel p-5 w-64 space-y-3 animate-in fade-in slide-in-from-bottom-5 shadow-2xl bg-black/95 backdrop-blur-2xl border-pink-500/30 ${isUltrakillMode ? 'border-red-500/50' : ''}`}>
+            <h4 className="pixel-title text-[8px] opacity-40 uppercase mb-2">Internal_Config</h4>
+            <button 
+              onClick={() => setPerformanceMode(!performanceMode)} 
+              className={`w-full text-left p-3 hover:bg-white/5 rounded terminal-font flex justify-between items-center text-white border border-white/5`}
+            >
               <span>Performance FX</span>
-              <span className={`text-[10px] ${performanceMode ? 'text-red-500' : 'text-green-500'}`}>{performanceMode ? 'OFF' : 'ON'}</span>
+              <span className={`text-base font-bold ${performanceMode ? 'text-red-500' : 'text-green-500'}`}>{performanceMode ? '[OFF]' : '[ON]'}</span>
             </button>
+            <div className="text-[10px] terminal-font opacity-30 px-1 uppercase italic">Build: 2026.02.revA</div>
           </div>
         )}
       </div>
