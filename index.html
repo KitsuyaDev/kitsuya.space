@@ -13,46 +13,59 @@
             --text-color: #fff0f3;
             --sakura-main: #ffb7c5;
             --border-color: rgba(255, 183, 197, 0.12);
-            --panel-bg: rgba(10, 4, 7, 0.82);
-            --glow-color: rgba(255, 183, 197, 0.2);
-            --panel-glow: 0 0 25px rgba(255, 183, 197, 0.08);
-            --cherry-glow: #ff4d7a;
+            --panel-bg: rgba(8, 3, 6, 0.88);
+            --glow-color: rgba(255, 183, 197, 0.1);
+            --panel-glow: 0 0 30px rgba(255, 183, 197, 0.03);
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Inconsolata', monospace;
-            image-rendering: pixelated;
+            image-rendering: auto;
             overflow-x: hidden;
             min-height: 100vh;
             position: relative;
             margin: 0;
         }
 
-        .nebula {
+        /* Captivating Background Stack */
+        .bg-system {
             position: fixed;
             inset: 0;
             z-index: -2;
             pointer-events: none;
             overflow: hidden;
-        }
-        
-        .glow-blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(180px);
-            opacity: 0.12;
-            mix-blend-mode: screen;
-            animation: drift 50s infinite alternate ease-in-out;
-            transition: all 2s ease;
+            background: radial-gradient(circle at 50% 50%, #0d060a 0%, #050204 100%);
         }
 
-        @keyframes drift {
-            0% { transform: translate(-20%, -10%) scale(1); }
-            33% { transform: translate(10%, 15%) scale(1.1); }
-            66% { transform: translate(15%, -15%) scale(0.95); }
-            100% { transform: translate(-5%, 5%) scale(1.05); }
+        .nebula-core {
+            position: absolute;
+            inset: -30%;
+            filter: blur(140px) contrast(1.1);
+            opacity: 0.15;
+            mix-blend-mode: screen;
+        }
+
+        .nebula-blob {
+            position: absolute;
+            border-radius: 50%;
+            animation: nebula-float 50s infinite alternate ease-in-out;
+        }
+
+        @keyframes nebula-float {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(8%, 12%) scale(1.15) rotate(15deg); }
+            100% { transform: translate(-10%, 5%) scale(0.9) rotate(-10deg); }
+        }
+
+        /* Sakura Canvas */
+        #sakura-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.5;
         }
 
         .grid-layer {
@@ -61,119 +74,99 @@
             background-image: 
                 linear-gradient(var(--border-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
-            background-size: 120px 120px;
+            background-size: 100px 100px;
             z-index: -1;
-            opacity: 0.25;
+            opacity: 0.12;
             mask-image: radial-gradient(circle at center, black, transparent 95%);
-            transition: transform 1.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+            transition: transform 0.5s ease-out;
+        }
+
+        /* CRT Scanline Effect */
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.03) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.2;
         }
 
         .dimden-panel {
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
-            backdrop-filter: blur(20px) saturate(130%);
-            -webkit-backdrop-filter: blur(20px) saturate(130%);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             position: relative;
             transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            box-shadow: 
-                0 10px 40px rgba(0, 0, 0, 0.4),
-                var(--panel-glow);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), var(--panel-glow);
             border-radius: 8px;
         }
 
-        /* Ambient subtle noise instead of glint/shine */
+        /* Static Texture Noise */
         .dimden-panel::before {
             content: "";
             position: absolute;
             inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
             opacity: 0.03;
             mix-blend-mode: overlay;
             pointer-events: none;
             z-index: 1;
             border-radius: inherit;
         }
-        
+
         @media (min-width: 768px) {
             .dimden-panel:hover {
-                border-color: rgba(255, 183, 197, 0.35);
-                box-shadow: 0 0 45px rgba(255, 183, 197, 0.15);
-                transform: translateY(-4px);
+                border-color: rgba(255, 183, 197, 0.2);
+                box-shadow: 0 0 50px rgba(255, 183, 197, 0.08);
+                transform: translateY(-3px);
             }
         }
-        
+
         .pixel-title {
             font-family: 'Press Start 2P', cursive;
             color: var(--sakura-main);
-            text-shadow: 0 0 12px rgba(255, 183, 197, 0.4);
-            letter-spacing: -0.02em;
+            text-shadow: 0 0 10px rgba(255, 183, 197, 0.2);
+        }
+
+        /* REVERTED TO INCONSOLATA for consistent readability */
+        .terminal-font {
+            font-family: 'Inconsolata', monospace;
+            letter-spacing: normal;
+            font-weight: 400;
         }
 
         #mouse-glow {
             position: fixed;
-            width: 900px;
-            height: 900px;
+            width: 1000px;
+            height: 1000px;
             background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
             z-index: -1;
-            opacity: 0.4;
+            opacity: 0.3;
             transform: translate(-50%, -50%);
-        }
-
-        .terminal-font {
-            font-family: 'VT323', monospace;
-            letter-spacing: 0.02em;
         }
 
         .stars-container {
             position: fixed;
             inset: 0;
             pointer-events: none;
-            z-index: -1;
-            perspective: 1000px;
+            z-index: -2;
         }
         
-        /* Layered stars for parallax */
-        .stars-layer {
-            position: absolute;
-            inset: -50%;
-            width: 200%;
-            height: 200%;
-        }
-
         .star {
             position: absolute;
             background: white;
             border-radius: 50%;
             opacity: 0;
             animation: twinkle var(--duration) infinite ease-in-out;
-            box-shadow: 0 0 6px white;
         }
 
         @keyframes twinkle {
-            0%, 100% { opacity: 0; transform: scale(0.4); }
-            50% { opacity: var(--max-opacity); transform: scale(1.15); }
-        }
-
-        /* Elegant Shooting Star */
-        .shooting-star {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: linear-gradient(90deg, white, transparent);
-            border-radius: 50%;
-            box-shadow: 0 0 15px 3px white;
-            animation: shoot var(--duration) linear infinite;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        @keyframes shoot {
-            0% { transform: translate(-100px, -100px) rotate(40deg) scaleX(1); opacity: 0; }
-            5% { opacity: 1; }
-            20% { transform: translate(600px, 500px) rotate(40deg) scaleX(20); opacity: 0; }
-            100% { transform: translate(600px, 500px) rotate(40deg) scaleX(20); opacity: 0; }
+            0%, 100% { opacity: 0; transform: scale(0.6); }
+            50% { opacity: var(--max-opacity); transform: scale(1.1); }
         }
     </style>
 <script type="importmap">
@@ -188,82 +181,107 @@
 }
 </script>
 </head>
-<body id="body-tag">
-    <div class="stars-container" id="stars-master">
-        <div class="stars-layer" id="stars-deep"></div>
-        <div class="stars-layer" id="stars-mid"></div>
-        <div class="stars-layer" id="stars-front"></div>
+<body>
+    <div class="scanlines"></div>
+    <div class="bg-system">
+        <div class="nebula-core">
+            <div class="nebula-blob" style="width: 90vw; height: 90vw; background: #ffb7c5; top: -15%; left: -10%;"></div>
+            <div class="nebula-blob" style="width: 80vw; height: 80vw; background: #7c3aed; bottom: -15%; right: -10%; animation-delay: -8s;"></div>
+            <div class="nebula-blob" style="width: 70vw; height: 70vw; background: #3b82f6; top: 30%; left: 30%; animation-delay: -20s;"></div>
+            <div class="nebula-blob" style="width: 60vw; height: 60vw; background: #ec4899; bottom: 20%; left: 10%; animation-delay: -35s; opacity: 0.5;"></div>
+        </div>
     </div>
-    <div class="nebula" id="nebula">
-        <div class="glow-blob" id="blob-1" style="width: 80vw; height: 80vw; background: radial-gradient(circle, #ffb7c5 0%, transparent 80%); top: -15%; left: -10%;"></div>
-        <div class="glow-blob" id="blob-2" style="width: 70vw; height: 70vw; background: radial-gradient(circle, #7c3aed 0%, transparent 80%); bottom: -15%; right: -10%; animation-delay: -10s;"></div>
-        <div class="glow-blob" id="blob-3" style="width: 60vw; height: 60vw; background: radial-gradient(circle, #2563eb 0%, transparent 80%); top: 40%; left: 50%; animation-delay: -20s; opacity: 0.08;"></div>
-        <div class="glow-blob" id="blob-4" style="width: 50vw; height: 50vw; background: radial-gradient(circle, #ec4899 0%, transparent 80%); top: 10%; right: 20%; animation-delay: -30s; opacity: 0.05;"></div>
-    </div>
+    
+    <canvas id="sakura-canvas"></canvas>
+    <div class="stars-container" id="stars-field"></div>
     <div class="grid-layer" id="grid"></div>
     <div id="mouse-glow"></div>
     
     <div id="root"></div>
 
     <script>
+        const canvas = document.getElementById('sakura-canvas');
+        const ctx = canvas.getContext('2d');
         const glow = document.getElementById('mouse-glow');
         const grid = document.getElementById('grid');
-        const starsDeep = document.getElementById('stars-deep');
-        const starsMid = document.getElementById('stars-mid');
-        const starsFront = document.getElementById('stars-front');
+        const starsField = document.getElementById('stars-field');
 
-        const starColors = ['#ffffff', '#ffb7c5', '#e9d5ff', '#fff7ed', '#bae6fd', '#fde68a'];
+        let width, height, petals = [];
 
-        const createLayer = (container, count, parallaxFactor) => {
-            for (let i = 0; i < count; i++) {
+        const initCanvas = () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            petals = [];
+            for (let i = 0; i < 50; i++) {
+                petals.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: Math.random() * 4 + 2,
+                    s: Math.random() * 1.2 + 0.3,
+                    w: Math.random() * Math.PI,
+                    v: Math.random() * 0.02,
+                    color: i % 3 === 0 ? '#ffb7c5' : (i % 3 === 1 ? '#fff0f3' : '#ffd1dc')
+                });
+            }
+        };
+
+        const drawSakura = () => {
+            ctx.clearRect(0, 0, width, height);
+            petals.forEach(p => {
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.w);
+                
+                // Draw a simple petal shape
+                ctx.beginPath();
+                ctx.ellipse(0, 0, p.r, p.r / 1.5, 0, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = 0.35;
+                ctx.fill();
+                ctx.restore();
+                
+                p.y -= p.s;
+                p.x += Math.sin(p.w) * 0.8;
+                p.w += p.v;
+                
+                if (p.y < -20) {
+                    p.y = height + 20;
+                    p.x = Math.random() * width;
+                }
+            });
+            requestAnimationFrame(drawSakura);
+        };
+
+        const initStars = () => {
+            for (let i = 0; i < 150; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                const size = (Math.random() * 1.5 + 0.5) * parallaxFactor;
+                const size = Math.random() * 2 + 0.5;
                 star.style.width = size + 'px';
                 star.style.height = size + 'px';
                 star.style.top = Math.random() * 100 + '%';
                 star.style.left = Math.random() * 100 + '%';
-                star.style.backgroundColor = starColors[Math.floor(Math.random() * starColors.length)];
-                star.style.setProperty('--duration', (Math.random() * 6 + 4) + 's');
-                star.style.setProperty('--max-opacity', (Math.random() * 0.7 + 0.1));
-                star.style.animationDelay = (Math.random() * 12) + 's';
-                container.appendChild(star);
+                star.style.backgroundColor = i % 8 === 0 ? '#ffb7c5' : '#ffffff';
+                star.style.setProperty('--duration', (Math.random() * 5 + 3) + 's');
+                star.style.setProperty('--max-opacity', (Math.random() * 0.6 + 0.1));
+                star.style.animationDelay = (Math.random() * 15) + 's';
+                starsField.appendChild(star);
             }
         };
 
-        const createShooters = () => {
-            for (let i = 0; i < 4; i++) {
-                const shooter = document.createElement('div');
-                shooter.className = 'shooting-star';
-                shooter.style.top = Math.random() * 60 + '%';
-                shooter.style.left = Math.random() * 100 + '%';
-                shooter.style.setProperty('--duration', (Math.random() * 8 + 8) + 's');
-                shooter.style.animationDelay = (Math.random() * 25) + 's';
-                document.getElementById('stars-master').appendChild(shooter);
-            }
-        };
-
-        createLayer(starsDeep, 80, 0.5);
-        createLayer(starsMid, 60, 1.0);
-        createLayer(starsFront, 40, 1.5);
-        createShooters();
-
+        window.addEventListener('resize', initCanvas);
         document.addEventListener('mousemove', (e) => {
-            requestAnimationFrame(() => {
-                const moveX = (e.clientX / window.innerWidth - 0.5);
-                const moveY = (e.clientY / window.innerHeight - 0.5);
-                
-                glow.style.left = e.clientX + 'px';
-                glow.style.top = e.clientY + 'px';
-                
-                grid.style.transform = `translate(${moveX * 40}px, ${moveY * 40}px)`;
-                
-                // Multilayer parallax
-                starsDeep.style.transform = `translate(${moveX * -8}px, ${moveY * -8}px)`;
-                starsMid.style.transform = `translate(${moveX * -20}px, ${moveY * -20}px)`;
-                starsFront.style.transform = `translate(${moveX * -45}px, ${moveY * -45}px)`;
-            });
+            const moveX = (e.clientX / window.innerWidth - 0.5);
+            const moveY = (e.clientY / window.innerHeight - 0.5);
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+            grid.style.transform = `translate(${moveX * 45}px, ${moveY * 45}px)`;
+            starsField.style.transform = `translate(${moveX * -25}px, ${moveY * -25}px)`;
         });
+
+        initCanvas();
+        initStars();
+        drawSakura();
     </script>
     <script type="module" src="./index.tsx"></script>
 </body>

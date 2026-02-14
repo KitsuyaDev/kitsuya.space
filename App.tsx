@@ -52,15 +52,15 @@ const App: React.FC = () => {
     const newParticles: Particle[] = [];
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const force = isSparkle ? Math.random() * 2.5 + 0.8 : 2 + Math.random() * 6;
+      const force = isSparkle ? Math.random() * 1.5 + 0.5 : 2 + Math.random() * 5;
       newParticles.push({
         id: particleIdCounter.current++,
         x,
         y,
         vx: Math.cos(angle) * force,
-        vy: isSparkle ? Math.sin(angle) * force : Math.sin(angle) * force - 2,
+        vy: isSparkle ? Math.sin(angle) * force : Math.sin(angle) * force - 1.5,
         color,
-        size: isSparkle ? Math.random() * 2.5 + 1.2 : Math.random() * size + 2,
+        size: isSparkle ? Math.random() * 1.8 + 0.8 : Math.random() * size + 2,
         life: 1.0,
         isSparkle
       });
@@ -79,7 +79,7 @@ const App: React.FC = () => {
         glitch: 'https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3'
       };
       audio.src = (sources as any)[type] || sources.click;
-      audio.volume = type === 'hover' ? 0.04 : 0.25;
+      audio.volume = type === 'hover' ? 0.03 : 0.2;
       audio.play().catch(() => {});
     } catch (e) {}
   }, [hasInteracted]);
@@ -90,15 +90,13 @@ const App: React.FC = () => {
     }
   }, [foundSecrets]);
 
-  // Ambient Cursor Trail (The "Sparkle")
   useEffect(() => {
     if (performanceMode) return;
     const handleMouseMove = (e: MouseEvent) => {
       lastMousePos.current = { x: e.clientX, y: e.clientY };
-      // More visible but still subtle sparkle trail
-      if (Math.random() > 0.6) {
-        const color = isUltrakillMode ? '#ef4444' : (Math.random() > 0.7 ? '#ffffff' : '#ffb7c5');
-        createParticles(e.clientX, e.clientY, 1, color, 1.5, true);
+      if (Math.random() > 0.7) {
+        const color = isUltrakillMode ? '#ef4444' : (Math.random() > 0.6 ? '#ffffff' : '#ffb7c5');
+        createParticles(e.clientX, e.clientY, 1, color, 1.2, true);
       }
     };
     window.addEventListener('mousemove', handleMouseMove);
@@ -118,7 +116,7 @@ const App: React.FC = () => {
           addSecret('konami');
           setIsUltrakillMode(true);
           setKonamiProgress([]);
-          createParticles(window.innerWidth / 2, window.innerHeight / 2, 140, '#ef4444', 12);
+          createParticles(window.innerWidth / 2, window.innerHeight / 2, 120, '#ef4444', 10);
         } else {
           setKonamiProgress(next);
         }
@@ -138,8 +136,8 @@ const App: React.FC = () => {
           ...p,
           x: p.x + p.vx,
           y: p.y + p.vy,
-          vy: p.isSparkle ? p.vy + 0.005 : p.vy + 0.15,
-          life: p.isSparkle ? p.life - 0.012 : p.life - 0.015
+          vy: p.isSparkle ? p.vy + 0.01 : p.vy + 0.1,
+          life: p.isSparkle ? p.life - 0.015 : p.life - 0.02
         }))
         .filter(p => p.life > 0)
       );
@@ -151,7 +149,7 @@ const App: React.FC = () => {
     if (!hasInteracted) setHasInteracted(true);
     playSound('click');
     const color = isUltrakillMode ? '#ef4444' : (Math.random() > 0.4 ? '#ffffff' : '#ffb7c5');
-    createParticles(e.clientX, e.clientY, 18, color);
+    createParticles(e.clientX, e.clientY, 12, color);
   };
 
   const handleHeaderClick = (e: React.MouseEvent) => {
@@ -162,10 +160,10 @@ const App: React.FC = () => {
     if (nextClicks === 10) {
       playSound('xp');
       addSecret('xp_egg');
-      createParticles(e.clientX, e.clientY, 100, '#4ade80', 10);
+      createParticles(e.clientX, e.clientY, 80, '#4ade80', 8);
     } else {
       playSound('click');
-      createParticles(e.clientX, e.clientY, 15, isUltrakillMode ? '#ef4444' : '#ffb7c5');
+      createParticles(e.clientX, e.clientY, 10, isUltrakillMode ? '#ef4444' : '#ffb7c5');
     }
   };
 
@@ -202,9 +200,8 @@ const App: React.FC = () => {
       {isUltrakillMode && (
         <style dangerouslySetInnerHTML={{ __html: `
           #grid { background-image: linear-gradient(rgba(239, 68, 68, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(239, 68, 68, 0.1) 1px, transparent 1px) !important; }
-          #mouse-glow { background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, transparent 75%) !important; }
-          #blob-1 { background: radial-gradient(circle, #ef4444 0%, transparent 70%) !important; opacity: 0.18 !important; }
-          #blob-2 { background: radial-gradient(circle, #facc15 0%, transparent 70%) !important; opacity: 0.12 !important; }
+          #mouse-glow { background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 75%) !important; }
+          .nebula-blob { background: #ef4444 !important; opacity: 0.1 !important; }
         `}} />
       )}
 
@@ -222,43 +219,42 @@ const App: React.FC = () => {
               opacity: p.life,
               transform: 'translate(-50%, -50%)',
               imageRendering: 'pixelated',
-              boxShadow: `0 0 ${p.isSparkle ? '15px' : '6px'} ${p.color}`,
-              filter: p.isSparkle ? 'brightness(3.5) contrast(1.5)' : 'none'
+              boxShadow: `0 0 ${p.isSparkle ? '10px' : '4px'} ${p.color}`,
+              filter: p.isSparkle ? 'brightness(3.0)' : 'none'
             }}
           />
         ))}
       </div>
 
-      <header className={`dimden-panel p-0 overflow-hidden group border-pink-400/10 hover:border-pink-500/30 transition-all ${isUltrakillMode ? 'shadow-[0_0_50px_rgba(239,68,68,0.3)] border-red-500/40' : ''}`}>
-        <div className="bg-black/[0.15] dark:bg-white/[0.04] p-3 border-b border-black/10 dark:border-white/10 flex items-center justify-between">
+      <header className={`dimden-panel p-0 overflow-hidden group border-pink-400/10 hover:border-pink-500/20 transition-all ${isUltrakillMode ? 'shadow-[0_0_50px_rgba(239,68,68,0.3)] border-red-500/40' : ''}`}>
+        <div className="bg-black/[0.1] dark:bg-white/[0.04] p-2 border-b border-black/10 dark:border-white/10 flex items-center justify-between">
           <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-[0.3em] flex items-center gap-2">
-            {isUltrakillMode ? <ShieldAlert size={12} className="text-red-500" /> : <Coffee size={12} className="text-pink-500" />}
+            {isUltrakillMode ? <ShieldAlert size={10} className="text-red-500" /> : <Coffee size={10} className="text-pink-500" />}
             {isUltrakillMode ? 'ULTRAKILL_SESSION.v1' : 'user_identity.init()'}
           </h3>
-          <Layout size={12} className="text-black/10 dark:text-white/10" />
+          <Layout size={10} className="text-black/10 dark:text-white/10" />
         </div>
         <div className="p-4 sm:p-6 md:p-10 flex flex-col md:flex-row items-center justify-between relative overflow-hidden gap-6">
           <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 relative z-10 text-center sm:text-left">
             <div 
-              className={`relative w-32 h-32 md:w-40 md:h-40 transition-all duration-1000 md:group-hover:scale-105 cursor-crosshair shrink-0 p-1 border-2 rounded-full overflow-visible ${isUltrakillMode ? 'border-red-500 shadow-[0_0_35px_rgba(239,68,68,0.6)]' : 'border-[#ff4d7a] shadow-[0_0_30px_rgba(255,77,122,0.5)]'}`}
+              className={`relative w-32 h-32 md:w-40 md:h-40 transition-all duration-1000 md:group-hover:scale-105 cursor-crosshair shrink-0 p-1 border-2 rounded-full overflow-visible ${isUltrakillMode ? 'border-red-500 shadow-[0_0_35px_rgba(239,68,68,0.5)]' : 'border-[#ff4d7a] shadow-[0_0_30px_rgba(255,77,122,0.3)]'}`}
               onMouseEnter={() => playSound('hover')}
-              style={{ filter: isUltrakillMode ? 'drop-shadow(0 0 20px #ef4444)' : 'drop-shadow(0 0 15px #ff4d7a)' }}
             >
                <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
                     className={`w-full h-full object-cover transition-all duration-1000 rounded-full ${isUltrakillMode ? 'hue-rotate-[320deg] saturate-150' : ''}`} alt="pfp" />
-               <div className="absolute inset-0 rounded-full border border-white/25" />
+               <div className="absolute inset-0 rounded-full border border-white/10" />
             </div>
             <div onClick={handleHeaderClick} className="cursor-pointer select-none group/name">
               <h1 className="pixel-title text-2xl sm:text-3xl md:text-4xl mb-3 transition-all tracking-tight uppercase flex items-center justify-center sm:justify-start gap-4">
                 {isUltrakillMode ? 'ULTRA_KIT' : 'KITSUYA.SPACE'}
-                {(headerClicks >= 10 || isUltrakillMode) && <Trophy size={28} className="text-yellow-400 animate-bounce drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]" />}
+                {(headerClicks >= 10 || isUltrakillMode) && <Trophy size={28} className="text-yellow-400 animate-bounce drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]" />}
               </h1>
               <div className="flex items-center justify-center sm:justify-start gap-4">
                 <div className="relative flex items-center justify-center">
                   <span className={`w-3 h-3 rounded-full ${track?.nowPlaying ? 'bg-green-500' : (isUltrakillMode ? 'bg-red-500' : 'bg-pink-500')}`} />
                   {!performanceMode && <span className={`absolute w-7 h-7 rounded-full animate-ping opacity-30 ${track?.nowPlaying ? 'bg-green-500' : (isUltrakillMode ? 'bg-red-500' : 'bg-pink-500')}`} />}
                 </div>
-                <p className={`terminal-font text-xl sm:text-2xl opacity-75 uppercase tracking-widest ${isUltrakillMode ? 'text-red-400' : 'text-pink-100'}`}>
+                <p className={`text-xl sm:text-2xl opacity-75 uppercase tracking-widest ${isUltrakillMode ? 'text-red-400' : 'text-pink-100'}`}>
                    {isUltrakillMode ? '~ blood_is_fuel: /dev/null' : '~ root@kitsuya: /dev/minecraft'}
                 </p>
               </div>
@@ -266,7 +262,7 @@ const App: React.FC = () => {
           </div>
           
           <div className="hidden md:flex flex-col items-end gap-1 opacity-20">
-             <div className="terminal-font text-xs uppercase tracking-[0.4em] italic">Session Active</div>
+             <div className="text-xs uppercase tracking-[0.4em] italic">Session Active</div>
              <div className="w-32 h-[1px] bg-white/20" />
           </div>
         </div>
@@ -285,7 +281,7 @@ const App: React.FC = () => {
                 { label: 'Twitch', icon: Monitor, href: 'https://twitch.tv/kitsuyatv' },
                 { label: 'BlueSky', icon: Cloud, href: 'https://bsky.app/profile/kitsuya.space' }
               ].map((link, idx) => (
-                <a key={idx} href={link.href} target="_blank" className={`sidebar-link group/link !text-2xl !py-4 px-4 rounded-lg flex items-center gap-4 terminal-font ${isUltrakillMode ? 'text-red-400 hover:text-red-500' : 'text-white'} hover:bg-white/5 transition-colors`}>
+                <a key={idx} href={link.href} target="_blank" className={`sidebar-link group/link !text-2xl !py-4 px-4 rounded-lg flex items-center gap-4 ${isUltrakillMode ? 'text-red-400 hover:text-red-500' : 'text-white'} hover:bg-white/5 transition-colors`}>
                   <link.icon size={20} className={`${isUltrakillMode ? 'text-red-500' : 'text-pink-400'} transition-all`} />
                   <span>{link.label}</span>
                 </a>
@@ -313,8 +309,8 @@ const App: React.FC = () => {
                   { label: 'Timezone', value: 'GMT' }
                 ].map((item, idx) => (
                   <div key={idx} className={`flex justify-between items-center py-2 border-b border-black/[0.03] dark:border-white/[0.03] last:border-0 hover:${isUltrakillMode ? 'bg-red-500/5' : 'bg-pink-500/5'} transition-all px-2 rounded`}>
-                    <span className="terminal-font text-black/50 dark:text-white/40 text-base uppercase tracking-widest">{item.label}</span>
-                    <span className={`terminal-font text-xl ${isUltrakillMode ? 'text-red-400' : 'text-pink-100'}`}>{item.value}</span>
+                    <span className="text-black/50 dark:text-white/40 text-base uppercase tracking-widest">{item.label}</span>
+                    <span className={`text-xl ${isUltrakillMode ? 'text-red-400' : 'text-pink-100'}`}>{item.value}</span>
                   </div>
                 ))}
             </div>
@@ -331,7 +327,7 @@ const App: React.FC = () => {
                <a 
                 href="https://ko-fi.com/kitsuyadev" 
                 target="_blank" 
-                className={`w-full flex items-center justify-center gap-3 p-5 rounded border terminal-font text-2xl transition-all group/kofi ${isUltrakillMode ? 'bg-red-500/10 border-red-500/40 text-red-500 hover:bg-red-500/20' : 'bg-pink-500/10 border-pink-400/20 text-pink-300 hover:bg-pink-500/20'}`}
+                className={`w-full flex items-center justify-center gap-3 p-5 rounded border text-2xl transition-all group/kofi ${isUltrakillMode ? 'bg-red-500/10 border-red-500/40 text-red-500 hover:bg-red-500/20' : 'bg-pink-500/10 border-pink-400/20 text-pink-300 hover:bg-pink-500/20'}`}
                >
                  <Coffee size={24} className="group-hover/kofi:rotate-12 transition-transform" />
                  <span>Support on Ko-fi</span>
@@ -350,15 +346,15 @@ const App: React.FC = () => {
                  <a href={track.url} target="_blank" className="flex items-center gap-4 group/track">
                     <div className="w-16 h-16 rounded-lg border border-black/10 dark:border-white/10 overflow-hidden shrink-0 shadow-lg relative">
                       <img src={track.image || ''} className={`w-full h-full object-cover ${isUltrakillMode ? 'sepia hue-rotate-[320deg]' : ''}`} alt="Art" />
-                      {track.nowPlaying && <div className="absolute inset-0 border-2 border-green-500/70 animate-pulse shadow-[inset_0_0_10px_rgba(34,197,94,0.2)]" />}
+                      {track.nowPlaying && <div className="absolute inset-0 border-2 border-green-500/60 animate-pulse shadow-[inset_0_0_10px_rgba(34,197,94,0.1)]" />}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className={`terminal-font text-lg leading-tight truncate font-bold ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>{track.name}</p>
-                      <p className="terminal-font text-sm text-black/60 dark:text-white/40 truncate uppercase mt-1">{track.artist}</p>
+                      <p className={`text-lg leading-tight truncate font-bold ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>{track.name}</p>
+                      <p className="text-sm text-black/60 dark:text-white/40 truncate uppercase mt-1">{track.artist}</p>
                     </div>
                  </a>
                ) : (
-                 <div className="text-center py-5 opacity-10 terminal-font text-sm uppercase tracking-widest">No Signal</div>
+                 <div className="text-center py-5 opacity-10 text-sm uppercase tracking-widest">No Signal</div>
                )}
              </div>
           </div>
@@ -370,18 +366,18 @@ const App: React.FC = () => {
               className={`bg-black/[0.1] dark:bg-white/[0.04] p-5 border-b border-black/5 dark:border-white/5 flex items-center justify-between ${isUltrakillMode ? 'bg-red-950/25' : ''}`}
             >
               <h3 className="pixel-title text-[8px] opacity-40 uppercase tracking-[0.3em] flex items-center gap-2">
-                {isUltrakillMode ? <Terminal size={16} className="text-red-500" /> : <Sparkles size={16} className="text-white drop-shadow-[0_0_8px_white]" />}
+                {isUltrakillMode ? <Terminal size={16} className="text-red-500" /> : <Sparkles size={16} className="text-white" />}
                 {isUltrakillMode ? 'MANIFEST_LOG.txt' : 'About_Me.txt'}
               </h3>
               <Activity size={16} className="text-black/15 dark:text-white/10" />
             </div>
             <div className="p-6 sm:p-8 relative overflow-hidden flex flex-col justify-start">
-              <div className={`terminal-font text-xl sm:text-2xl space-y-7 relative z-10 ${isUltrakillMode ? 'text-red-100' : 'text-pink-50'}`}>
-                <p className={`text-4xl sm:text-5xl ${isUltrakillMode ? 'text-red-500 uppercase italic font-black' : 'text-pink-300 font-bold'} tracking-tighter drop-shadow-lg`}>
+              <div className={`text-xl sm:text-2xl space-y-7 relative z-10 ${isUltrakillMode ? 'text-red-100' : 'text-pink-50'}`}>
+                <p className={`pixel-title text-2xl sm:text-3xl ${isUltrakillMode ? 'text-red-500 uppercase italic font-black' : 'text-pink-300 font-bold'} tracking-tighter drop-shadow-lg`}>
                   hihi :3 im kit
                 </p>
                 <p className="opacity-95 leading-relaxed">
-                  i’ve been doing minecraft dev stuff for around <span className={`${isUltrakillMode ? 'text-red-500' : 'text-pink-200'} font-bold border-b-2 border-red-500/30 drop-shadow-[0_0_10px_var(--sakura-main)]`}>7–8 years</span>, mostly focused on performance and systems. i mainly work with fabric and neoforge.
+                  i’ve been doing minecraft dev stuff for around <span className={`${isUltrakillMode ? 'text-red-500' : 'text-pink-200'} font-bold border-b-2 border-red-500/30`}>7–8 years</span>, mostly focused on performance and systems. i mainly work with fabric and neoforge.
                 </p>
                 <p className="opacity-95 leading-relaxed">
                   i spend a lot of time fixing tps issues, digging through crash logs, and removing things that don’t need to exist. if something is slow or broken, i’ll usually keep poking at it until i understand why.
@@ -393,34 +389,34 @@ const App: React.FC = () => {
             </div>
           </section>
 
-          <section className={`dimden-panel p-0 overflow-hidden group/hosting border-pink-500/20 hover:border-pink-500/40 relative ${isUltrakillMode ? 'border-red-500/40 bg-red-950/5' : ''}`}>
-            <div className={`p-5 border-b flex items-center justify-between ${isUltrakillMode ? 'bg-red-500/15 border-red-500/25' : 'bg-pink-500/[0.06] border-pink-500/15'}`}>
+          <section className={`dimden-panel p-0 overflow-hidden group/hosting border-pink-500/10 hover:border-pink-500/30 relative ${isUltrakillMode ? 'border-red-500/40 bg-red-950/5' : ''}`}>
+            <div className={`p-5 border-b flex items-center justify-between ${isUltrakillMode ? 'bg-red-500/15 border-red-500/25' : 'bg-pink-500/[0.04] border-pink-500/10'}`}>
                <h2 className={`pixel-title text-[9px] uppercase tracking-[0.4em] flex items-center gap-3 ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>
-                 <Star size={18} className={`${isUltrakillMode ? 'text-red-500 fill-red-500/20' : 'text-white fill-white/20 drop-shadow-[0_0_10px_white]'} animate-spin-slow`} />
+                 <Star size={18} className={`${isUltrakillMode ? 'text-red-500 fill-red-500/20' : 'text-white fill-white/20'} animate-spin-slow`} />
                  {isUltrakillMode ? 'OPTIMIZED_INFRASTRUCTURE' : 'Recommended Host'}
                </h2>
                <ShieldCheck size={20} className="text-black/15 dark:text-white/10" />
             </div>
             <div className="p-8 text-center sm:text-left">
               <div className="flex flex-col sm:flex-row items-center gap-10 mb-10">
-                <div className={`w-32 h-32 p-4 shadow-2xl relative shrink-0 group-hover/hosting:scale-105 transition-all border-2 ${isUltrakillMode ? 'bg-red-500/10 border-red-500/40' : 'bg-pink-500/10 border-pink-500/25'}`}>
+                <div className={`w-32 h-32 p-4 shadow-2xl relative shrink-0 group-hover/hosting:scale-105 transition-all border-2 ${isUltrakillMode ? 'bg-red-500/10 border-red-500/40' : 'bg-pink-500/10 border-pink-500/20'}`}>
                   <img src="https://avatars.githubusercontent.com/u/132858781?s=200&v=4" className={`w-full h-full object-cover ${isUltrakillMode ? 'grayscale saturate-200' : ''}`} alt="Pyro" />
                 </div>
                 <div className="flex-1">
-                  <h3 className={`terminal-font text-5xl uppercase tracking-[0.2em] mb-3 font-bold ${isUltrakillMode ? 'text-red-500' : 'text-white'} drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]`}>Pyro</h3>
-                  <p className={`terminal-font text-2xl leading-tight ${isUltrakillMode ? 'text-red-200/70' : 'text-pink-100/70'}`}>
+                  <h3 className={`text-5xl uppercase tracking-[0.2em] mb-3 font-bold ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>Pyro</h3>
+                  <p className={`text-2xl leading-tight opacity-70 ${isUltrakillMode ? 'text-red-200' : 'text-pink-100'}`}>
                     High end game servers with super fast connections. Powerful AMD Ryzen processors.
                   </p>
                   
-                  <div className={`mt-5 p-5 rounded border-2 terminal-font text-base text-left flex gap-4 ${isUltrakillMode ? 'bg-red-950/35 border-red-500/25 text-red-300' : 'bg-pink-950/30 border-pink-400/15 text-white/70'}`}>
-                    <Info size={22} className="shrink-0 mt-0.5 opacity-60" />
+                  <div className={`mt-5 p-5 rounded border-2 text-base text-left flex gap-4 ${isUltrakillMode ? 'bg-red-950/35 border-red-500/25 text-red-300' : 'bg-pink-950/30 border-pink-400/15 text-white/70'}`}>
+                    <Info size={22} className="shrink-0 mt-0.5 opacity-50" />
                     <p>
                       <span className="font-bold opacity-100">Disclaimer:</span> Kit is not partnered with Pyro, but the link below does support them. It's the only server host i use for my projects because of their outstanding quality and price.
                     </p>
                   </div>
                 </div>
               </div>
-              <a href="https://pyro.host/?a=41" target="_blank" className={`w-full sm:w-auto inline-flex items-center justify-center gap-5 terminal-font text-3xl transition-all border-2 rounded-xl py-6 px-14 ${isUltrakillMode ? 'bg-red-900/30 border-red-500 text-red-400 shadow-[0_0_30px_rgba(239,68,68,0.2)] hover:bg-red-900/50' : 'bg-white/5 border-white/20 text-white shadow-[0_0_40px_rgba(255,255,255,0.05)] hover:border-white hover:bg-white/10 hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]'}`}>
+              <a href="https://pyro.host/?a=41" target="_blank" className={`w-full sm:w-auto inline-flex items-center justify-center gap-5 text-3xl transition-all border-2 rounded-xl py-6 px-14 ${isUltrakillMode ? 'bg-red-900/30 border-red-500 text-red-400 shadow-[0_0_30px_rgba(239,68,68,0.2)] hover:bg-red-900/50' : 'bg-white/5 border-white/20 text-white hover:border-white hover:bg-white/10 transition-all shadow-xl'}`}>
                 <span>{isUltrakillMode ? 'SECURE_LINK' : 'Visit Pyro'}</span>
                 <ExternalLink size={24} className="animate-pulse" />
               </a>
@@ -434,7 +430,7 @@ const App: React.FC = () => {
                <h3 className="pixel-title text-[7px] opacity-40 uppercase tracking-widest">{isUltrakillMode ? 'HARDWARE_SPECS' : 'Hardware'}</h3>
                <Cpu size={16} className="text-black/25 dark:text-white/15" />
              </div>
-             <div className="p-5 terminal-font space-y-5 relative z-10">
+             <div className="p-5 space-y-5 relative z-10">
                 {[
                   { label: 'CPU', value: 'Epyc 7543P' },
                   { label: 'MEM', value: '28GB DDR4' },
@@ -442,7 +438,7 @@ const App: React.FC = () => {
                 ].map((spec, idx) => (
                   <div key={idx} className={`flex justify-between items-center py-4 border-b border-black/[0.04] dark:border-white/[0.04] last:border-0 hover:${isUltrakillMode ? 'bg-red-500/8' : 'bg-white/5'} px-3 rounded-lg transition-colors`}>
                     <span className="text-black/60 dark:text-white/40 uppercase text-sm tracking-[0.25em] font-bold">{spec.label}</span>
-                    <span className={`text-right text-3xl font-bold ${isUltrakillMode ? 'text-red-500' : 'text-white'} drop-shadow-[0_0_10px_rgba(255,255,255,0.05)]`}>{spec.value}</span>
+                    <span className={`text-right text-3xl font-bold ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>{spec.value}</span>
                   </div>
                 ))}
              </div>
@@ -453,8 +449,8 @@ const App: React.FC = () => {
              <div className="space-y-3">
                 {['xp_egg', 'konami', 'profile'].map((s) => (
                   <div key={s} className="flex items-center gap-4">
-                    <div className={`w-2 h-2 rounded-full ${foundSecrets.includes(s) ? 'bg-white shadow-[0_0_15px_white] animate-pulse' : 'bg-white/8'}`} />
-                    <span className={`terminal-font text-base uppercase tracking-widest ${foundSecrets.includes(s) ? (isUltrakillMode ? 'text-red-500/90' : 'text-white/90') : 'text-white/15'}`}>
+                    <div className={`w-2 h-2 rounded-full ${foundSecrets.includes(s) ? 'bg-white shadow-[0_0_15px_white]' : 'bg-white/8'}`} />
+                    <span className={`text-base uppercase tracking-widest ${foundSecrets.includes(s) ? (isUltrakillMode ? 'text-red-500/90' : 'text-white/90') : 'text-white/15'}`}>
                       {foundSecrets.includes(s) ? s.replace('_', ' ') : '??????'}
                     </span>
                   </div>
@@ -467,7 +463,7 @@ const App: React.FC = () => {
       {isUltrakillMode && (
         <button 
           onClick={() => setIsUltrakillMode(false)}
-          className="fixed top-8 right-8 z-[100] dimden-panel px-8 py-3 bg-red-600/25 border-red-500/50 text-red-500 terminal-font text-2xl hover:bg-red-600/45 flex items-center gap-4 animate-pulse shadow-[0_0_40px_rgba(239,68,68,0.4)]"
+          className="fixed top-8 right-8 z-[100] dimden-panel px-8 py-3 bg-red-600/25 border-red-500/50 text-red-500 text-2xl hover:bg-red-600/45 flex items-center gap-4 animate-pulse shadow-[0_0_40px_rgba(239,68,68,0.4)]"
         >
           <Power size={22} />
           <span>EXIT_PROTOCOL</span>
@@ -491,17 +487,17 @@ const App: React.FC = () => {
             <h4 className="pixel-title text-[9px] opacity-40 uppercase mb-3">Internal_Config</h4>
             <button 
               onClick={() => setPerformanceMode(!performanceMode)} 
-              className={`w-full text-left p-4 hover:bg-white/10 rounded-lg terminal-font flex justify-between items-center text-white border border-white/10 transition-all`}
+              className={`w-full text-left p-4 hover:bg-white/10 rounded-lg flex justify-between items-center text-white border border-white/10 transition-all`}
             >
               <span>Performance FX</span>
               <span className={`text-lg font-bold ${performanceMode ? 'text-red-500' : 'text-green-400'}`}>{performanceMode ? '[OFF]' : '[ON]'}</span>
             </button>
-            <div className="text-[11px] terminal-font opacity-30 px-1 uppercase italic tracking-wider">Build: 2026.02.revA-Final</div>
+            <div className="text-[11px] opacity-30 px-1 uppercase italic tracking-wider">Build: 2026.02.revA-Final</div>
           </div>
         )}
       </div>
 
-      <footer className={`py-28 text-center terminal-font text-2xl tracking-[0.7em] uppercase transition-all duration-1000 ${isUltrakillMode ? 'text-red-950/40' : 'text-white/10 footer-glow'}`}>
+      <footer className={`py-28 text-center text-2xl tracking-[0.7em] uppercase transition-all duration-1000 ${isUltrakillMode ? 'text-red-950/40' : 'text-white/10'}`}>
         ~ 2026 - the end of time ~
       </footer>
 
@@ -511,7 +507,7 @@ const App: React.FC = () => {
           to { transform: rotate(360deg); }
         }
         .animate-spin-slow {
-          animation: spin-slow 25s linear infinite;
+          animation: spin-slow 40s linear infinite;
         }
       `}} />
     </div>
