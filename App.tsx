@@ -304,7 +304,7 @@ const App: React.FC = () => {
             <div className="p-5 space-y-2">
                 {[
                   { label: 'Name', value: 'Kit' },
-                  { label: 'Age', value: '20' },
+                  { label: 'Age', value: '21' },
                   { label: 'Pronouns', value: 'They/Them' },
                   { label: 'Timezone', value: 'GMT' }
                 ].map((item, idx) => (
