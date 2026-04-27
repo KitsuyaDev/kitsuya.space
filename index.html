@@ -7,6 +7,27 @@
     <title>~ kitsuya.space ~</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inconsolata:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              pixel: ['"Press Start 2P"', 'cursive'],
+              retro: ['"VT323"', 'monospace'],
+              mono: ['"Inconsolata"', 'monospace'],
+            },
+            colors: {
+                sakura: {
+                    200: '#ffd1dc',
+                    300: '#ffb7c5',
+                    400: '#ff8da1',
+                    500: '#ff6b8b',
+                }
+            }
+          }
+        }
+      }
+    </script>
     <style>
         :root {
             --bg-color: #050204;
@@ -94,13 +115,13 @@
 
         .dimden-panel {
             background: var(--panel-bg);
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color);
             backdrop-filter: blur(30px);
             -webkit-backdrop-filter: blur(30px);
             position: relative;
             transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), var(--panel-glow);
-            border-radius: 8px;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.6), var(--panel-glow);
+            border-radius: 0;
         }
 
         /* Static Texture Noise */
@@ -118,23 +139,10 @@
 
         @media (min-width: 768px) {
             .dimden-panel:hover {
-                border-color: rgba(255, 183, 197, 0.2);
-                box-shadow: 0 0 50px rgba(255, 183, 197, 0.08);
-                transform: translateY(-3px);
+                border-color: var(--sakura-main);
+                box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 183, 197, 0.15);
+                transform: translate(-2px, -2px);
             }
-        }
-
-        .pixel-title {
-            font-family: 'Press Start 2P', cursive;
-            color: var(--sakura-main);
-            text-shadow: 0 0 10px rgba(255, 183, 197, 0.2);
-        }
-
-        /* REVERTED TO INCONSOLATA for consistent readability */
-        .terminal-font {
-            font-family: 'Inconsolata', monospace;
-            letter-spacing: normal;
-            font-weight: 400;
         }
 
         #mouse-glow {
@@ -159,7 +167,7 @@
         .star {
             position: absolute;
             background: white;
-            border-radius: 50%;
+            border-radius: 0;
             opacity: 0;
             animation: twinkle var(--duration) infinite ease-in-out;
         }
@@ -168,6 +176,17 @@
             0%, 100% { opacity: 0; transform: scale(0.6); }
             50% { opacity: var(--max-opacity); transform: scale(1.1); }
         }
+
+        /* Ultrakill Overrides (applies when parent has .ultrakill-theme) */
+        body:has(.ultrakill-theme) {
+            --bg-color: #050000;
+            --sakura-main: #ef4444;
+            --border-color: rgba(239, 68, 68, 0.3);
+            --panel-bg: rgba(10, 0, 0, 0.9);
+            --glow-color: rgba(239, 68, 68, 0.1);
+        }
+        
+        .pixelated { image-rendering: pixelated; }
     </style>
 <script type="importmap">
 {
@@ -180,6 +199,7 @@
   }
 }
 </script>
+<link rel="stylesheet" href="/index.css">
 </head>
 <body>
     <div class="scanlines"></div>
@@ -208,6 +228,8 @@
 
         let width, height, petals = [];
 
+        const isUltrakill = () => document.body.querySelector('.ultrakill-theme') !== null;
+
         const initCanvas = () => {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
@@ -220,32 +242,36 @@
                     s: Math.random() * 1.2 + 0.3,
                     w: Math.random() * Math.PI,
                     v: Math.random() * 0.02,
-                    color: i % 3 === 0 ? '#ffb7c5' : (i % 3 === 1 ? '#fff0f3' : '#ffd1dc')
+                    colorIdx: i % 3
                 });
             }
         };
 
         const drawSakura = () => {
             ctx.clearRect(0, 0, width, height);
+            const ukMode = isUltrakill();
+            
             petals.forEach(p => {
                 ctx.save();
                 ctx.translate(p.x, p.y);
                 ctx.rotate(p.w);
                 
-                // Draw a simple petal shape
-                ctx.beginPath();
-                ctx.ellipse(0, 0, p.r, p.r / 1.5, 0, 0, Math.PI * 2);
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = 0.35;
-                ctx.fill();
+                let color = p.colorIdx === 0 ? '#ffb7c5' : (p.colorIdx === 1 ? '#fff0f3' : '#ffd1dc');
+                if(ukMode) {
+                    color = p.colorIdx === 0 ? '#ef4444' : (p.colorIdx === 1 ? '#b91c1c' : '#7f1d1d');
+                }
+                
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.6;
+                ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r); // Minecraft blocky petal shape
                 ctx.restore();
                 
-                p.y -= p.s;
-                p.x += Math.sin(p.w) * 0.8;
+                p.y += p.s * (ukMode ? 2.5 : 1);
+                p.x += Math.sin(p.w) * (ukMode ? 1.5 : 0.8);
                 p.w += p.v;
                 
-                if (p.y < -20) {
-                    p.y = height + 20;
+                if (p.y > height + 20) {
+                    p.y = -20;
                     p.x = Math.random() * width;
                 }
             });
@@ -256,7 +282,7 @@
             for (let i = 0; i < 150; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                const size = Math.random() * 2 + 0.5;
+                const size = Math.floor(Math.random() * 3 + 1);
                 star.style.width = size + 'px';
                 star.style.height = size + 'px';
                 star.style.top = Math.random() * 100 + '%';
@@ -283,6 +309,6 @@
         initStars();
         drawSakura();
     </script>
-    <script type="module" src="./index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
