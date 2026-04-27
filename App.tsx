@@ -261,7 +261,7 @@ const App: React.FC = () => {
               </div>
               
               <div onClick={handleHeaderClick} className="cursor-pointer select-none">
-                <h1 className={`font-pixel text-2xl sm:text-3xl md:text-4xl mb-4 leading-relaxed tracking-tight flex items-center justify-center sm:justify-start gap-4 ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>
+                <h1 className={`font-pixel text-shadow-hard text-2xl sm:text-3xl md:text-4xl mb-4 leading-relaxed tracking-tight flex items-center justify-center sm:justify-start gap-4 ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>
                   {isUltrakillMode ? 'ULTRA_KIT' : 'KITSUYA.SPACE'}
                   {(headerClicks >= 10 || isUltrakillMode) && <Trophy size={32} className="text-yellow-400 animate-bounce drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]" />}
                 </h1>
@@ -293,7 +293,7 @@ const App: React.FC = () => {
                 <Activity size={14} className="text-white/20" />
               </div>
               <div className="p-8 md:p-10 flex flex-col gap-6 text-xl leading-relaxed text-white/90">
-                <p className={`font-pixel text-xl md:text-2xl ${isUltrakillMode ? 'text-red-500 font-bold' : 'text-sakura-200'} tracking-tighter leading-normal`}>
+                <p className={`font-pixel text-shadow-hard text-xl md:text-2xl ${isUltrakillMode ? 'text-red-500 font-bold' : 'text-sakura-200'} tracking-tighter leading-normal`}>
                   hihi :3 im kit
                 </p>
                 <p>
@@ -322,7 +322,7 @@ const App: React.FC = () => {
                 </div>
                 <div className="flex-1 text-center md:text-left flex flex-col items-center md:items-start gap-4">
                   <div>
-                    <h3 className={`font-pixel text-2xl mb-4 leading-normal ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>Pyro</h3>
+                    <h3 className={`font-pixel text-shadow-hard text-2xl mb-4 leading-normal ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>Pyro</h3>
                     <p className={`text-xl ${isUltrakillMode ? 'text-red-200/80' : 'text-white/80'}`}>
                       High end game servers with super fast connections. Powerful AMD Ryzen processors.
                     </p>
@@ -336,7 +336,7 @@ const App: React.FC = () => {
                   </div>
 
                   <a href="https://pyro.host/?a=41" target="_blank" rel="noreferrer" className={`mt-4 inline-flex items-center gap-3 text-lg font-bold transition-all border-2 py-3 px-6 shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0px_rgba(0,0,0,1)] active:translate-y-1 active:translate-x-1 active:shadow-none ${isUltrakillMode ? 'bg-red-900/60 hover:bg-red-800 border-red-500 text-white' : 'bg-white/10 border-white text-white hover:bg-sakura-300 hover:text-black hover:border-sakura-500'}`}>
-                    <span className="font-pixel text-[10px] md:text-xs">
+                    <span className="font-pixel text-shadow-hard text-[10px] md:text-xs">
                       {isUltrakillMode ? 'SECURE_LINK' : 'Visit Pyro'}
                     </span>
                     <ExternalLink size={16} className={isUltrakillMode ? '' : 'text-current'} />
@@ -364,7 +364,7 @@ const App: React.FC = () => {
                   <a key={idx} href={link.href} target="_blank" rel="noreferrer" className={`group/link py-3 px-4 flex items-center justify-between transition-all duration-300 border-2 border-transparent hover:-translate-y-1 hover:shadow-[4px_4px_0px_rgba(0,0,0,0.8)] ${isUltrakillMode ? 'text-red-400 hover:bg-red-950/40 hover:border-red-500 hover:text-red-300' : 'text-white/80 hover:text-white hover:bg-black/40 hover:border-sakura-400'}`}>
                     <div className="flex items-center gap-4 text-lg">
                       <link.icon size={20} className={`${isUltrakillMode ? 'text-red-500' : 'text-sakura-400'} opacity-80`} />
-                      <span className="font-pixel text-[10px] mt-1">{link.label}</span>
+                      <span className="font-pixel text-shadow-hard text-[10px] mt-1">{link.label}</span>
                     </div>
                     <ExternalLink size={14} className="opacity-0 group-hover/link:opacity-50 transition-opacity" />
                   </a>
@@ -488,7 +488,7 @@ const App: React.FC = () => {
       {isUltrakillMode && (
         <button 
           onClick={() => setIsUltrakillMode(false)}
-          className="fixed top-6 right-6 z-[100] dimden-panel px-6 py-3 border-red-500/50 bg-red-950/40 text-red-500 font-pixel text-[10px] tracking-widest uppercase hover:bg-red-900/60 flex items-center gap-3 animate-pulse shadow-[4px_4px_0_rgba(239,68,68,1)] transition-all"
+          className="fixed top-6 right-6 z-[100] dimden-panel px-6 py-3 border-red-500/50 bg-red-950/40 text-red-500 font-pixel text-shadow-hard text-[10px] tracking-widest uppercase hover:bg-red-900/60 flex items-center gap-3 animate-pulse shadow-[4px_4px_0_rgba(239,68,68,1)] transition-all"
         >
           <Power size={16} />
           <span>EXIT_PROTOCOL</span>
@@ -514,7 +514,7 @@ const App: React.FC = () => {
               onClick={() => setPerformanceMode(!performanceMode)} 
               className="w-full text-left p-3 border-2 border-white/10 hover:bg-white/10 flex justify-between items-center transition-colors"
             >
-              <span className="text-sm font-pixel text-[10px]">PerfFX</span>
+              <span className="text-sm font-pixel text-shadow-hard text-[10px]">PerfFX</span>
               <span className={`font-mono text-xs font-bold ${performanceMode ? 'text-red-400' : 'text-green-400'}`}>{performanceMode ? '[OFF]' : '[ON]'}</span>
             </button>
             <div className="font-mono text-[9px] text-white/30 uppercase text-center mt-3 tracking-widest">Build: 2026.02.revB-Pixel</div>
