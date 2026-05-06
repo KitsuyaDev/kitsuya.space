@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "Track": {
+      "title": "Track",
+      "description": "Cached Spotify track metadata",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "artist": { "type": "string" },
+        "album": { "type": "string" },
+        "image": { "type": "string" },
+        "url": { "type": "string" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["name", "artist", "album", "image", "url", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "status/{docId}": {
+      "schema": {
+        "$ref": "#/entities/Track"
+      },
+      "description": "The current status document, usually docId is 'lastTrack'"
+    }
+  }
+}

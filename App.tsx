@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'motion/react';
-import { 
-  Github, Sparkles, Activity, 
+import { Github, Sparkles, Activity, 
   Cloud, Monitor, User,
   Cpu, Terminal, ExternalLink, ShieldCheck,
   Trophy, Layout, Coffee, Settings2, Power,
   ShieldAlert, Star, History, Radio, Link as LinkIcon,
   Info, Heart, Flame
 } from 'lucide-react';
+import { db } from './firebase';
+import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const LANYARD_USER_ID = '811980224711098478';
 
@@ -101,6 +102,7 @@ const App: React.FC = () => {
   }, []);
 
   const [track, setTrack] = useState<Track | null>(null);
+  const [cachedTrack, setCachedTrack] = useState<Track | null>(null);
   const [spotifyProgress, setSpotifyProgress] = useState(0);
   const [spotifyTime, setSpotifyTime] = useState({ current: '0:00', total: '0:00' });
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -237,6 +239,23 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'status', 'lastTrack'), (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setCachedTrack({
+          name: data.name,
+          artist: data.artist,
+          album: data.album,
+          image: data.image,
+          nowPlaying: false,
+          url: data.url
+        });
+      }
+    }, (error) => {});
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
     if (lanyardData?.spotify) {
       const newTrack = {
         name: lanyardData.spotify.song,
@@ -247,22 +266,20 @@ const App: React.FC = () => {
         url: `https://open.spotify.com/track/${lanyardData.spotify.track_id}`
       };
       setTrack(newTrack);
+
+      // Save to Firebase securely
       try {
-        localStorage.setItem('cached_track', JSON.stringify({ ...newTrack, nowPlaying: false }));
-      } catch (e) {}
-    } else {
-      setTrack(prev => {
-        if (prev) {
-          return { ...prev, nowPlaying: false };
+        const docRef = doc(db, 'status', 'lastTrack');
+        // Only write if there's a meaningful change to avoid hammering firestore rules
+        if (!cachedTrack || cachedTrack.name !== newTrack.name) {
+          setDoc(docRef, { ...newTrack, nowPlaying: false, updatedAt: serverTimestamp() }).catch(() => {});
         }
-        try {
-          const cached = localStorage.getItem('cached_track');
-          if (cached) return JSON.parse(cached);
-        } catch (e) {}
-        return null; // When no cache, fallback to null or show 'No Signal'
-      });
+      } catch (e) {}
+
+    } else {
+      setTrack(cachedTrack);
     }
-  }, [lanyardData]);
+  }, [lanyardData, cachedTrack]);
 
   useEffect(() => {
     if (!lanyardData?.spotify?.timestamps) {
