@@ -289,7 +289,7 @@ const App: React.FC = () => {
           <div className="p-8 md:p-12 relative overflow-hidden flex flex-col items-center sm:items-start text-center sm:text-left gap-8">
             <div className="flex flex-col sm:flex-row items-center gap-8 relative z-10 w-full">
               <div 
-                className={`relative w-32 h-32 md:w-36 md:h-36 transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:rotate-3 cursor-crosshair shrink-0 p-1 ${isUltrakillMode ? 'shadow-[8px_8px_0px_rgba(239,68,68,0.3)] bg-red-950/50' : 'shadow-[8px_8px_0px_rgba(0,0,0,0.8)] bg-black/50'}`}
+                className={`relative w-32 h-32 md:w-36 md:h-36 transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:rotate-3 cursor-crosshair shrink-0 rounded-full border-[4px] overflow-hidden ${isUltrakillMode ? 'border-red-500 shadow-[0_0_25px_rgba(239,68,68,0.6)]' : 'border-sakura-400 shadow-[0_0_25px_rgba(255,183,197,0.8)]'}`}
                 onMouseEnter={() => playSound('hover')}
               >
                  <img src="https://cdn.modrinth.com/data/1pGHhzz2/ffc308a879d380f938987cd4e14f6d9b4e54b677_96.webp" 
