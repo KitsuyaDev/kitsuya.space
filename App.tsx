@@ -9,8 +9,7 @@ import {
   Info, Heart, Flame
 } from 'lucide-react';
 
-const LASTFM_USER = 'IvanPurr'; 
-const LASTFM_API_KEY = '52f25787af57e73404ef01ba7a400fac';
+const LANYARD_USER_ID = '811980224711098478';
 
 interface Track {
   name: string;
@@ -79,8 +78,33 @@ const RetroPanel = ({
 };
 
 const App: React.FC = () => {
+  const [lanyardData, setLanyardData] = useState<any>(null);
+
+  useEffect(() => {
+    const ws = new WebSocket('wss://api.lanyard.rest/socket');
+    
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.op === 1) {
+          ws.send(JSON.stringify({
+            op: 2,
+            d: { subscribe_to_id: LANYARD_USER_ID }
+          }));
+        } else if (data.op === 0) {
+          setLanyardData(data.d);
+        }
+      } catch (e) {}
+    };
+
+    return () => ws.close();
+  }, []);
+
   const [track, setTrack] = useState<Track | null>(null);
+  const [spotifyProgress, setSpotifyProgress] = useState(0);
+  const [spotifyTime, setSpotifyTime] = useState({ current: '0:00', total: '0:00' });
   const [hasInteracted, setHasInteracted] = useState(false);
+
   const [particles, setParticles] = useState<Particle[]>([]);
   const [headerClicks, setHeaderClicks] = useState(0);
   const [foundSecrets, setFoundSecrets] = useState<string[]>([]);
@@ -213,27 +237,52 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchTrack = async () => {
-      try {
-        const response = await fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${LASTFM_API_KEY}&format=json&limit=1`);
-        const data = await response.json();
-        const latest = data?.recenttracks?.track?.[0];
-        if (latest) {
-          setTrack({
-            name: latest.name,
-            artist: latest.artist['#text'],
-            album: latest.album['#text'],
-            image: latest.image[3]['#text'],
-            nowPlaying: latest['@attr']?.nowplaying === 'true',
-            url: latest.url
-          });
-        }
-      } catch (e) {}
+    if (lanyardData?.spotify) {
+      setTrack({
+        name: lanyardData.spotify.song,
+        artist: lanyardData.spotify.artist,
+        album: lanyardData.spotify.album,
+        image: lanyardData.spotify.album_art_url || '',
+        nowPlaying: true,
+        url: `https://open.spotify.com/track/${lanyardData.spotify.track_id}`
+      });
+    } else {
+      setTrack(null); // When not listening, fallback to null or show 'No Signal'
+    }
+  }, [lanyardData]);
+
+  useEffect(() => {
+    if (!lanyardData?.spotify?.timestamps) {
+      setSpotifyProgress(0);
+      setSpotifyTime({ current: '0:00', total: '0:00' });
+      return;
+    }
+
+    const { start, end } = lanyardData.spotify.timestamps;
+
+    const formatTime = (ms: number) => {
+        const totalSeconds = Math.floor(ms / 1000);
+        const m = Math.floor(totalSeconds / 60);
+        const s = Math.floor(totalSeconds % 60);
+        return `${m}:${s.toString().padStart(2, '0')}`;
     };
-    fetchTrack();
-    const interval = setInterval(fetchTrack, 30000);
+
+    const updateProgress = () => {
+      const now = Date.now();
+      const total = end - start;
+      const current = Math.max(now - start, 0);
+      const perc = Math.min((current / total) * 100, 100);
+      setSpotifyProgress(perc);
+      setSpotifyTime({
+        current: formatTime(current),
+        total: formatTime(total)
+      });
+    };
+
+    updateProgress();
+    const interval = setInterval(updateProgress, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [lanyardData?.spotify?.timestamps]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -337,7 +386,7 @@ const App: React.FC = () => {
               <div className="p-5 flex flex-col gap-3">
                   {[
                     { label: 'Name', value: 'Kit' },
-                    { label: 'Age', value: '20' },
+                    { label: 'Age', value: '21' },
                     { label: 'Pronouns', value: 'They/Them' },
                     { label: 'Timezone', value: 'GMT' }
                   ].map((item, idx) => (
@@ -357,16 +406,30 @@ const App: React.FC = () => {
             >
                <div className="p-3">
                  {track ? (
-                   <a href={track.url} target="_blank" rel="noreferrer" className={`group/track py-3 px-4 flex items-center gap-4 transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] ${isUltrakillMode ? 'bg-[#330000] border-t-red-900 border-l-red-900 border-b-black border-r-black text-red-200 hover:bg-[#440000]' : 'bg-[#333] border-t-[#555] border-l-[#555] border-b-[#111] border-r-[#111] text-white/90 hover:bg-[#444]'}`}>
-                      <div className="w-14 h-14 overflow-hidden shrink-0 relative shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
-                        <img src={track.image || ''} className={`w-full h-full object-cover hover:scale-110 transition-transform duration-500 ${isUltrakillMode ? 'sepia hue-rotate-[320deg]' : ''}`} alt="Art" />
-                        {track.nowPlaying && <div className="absolute inset-0 border-2 border-green-400/50 animate-pulse pointer-events-none" />}
+                   <a href={track.url} target="_blank" rel="noreferrer" className={`relative overflow-hidden group/track flex flex-col transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] ${isUltrakillMode ? 'bg-[#330000] border-t-red-900 border-l-red-900 border-b-black border-r-black text-red-200 hover:bg-[#440000]' : 'bg-[#333] border-t-[#555] border-l-[#555] border-b-[#111] border-r-[#111] text-white/90 hover:bg-[#444]'}`}>
+                      <div className="py-2.5 px-3 flex items-center gap-3 w-full">
+                        <div className="w-12 h-12 md:w-14 md:h-14 overflow-hidden shrink-0 relative shadow-[2px_2px_0px_rgba(0,0,0,0.5)] border-2 border-black/50">
+                          <img src={track.image || ''} className={`w-full h-full object-cover hover:scale-110 transition-transform duration-500 bg-[#222] ${isUltrakillMode ? 'sepia hue-rotate-[320deg]' : ''}`} alt="Art" />
+                          {track.nowPlaying && <div className="absolute inset-0 border-2 border-[#ffb7c5]/50 animate-pulse pointer-events-none" />}
+                        </div>
+                        <div className="min-w-0 flex-1 flex flex-col justify-center py-1">
+                          <p className={`text-sm md:text-base font-bold text-shadow-hard leading-tight break-words ${isUltrakillMode ? 'text-red-400' : 'text-white'}`}>{track.name}</p>
+                          <p className="font-mono text-[9px] md:text-[10px] text-white/60 line-clamp-2 uppercase mt-0.5 md:mt-1 text-shadow-hard">{track.artist}</p>
+                        </div>
+                        <ExternalLink size={16} strokeWidth={2.5} className="opacity-40 group-hover/track:opacity-100 transition-opacity drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] shrink-0" />
                       </div>
-                      <div className="min-w-0 flex-1 flex flex-col justify-center">
-                        <p className={`text-base font-bold text-shadow-hard truncate ${isUltrakillMode ? 'text-red-400' : 'text-white'}`}>{track.name}</p>
-                        <p className="font-mono text-[10px] text-white/60 truncate uppercase mt-1 text-shadow-hard">{track.artist}</p>
-                      </div>
-                      <ExternalLink size={16} strokeWidth={3} className="opacity-40 group-hover/track:opacity-100 transition-opacity drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] shrink-0" />
+                      
+                      {lanyardData?.spotify?.timestamps && (
+                        <div className="w-full flex items-center gap-2 px-3 pb-2 pt-0 mt-auto">
+                          <div className="flex-1 h-1 md:h-1.5 bg-black/60 shadow-[inset_1px_1px_0px_rgba(0,0,0,1)] relative">
+                            <div 
+                              className={`absolute top-0 bottom-0 left-0 transition-all duration-1000 ease-linear ${isUltrakillMode ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-[#ffb7c5] shadow-[0_0_8px_rgba(255,183,197,0.8)]'}`} 
+                              style={{ width: `${spotifyProgress}%` }} 
+                            />
+                          </div>
+                          <span className="font-mono text-[8px] md:text-[9px] text-white/50 font-bold tracking-widest leading-none whitespace-nowrap">{spotifyTime.current} / {spotifyTime.total}</span>
+                        </div>
+                      )}
                    </a>
                  ) : (
                    <div className="text-center py-4 text-xs font-mono opacity-40 uppercase tracking-widest text-shadow-hard">No Signal</div>
