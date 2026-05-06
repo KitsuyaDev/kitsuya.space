@@ -434,7 +434,7 @@ const App: React.FC = () => {
               icon={track?.nowPlaying ? <Radio size={14} /> : <History size={14} />}
               className="p-1"
             >
-               <div className="px-3 pb-3 pt-2">
+               <div className="p-3">
                  {track ? (
                    <a href={track.url} target="_blank" rel="noreferrer" className={`relative overflow-hidden group/track flex flex-col transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] ${isUltrakillMode ? 'bg-[#330000] border-t-red-900 border-l-red-900 border-b-black border-r-black text-red-200 hover:bg-[#440000]' : 'bg-[#333] border-t-[#555] border-l-[#555] border-b-[#111] border-r-[#111] text-white/90 hover:bg-[#444]'}`}>
                       <div className="pt-1.5 pb-1.5 px-3 flex items-center gap-3 w-full">
@@ -449,7 +449,7 @@ const App: React.FC = () => {
                       </div>
                       
                       {lanyardData?.spotify?.timestamps && (
-                        <div className="w-full flex items-center gap-2 px-3 pb-1.5 pt-0 mt-auto">
+                        <div className="w-full flex items-center gap-2 px-3 pb-2 pt-0 mt-auto">
                           <div className="flex-1 h-1 md:h-1.5 bg-black/60 shadow-[inset_1px_1px_0px_rgba(0,0,0,1)] relative">
                             <div 
                               className={`absolute top-0 bottom-0 left-0 transition-all duration-1000 ease-linear ${isUltrakillMode ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-[#ffb7c5] shadow-[0_0_8px_rgba(255,183,197,0.8)]'}`} 
