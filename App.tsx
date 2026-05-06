@@ -434,10 +434,10 @@ const App: React.FC = () => {
               icon={track?.nowPlaying ? <Radio size={14} /> : <History size={14} />}
               className="p-1"
             >
-               <div className="p-3">
+               <div className="px-3 pb-3 pt-2">
                  {track ? (
                    <a href={track.url} target="_blank" rel="noreferrer" className={`relative overflow-hidden group/track flex flex-col transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] ${isUltrakillMode ? 'bg-[#330000] border-t-red-900 border-l-red-900 border-b-black border-r-black text-red-200 hover:bg-[#440000]' : 'bg-[#333] border-t-[#555] border-l-[#555] border-b-[#111] border-r-[#111] text-white/90 hover:bg-[#444]'}`}>
-                      <div className="pt-2 pb-1.5 px-3 flex items-center gap-3 w-full">
+                      <div className="pt-1.5 pb-1.5 px-3 flex items-center gap-3 w-full">
                         <div className="w-12 h-12 md:w-14 md:h-14 overflow-hidden shrink-0 relative shadow-[2px_2px_0px_rgba(0,0,0,0.5)] border-2 border-black/50">
                           <img src={track.image || ''} className={`w-full h-full object-cover hover:scale-110 transition-transform duration-500 bg-[#222] ${isUltrakillMode ? 'sepia hue-rotate-[320deg]' : ''}`} alt="Art" />
                           {track.nowPlaying && <div className="absolute inset-0 border-2 border-[#ffb7c5]/50 animate-pulse pointer-events-none" />}
