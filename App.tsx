@@ -238,16 +238,29 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (lanyardData?.spotify) {
-      setTrack({
+      const newTrack = {
         name: lanyardData.spotify.song,
         artist: lanyardData.spotify.artist,
         album: lanyardData.spotify.album,
         image: lanyardData.spotify.album_art_url || '',
         nowPlaying: true,
         url: `https://open.spotify.com/track/${lanyardData.spotify.track_id}`
-      });
+      };
+      setTrack(newTrack);
+      try {
+        localStorage.setItem('cached_track', JSON.stringify({ ...newTrack, nowPlaying: false }));
+      } catch (e) {}
     } else {
-      setTrack(null); // When not listening, fallback to null or show 'No Signal'
+      setTrack(prev => {
+        if (prev) {
+          return { ...prev, nowPlaying: false };
+        }
+        try {
+          const cached = localStorage.getItem('cached_track');
+          if (cached) return JSON.parse(cached);
+        } catch (e) {}
+        return null; // When no cache, fallback to null or show 'No Signal'
+      });
     }
   }, [lanyardData]);
 
