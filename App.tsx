@@ -416,7 +416,6 @@ const App: React.FC = () => {
                           <p className={`text-sm md:text-base font-bold text-shadow-hard leading-tight break-words ${isUltrakillMode ? 'text-red-400' : 'text-white'}`}>{track.name}</p>
                           <p className="font-mono text-[9px] md:text-[10px] text-white/60 line-clamp-2 uppercase mt-0.5 md:mt-1 text-shadow-hard">{track.artist}</p>
                         </div>
-                        <ExternalLink size={16} strokeWidth={2.5} className="opacity-40 group-hover/track:opacity-100 transition-opacity drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] shrink-0" />
                       </div>
                       
                       {lanyardData?.spotify?.timestamps && (
