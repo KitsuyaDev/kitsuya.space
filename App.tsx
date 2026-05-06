@@ -443,7 +443,7 @@ const App: React.FC = () => {
                           {track.nowPlaying && <div className="absolute inset-0 border-2 border-[#ffb7c5]/50 animate-pulse pointer-events-none" />}
                         </div>
                         <div className="min-w-0 flex-1 flex flex-col justify-center py-1">
-                          <p className={`text-sm md:text-base font-bold text-shadow-hard leading-tight break-words ${isUltrakillMode ? 'text-red-400' : 'text-white'}`}>{track.name}</p>
+                          <p className={`text-sm md:text-base font-semibold tracking-wide text-shadow-hard leading-tight break-words ${isUltrakillMode ? 'text-red-400' : 'text-white'}`}>{track.name}</p>
                           <p className="font-mono text-[9px] md:text-[10px] text-white/60 line-clamp-2 uppercase mt-0.5 md:mt-1 text-shadow-hard">{track.artist}</p>
                         </div>
                       </div>
