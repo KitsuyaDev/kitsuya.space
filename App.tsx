@@ -82,6 +82,18 @@ const App: React.FC = () => {
   const [lanyardData, setLanyardData] = useState<any>(null);
 
   useEffect(() => {
+    let wsConnected = false;
+
+    // Initial fetch for fastest possible load
+    fetch(`https://api.lanyard.rest/v1/users/${LANYARD_USER_ID}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && !wsConnected) {
+          setLanyardData((prev: any) => prev ? prev : data.data);
+        }
+      })
+      .catch(() => {});
+
     const ws = new WebSocket('wss://api.lanyard.rest/socket');
     
     ws.onmessage = (event) => {
@@ -93,6 +105,7 @@ const App: React.FC = () => {
             d: { subscribe_to_id: LANYARD_USER_ID }
           }));
         } else if (data.op === 0) {
+          wsConnected = true;
           setLanyardData(data.d);
         }
       } catch (e) {}
