@@ -83,35 +83,65 @@ const App: React.FC = () => {
 
   useEffect(() => {
     let wsConnected = false;
+    let ws: WebSocket;
+    let heartbeatInterval: NodeJS.Timeout;
+    let reconnectTimeout: NodeJS.Timeout;
 
-    // Initial fetch for fastest possible load
-    fetch(`https://api.lanyard.rest/v1/users/${LANYARD_USER_ID}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && !wsConnected) {
-          setLanyardData((prev: any) => prev ? prev : data.data);
-        }
-      })
-      .catch(() => {});
-
-    const ws = new WebSocket('wss://api.lanyard.rest/socket');
+    // Initial fetch and aggressive polling for "truly live" feel
+    const fetchLanyard = () => {
+      fetch(`https://api.lanyard.rest/v1/users/${LANYARD_USER_ID}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setLanyardData(data.data);
+          }
+        })
+        .catch(() => {});
+    };
     
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.op === 1) {
-          ws.send(JSON.stringify({
-            op: 2,
-            d: { subscribe_to_id: LANYARD_USER_ID }
-          }));
-        } else if (data.op === 0) {
-          wsConnected = true;
-          setLanyardData(data.d);
-        }
-      } catch (e) {}
+    fetchLanyard();
+    const pollInterval = setInterval(fetchLanyard, 1000);
+
+    const connectWebSocket = () => {
+      ws = new WebSocket('wss://api.lanyard.rest/socket');
+      
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.op === 1) {
+            ws.send(JSON.stringify({
+              op: 2,
+              d: { subscribe_to_id: LANYARD_USER_ID }
+            }));
+            
+            // Start heartbeat to keep connection alive
+            heartbeatInterval = setInterval(() => {
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ op: 3 }));
+              }
+            }, data.d.heartbeat_interval || 30000);
+            
+          } else if (data.op === 0) {
+            wsConnected = true;
+            setLanyardData(data.d);
+          }
+        } catch (e) {}
+      };
+
+      ws.onclose = () => {
+        clearInterval(heartbeatInterval);
+        reconnectTimeout = setTimeout(connectWebSocket, 5000);
+      };
     };
 
-    return () => ws.close();
+    connectWebSocket();
+
+    return () => {
+      clearInterval(heartbeatInterval);
+      clearInterval(pollInterval);
+      clearTimeout(reconnectTimeout);
+      if (ws) ws.close();
+    };
   }, []);
 
   const [track, setTrack] = useState<Track | null>(null);
@@ -213,21 +243,25 @@ const App: React.FC = () => {
   }, [konamiProgress, addSecret, hasInteracted, createParticles]);
 
   useEffect(() => {
-    if (particles.length === 0) return;
-    const frame = requestAnimationFrame(() => {
-      setParticles(prev => prev
-        .map(p => ({
-          ...p,
-          x: p.x + p.vx,
-          y: p.y + p.vy,
-          vy: p.isSparkle ? p.vy + 0.01 : p.vy + 0.1,
-          life: p.isSparkle ? p.life - 0.015 : p.life - 0.02
-        }))
-        .filter(p => p.life > 0)
-      );
-    });
+    let frame: number;
+    const update = () => {
+      setParticles(prev => {
+        if (prev.length === 0) return prev;
+        return prev
+          .map(p => ({
+            ...p,
+            x: p.x + p.vx,
+            y: p.y + p.vy,
+            vy: p.isSparkle ? p.vy + 0.01 : p.vy + 0.1,
+            life: p.isSparkle ? p.life - 0.015 : p.life - 0.02
+          }))
+          .filter(p => p.life > 0);
+      });
+      frame = requestAnimationFrame(update);
+    };
+    frame = requestAnimationFrame(update);
     return () => cancelAnimationFrame(frame);
-  }, [particles]);
+  }, []);
 
   const handleGlobalClick = (e: React.MouseEvent) => {
     if (!hasInteracted) setHasInteracted(true);
