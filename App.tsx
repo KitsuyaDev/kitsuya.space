@@ -290,7 +290,36 @@ const App: React.FC = () => {
       } catch (e) {}
 
     } else {
-      setTrack(cachedTrack);
+      const fetchLastFm = async () => {
+        const apiKey = import.meta.env.VITE_LASTFM_API_KEY;
+        const username = import.meta.env.VITE_LASTFM_USERNAME;
+        if (!apiKey || !username) {
+          setTrack(cachedTrack);
+          return;
+        }
+        
+        try {
+          const res = await fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${username}&api_key=${apiKey}&format=json&limit=1`);
+          const data = await res.json();
+          const lastFmTrack = data.recenttracks?.track?.[0];
+          if (lastFmTrack) {
+            setTrack({
+              name: lastFmTrack.name,
+              artist: lastFmTrack.artist['#text'],
+              album: lastFmTrack.album['#text'],
+              image: lastFmTrack.image[lastFmTrack.image.length - 1]['#text'] || cachedTrack?.image || '',
+              nowPlaying: false,
+              url: lastFmTrack.url
+            });
+            return;
+          }
+        } catch (e) {
+          console.error('Failed to fetch from Last.fm', e);
+        }
+        
+        setTrack(cachedTrack);
+      };
+      fetchLastFm();
     }
   }, [lanyardData, cachedTrack]);
 
