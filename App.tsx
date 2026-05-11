@@ -619,7 +619,7 @@ const App: React.FC = () => {
                     </p>
                   </div>
 
-                  <a href="https://pyro.host/?a=41" target="_blank" rel="noreferrer" className={`mt-2 w-fit py-2.5 px-5 flex items-center justify-center gap-3 transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] ${isUltrakillMode ? 'bg-[#330000] border-t-red-900 border-l-red-900 border-b-black border-r-black text-red-200 hover:bg-[#440000]' : 'bg-[#333] border-t-[#555] border-l-[#555] border-b-[#111] border-r-[#111] text-white/90 hover:bg-[#444]'}`}>
+                  <a href="https://pyro.host?ref=CB5HO6LF" target="_blank" rel="noreferrer" className={`mt-2 w-fit py-2.5 px-5 flex items-center justify-center gap-3 transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] ${isUltrakillMode ? 'bg-[#330000] border-t-red-900 border-l-red-900 border-b-black border-r-black text-red-200 hover:bg-[#440000]' : 'bg-[#333] border-t-[#555] border-l-[#555] border-b-[#111] border-r-[#111] text-white/90 hover:bg-[#444]'}`}>
                     <span className="font-pixel text-[10px] md:text-xs">
                       {isUltrakillMode ? 'SECURE_LINK' : 'Visit Pyro'}
                     </span>
