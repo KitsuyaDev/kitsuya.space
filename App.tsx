@@ -5,7 +5,7 @@ import { Github, Sparkles, Activity,
   Cpu, Terminal, ExternalLink, ShieldCheck,
   Trophy, Layout, Coffee, Settings2, Power,
   ShieldAlert, Star, History, Radio, Link as LinkIcon,
-  Info, Heart, Flame
+  Info, Heart, Flame, Mail, Copy, Check, X
 } from 'lucide-react';
 import { db } from './firebase';
 import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -157,6 +157,8 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [konamiProgress, setKonamiProgress] = useState<string[]>([]);
   const [isUltrakillMode, setIsUltrakillMode] = useState(false);
+  const [showEmailPopup, setShowEmailPopup] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
   
   const particleIdCounter = useRef(0);
   const lastMousePos = useRef({ x: 0, y: 0 });
@@ -650,16 +652,37 @@ const App: React.FC = () => {
                 {[
                   { label: 'GitHub', icon: Github, href: 'https://github.com/KitsuyaDev' },
                   { label: 'Twitch', icon: Monitor, href: 'https://twitch.tv/kitsuyatv' },
-                  { label: 'BlueSky', icon: Cloud, href: 'https://bsky.app/profile/kitsuya.space' }
-                ].map((link, idx) => (
-                  <a key={idx} href={link.href} target="_blank" rel="noreferrer" className={`group/link py-3 px-4 flex items-center justify-between transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] ${isUltrakillMode ? 'bg-[#330000] border-t-red-900 border-l-red-900 border-b-black border-r-black text-red-200 hover:bg-[#440000]' : 'bg-[#333] border-t-[#555] border-l-[#555] border-b-[#111] border-r-[#111] text-white/90 hover:bg-[#444]'}`}>
-                    <div className="flex items-center gap-4 text-lg text-shadow-hard">
-                      <link.icon size={20} className={`${isUltrakillMode ? 'text-red-500' : 'text-sakura-400'} drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]`} strokeWidth={2.5} />
-                      <span className="font-pixel text-[10px] mt-1">{link.label}</span>
-                    </div>
-                    <ExternalLink size={16} strokeWidth={3} className="opacity-40 group-hover/link:opacity-100 transition-opacity drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]" />
-                  </a>
-                ))}
+                  { label: 'BlueSky', icon: Cloud, href: 'https://bsky.app/profile/kitsuya.space' },
+                  { 
+                    label: 'Email', 
+                    icon: Mail, 
+                    onClick: (e: React.MouseEvent) => {
+                      e.preventDefault();
+                      playSound('click');
+                      setShowEmailPopup(true);
+                    } 
+                  }
+                ].map((link, idx) => {
+                  const isButton = 'onClick' in link;
+                  const Component = (isButton ? 'button' : 'a') as any;
+                  const extraProps = isButton 
+                    ? { onClick: (link as any).onClick } 
+                    : { href: (link as any).href, target: '_blank', rel: 'noreferrer' };
+
+                  return (
+                    <Component 
+                      key={idx} 
+                      {...extraProps}
+                      className={`w-full group/link py-3 px-4 flex items-center justify-between transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] text-left cursor-pointer ${isUltrakillMode ? 'bg-[#330000] border-t-red-900 border-l-red-900 border-b-black border-r-black text-red-200 hover:bg-[#440000]' : 'bg-[#333] border-t-[#555] border-l-[#555] border-b-[#111] border-r-[#111] text-white/90 hover:bg-[#444]'}`}
+                    >
+                      <div className="flex items-center gap-4 text-lg text-shadow-hard">
+                        <link.icon size={20} className={`${isUltrakillMode ? 'text-red-500' : 'text-sakura-400'} drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]`} strokeWidth={2.5} />
+                        <span className="font-pixel text-[10px] mt-1">{link.label}</span>
+                      </div>
+                      <ExternalLink size={16} strokeWidth={3} className="opacity-40 group-hover/link:opacity-100 transition-opacity drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]" />
+                    </Component>
+                  );
+                })}
               </nav>
             </RetroPanel>
 
@@ -744,6 +767,124 @@ const App: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* EMAIL POPUP MODAL */}
+      {showEmailPopup && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowEmailPopup(false)}
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+          />
+          
+          {/* Window */}
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            className={`relative max-w-sm w-full overflow-hidden z-10 ${
+              isUltrakillMode 
+                ? 'bg-[#150000] border-[4px] border-t-red-500/50 border-l-red-500/50 border-b-red-950 border-r-red-950 shadow-[8px_8px_0px_rgba(100,0,0,0.8)] text-red-200' 
+                : 'bg-[#0f0c13] border-[4px] border-t-white/20 border-l-white/20 border-b-black/80 border-r-black/80 shadow-[8px_8px_0px_rgba(0,0,0,0.8)] text-white'
+            }`}
+          >
+            {/* Window Header */}
+            <div className={`p-4 border-b-[4px] flex items-center justify-between ${
+              isUltrakillMode ? 'bg-red-900/20 border-b-red-950/80' : 'bg-black/40 border-b-black/80'
+            }`}>
+              <h3 className="font-mono text-[10px] opacity-80 uppercase tracking-widest flex items-center gap-2 font-bold text-shadow-hard">
+                <Mail size={14} className={isUltrakillMode ? 'text-red-500' : 'text-sakura-400'} /> 
+                {isUltrakillMode ? 'COMM_NODE_ESTABLISHED' : 'Contact Card'}
+              </h3>
+              <button 
+                onClick={() => {
+                  playSound('click');
+                  setShowEmailPopup(false);
+                }}
+                className={`p-1.5 border-2 hover:bg-white/10 active:translate-x-[1px] active:translate-y-[1px] ${
+                  isUltrakillMode ? 'border-red-500/30 text-red-400' : 'border-white/10 text-white/70'
+                }`}
+                aria-label="Close"
+              >
+                <X size={14} strokeWidth={3} />
+              </button>
+            </div>
+
+            {/* Window Content */}
+            <div className="p-6 space-y-6">
+              <div className="space-y-2">
+                <div className={`font-mono text-[9px] uppercase tracking-widest ${isUltrakillMode ? 'text-red-400/70' : 'text-white/45'}`}>
+                  {"Contact me here <3"}
+                </div>
+                
+                {/* Text Box for the Email */}
+                <div className={`relative p-4 border-[3px] font-mono text-center flex flex-col items-center justify-center gap-1 ${
+                  isUltrakillMode 
+                    ? 'bg-[#220000] border-red-950/80 text-red-300' 
+                    : 'bg-black/60 border-black/80 text-sakura-200'
+                }`}>
+                  <span className="font-pixel text-[11px] select-all break-all tracking-wider font-bold">
+                    kit@kitsuya.space
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {/* Copy Button */}
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText('kit@kitsuya.space');
+                    setCopiedEmail(true);
+                    playSound('xp');
+                    setTimeout(() => setCopiedEmail(false), 2000);
+                  }}
+                  className={`py-3 px-4 flex items-center justify-center gap-2 transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] ${
+                    isUltrakillMode 
+                      ? 'bg-red-900/30 border-t-red-500 border-l-red-500 border-b-black border-r-black text-red-200 hover:bg-red-900/50' 
+                      : 'bg-sakura-900/20 border-t-sakura-400/50 border-l-sakura-400/50 border-b-black border-r-black text-sakura-200 hover:bg-sakura-900/40'
+                  }`}
+                >
+                  {copiedEmail ? (
+                    <>
+                      <Check size={16} strokeWidth={3} className={isUltrakillMode ? 'text-red-500 animate-bounce' : 'text-green-400 animate-bounce'} />
+                      <span className="font-pixel text-[9px] mt-0.5">COPIED</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={16} strokeWidth={2.5} className="opacity-70" />
+                      <span className="font-pixel text-[9px] mt-0.5">COPY</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Open Mail Client Button */}
+                <a
+                  href="mailto:kit@kitsuya.space"
+                  onClick={() => playSound('click')}
+                  className={`py-3 px-4 flex items-center justify-center gap-2 transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] ${
+                    isUltrakillMode 
+                      ? 'bg-red-900/30 border-t-red-500 border-l-red-500 border-b-black border-r-black text-red-200 hover:bg-red-900/50' 
+                      : 'bg-sakura-900/20 border-t-sakura-400/50 border-l-sakura-400/50 border-b-black border-r-black text-sakura-200 hover:bg-sakura-900/40'
+                  }`}
+                >
+                  <ExternalLink size={16} strokeWidth={2.5} className="opacity-70" />
+                  <span className="font-pixel text-[9px] mt-0.5">OPEN</span>
+                </a>
+              </div>
+            </div>
+            
+            {/* Subtle bottom detail */}
+            <div className={`p-2 border-t-[3px] text-center font-mono text-[8px] opacity-40 uppercase tracking-[0.2em] ${
+              isUltrakillMode ? 'border-t-red-950/80' : 'border-t-black/80'
+            }`}>
+              End to End encrypted
+            </div>
+          </motion.div>
+        </div>
+      )}
 
     </div>
   );
