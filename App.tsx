@@ -694,8 +694,7 @@ const App: React.FC = () => {
             >
               <div className="p-3 space-y-3">
                  {[
-                   { label: 'Calirx', desc: 'Personal website commission', href: 'https://www.calirx.info/' },
-                   { label: "Kit's Aeronautics", desc: 'A server focused around the Create Aeronautics mod.', href: 'https://kitsuya.co.uk/' }
+                   { label: 'Calirx', desc: 'Personal website commission', href: 'https://www.calirx.info/' }
                  ].map((proj, idx) => (
                    <a key={idx} href={proj.href} target="_blank" rel="noreferrer" className={`group/project py-3 px-4 flex flex-col justify-center transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] ${isUltrakillMode ? 'bg-[#330000] border-t-red-900 border-l-red-900 border-b-black border-r-black text-red-200 hover:bg-[#440000]' : 'bg-[#333] border-t-[#555] border-l-[#555] border-b-[#111] border-r-[#111] text-white/90 hover:bg-[#444]'}`}>
                       <div className="flex justify-between items-center w-full">
