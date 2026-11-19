@@ -456,7 +456,7 @@ const App: React.FC = () => {
               <div onClick={handleHeaderClick} className="cursor-pointer select-none flex-1 w-full">
                 <div className="flex flex-col gap-3 items-center sm:items-start">
                   <h1 className={`font-pixel text-shadow-hard text-2xl sm:text-3xl md:text-5xl leading-relaxed tracking-tight flex items-center justify-center sm:justify-start gap-4 ${isUltrakillMode ? 'text-red-500' : 'text-white'}`}>
-                    {isUltrakillMode ? 'ULTRA_KIT' : 'KITSUYA.SPACE'}
+                    {isUltrakillMode ? 'ULTRA_KIT' : 'KITSUYA.DEV'}
                     {(headerClicks >= 10 || isUltrakillMode) && <Trophy size={32} fill="#eab308" className="text-yellow-400 animate-bounce drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]" />}
                   </h1>
                   
@@ -694,7 +694,8 @@ const App: React.FC = () => {
             >
               <div className="p-3 space-y-3">
                  {[
-                   { label: 'Calirx', desc: 'Personal website commission', href: 'https://www.calirx.info/' }
+                   { label: 'Calirx', desc: 'Personal website commission', href: 'https://www.calirx.info/' },
+                   { label: 'KitAutoJoin', desc: 'Minecraft mod for auto-joining full servers', href: 'https://www.curseforge.com/minecraft/mc-mods/kitautojoin' }
                  ].map((proj, idx) => (
                    <a key={idx} href={proj.href} target="_blank" rel="noreferrer" className={`group/project py-3 px-4 flex flex-col justify-center transition-all duration-200 border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,0.8)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,1)] ${isUltrakillMode ? 'bg-[#330000] border-t-red-900 border-l-red-900 border-b-black border-r-black text-red-200 hover:bg-[#440000]' : 'bg-[#333] border-t-[#555] border-l-[#555] border-b-[#111] border-r-[#111] text-white/90 hover:bg-[#444]'}`}>
                       <div className="flex justify-between items-center w-full">
