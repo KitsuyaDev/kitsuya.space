@@ -82,17 +82,19 @@ const App: React.FC = () => {
   const [lanyardData, setLanyardData] = useState<any>(null);
 
   useEffect(() => {
+    let isMounted = true;
     let wsConnected = false;
-    let ws: WebSocket;
-    let heartbeatInterval: NodeJS.Timeout;
-    let reconnectTimeout: NodeJS.Timeout;
+    let ws: WebSocket | null = null;
+    let heartbeatInterval: ReturnType<typeof setInterval>;
+    let reconnectTimeout: ReturnType<typeof setTimeout>;
+    const controller = new AbortController();
 
-    // Initial fetch and aggressive polling for "truly live" feel
     const fetchLanyard = () => {
-      fetch(`https://api.lanyard.rest/v1/users/${LANYARD_USER_ID}`)
-        .then(res => res.json())
+      if (wsConnected) return;
+      fetch(`https://api.lanyard.rest/v1/users/${LANYARD_USER_ID}`, { signal: controller.signal })
+        .then(res => (res.ok ? res.json() : null))
         .then(data => {
-          if (data.success) {
+          if (isMounted && data?.success) {
             setLanyardData(data.data);
           }
         })
@@ -100,7 +102,7 @@ const App: React.FC = () => {
     };
     
     fetchLanyard();
-    const pollInterval = setInterval(fetchLanyard, 1000);
+    const pollInterval = setInterval(fetchLanyard, 5000);
 
     const connectWebSocket = () => {
       ws = new WebSocket('wss://api.lanyard.rest/socket');
@@ -109,34 +111,42 @@ const App: React.FC = () => {
         try {
           const data = JSON.parse(event.data);
           if (data.op === 1) {
-            ws.send(JSON.stringify({
+            ws?.send(JSON.stringify({
               op: 2,
               d: { subscribe_to_id: LANYARD_USER_ID }
             }));
             
             // Start heartbeat to keep connection alive
+            clearInterval(heartbeatInterval);
             heartbeatInterval = setInterval(() => {
-              if (ws.readyState === WebSocket.OPEN) {
+              if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ op: 3 }));
               }
             }, data.d.heartbeat_interval || 30000);
             
           } else if (data.op === 0) {
             wsConnected = true;
-            setLanyardData(data.d);
+            if (isMounted) {
+              setLanyardData(data.d);
+            }
           }
         } catch (e) {}
       };
 
       ws.onclose = () => {
+        wsConnected = false;
         clearInterval(heartbeatInterval);
-        reconnectTimeout = setTimeout(connectWebSocket, 5000);
+        if (isMounted) {
+          reconnectTimeout = setTimeout(connectWebSocket, 5000);
+        }
       };
     };
 
     connectWebSocket();
 
     return () => {
+      isMounted = false;
+      controller.abort();
       clearInterval(heartbeatInterval);
       clearInterval(pollInterval);
       clearTimeout(reconnectTimeout);
@@ -146,6 +156,7 @@ const App: React.FC = () => {
 
   const [track, setTrack] = useState<Track | null>(null);
   const [cachedTrack, setCachedTrack] = useState<Track | null>(null);
+  const [lastFmTrack, setLastFmTrack] = useState<Track | null>(null);
   const [spotifyProgress, setSpotifyProgress] = useState(0);
   const [spotifyTime, setSpotifyTime] = useState({ current: '0:00', total: '0:00' });
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -304,9 +315,57 @@ const App: React.FC = () => {
     return () => unsub();
   }, []);
 
+  const isSpotifyActive = Boolean(lanyardData?.spotify);
+
+  useEffect(() => {
+    if (isSpotifyActive) return;
+
+    const apiKey = import.meta.env.VITE_LASTFM_API_KEY;
+    const username = import.meta.env.VITE_LASTFM_USERNAME;
+    if (!apiKey || !username) return;
+
+    const controller = new AbortController();
+
+    const fetchLastFm = async () => {
+      try {
+        const res = await fetch(
+          `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${encodeURIComponent(username)}&api_key=${encodeURIComponent(apiKey)}&format=json&limit=1`,
+          { signal: controller.signal }
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        const recent = Array.isArray(data?.recenttracks?.track)
+          ? data.recenttracks.track[0]
+          : data?.recenttracks?.track;
+        if (recent?.name) {
+          const images = Array.isArray(recent.image) ? recent.image : [];
+          const imageUrl = images[images.length - 1]?.['#text'] || '';
+          setLastFmTrack({
+            name: recent.name,
+            artist: recent.artist?.['#text'] || '',
+            album: recent.album?.['#text'] || '',
+            image: imageUrl,
+            nowPlaying: false,
+            url: recent.url || ''
+          });
+        }
+      } catch {
+        // Silently fall back to cached Firestore track when Last.fm is unreachable
+      }
+    };
+
+    fetchLastFm();
+    const interval = setInterval(fetchLastFm, 60000);
+
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
+  }, [isSpotifyActive]);
+
   useEffect(() => {
     if (lanyardData?.spotify) {
-      const newTrack = {
+      const newTrack: Track = {
         name: lanyardData.spotify.song,
         artist: lanyardData.spotify.artist,
         album: lanyardData.spotify.album,
@@ -324,40 +383,15 @@ const App: React.FC = () => {
           setDoc(docRef, { ...newTrack, nowPlaying: false, updatedAt: serverTimestamp() }).catch(() => {});
         }
       } catch (e) {}
-
+    } else if (lastFmTrack) {
+      setTrack({
+        ...lastFmTrack,
+        image: lastFmTrack.image || cachedTrack?.image || ''
+      });
     } else {
-      const fetchLastFm = async () => {
-        const apiKey = import.meta.env.VITE_LASTFM_API_KEY;
-        const username = import.meta.env.VITE_LASTFM_USERNAME;
-        if (!apiKey || !username) {
-          setTrack(cachedTrack);
-          return;
-        }
-        
-        try {
-          const res = await fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${username}&api_key=${apiKey}&format=json&limit=1`);
-          const data = await res.json();
-          const lastFmTrack = data.recenttracks?.track?.[0];
-          if (lastFmTrack) {
-            setTrack({
-              name: lastFmTrack.name,
-              artist: lastFmTrack.artist['#text'],
-              album: lastFmTrack.album['#text'],
-              image: lastFmTrack.image[lastFmTrack.image.length - 1]['#text'] || cachedTrack?.image || '',
-              nowPlaying: false,
-              url: lastFmTrack.url
-            });
-            return;
-          }
-        } catch (e) {
-          console.error('Failed to fetch from Last.fm', e);
-        }
-        
-        setTrack(cachedTrack);
-      };
-      fetchLastFm();
+      setTrack(cachedTrack);
     }
-  }, [lanyardData, cachedTrack]);
+  }, [lanyardData?.spotify, lastFmTrack, cachedTrack]);
 
   useEffect(() => {
     if (!lanyardData?.spotify?.timestamps) {
@@ -580,18 +614,21 @@ const App: React.FC = () => {
               icon={isUltrakillMode ? <Terminal size={14} className="text-red-500" /> : <Sparkles size={14} className="text-sakura-400" />}
               rightIcon={<Activity size={14} className="text-white/20" />}
             >
-              <div className="p-8 md:p-10 flex flex-col gap-6 text-xl leading-relaxed text-white/90">
+              <div className={`p-8 md:p-10 flex flex-col gap-6 text-xl leading-relaxed text-white/90 max-h-[440px] md:max-h-[460px] overflow-y-auto pr-6 md:pr-8 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-black/40 [&::-webkit-scrollbar-thumb]:border [&::-webkit-scrollbar-thumb]:border-black ${isUltrakillMode ? '[&::-webkit-scrollbar-thumb]:bg-red-500/50 hover:[&::-webkit-scrollbar-thumb]:bg-red-500/80' : '[&::-webkit-scrollbar-thumb]:bg-sakura-400/40 hover:[&::-webkit-scrollbar-thumb]:bg-sakura-400/70'}`}>
                 <p className={`font-pixel text-shadow-hard text-xl md:text-2xl ${isUltrakillMode ? 'text-red-500 font-bold' : 'text-sakura-200'} tracking-tighter leading-normal`}>
-                  hihi :3 im kit
+                  Hihi :3 I'm Kit!
                 </p>
                 <p>
-                  i’ve been doing minecraft dev stuff for around <span className={`${isUltrakillMode ? 'text-red-400' : 'text-sakura-300'} font-bold border-b-4 border-sakura-400/30`}>7–8 years</span>, mostly focused on performance and systems. i mainly work with fabric and neoforge.
+                  I've been working in Minecraft development for around <span className={`${isUltrakillMode ? 'text-red-400' : 'text-sakura-300'} font-bold border-b-4 border-sakura-400/30`}>7–8 years</span> now, with most of my experience focused on performance, infrastructure, and backend systems. I primarily work with Fabric and NeoForge, although I'm always happy to explore new technologies and approaches.
                 </p>
                 <p>
-                  i spend a lot of time fixing tps issues, digging through crash logs, and removing things that don’t need to exist. if something is slow or broken, i’ll usually keep poking at it until i understand why.
+                  A lot of my work revolves around figuring out why things break, tracking down performance bottlenecks, investigating TPS issues, digging through crash logs, and generally making systems work better than they did before. I tend to get a little obsessive about understanding <em className={`italic ${isUltrakillMode ? 'text-red-400' : 'text-sakura-200'}`}>why</em> something isn't working rather than just finding a quick fix.
                 </p>
                 <p>
-                  i’ve worked on some projects i’m really proud of, but unfortunately a lot of the cool ones are under nda, so i can’t say much about them. i also make modpacks and help optimize higher-end networks.
+                  Over the years, I've worked on a variety of projects I'm genuinely proud of, including some larger-scale projects and network infrastructure. Unfortunately, quite a few are covered by NDA, so there's only so much I can share publicly. Alongside development, I also create modpacks, work on server infrastructure, and help optimise larger Minecraft networks.
+                </p>
+                <p>
+                  I'm always tinkering with something, whether that's building new tools, improving existing systems, or finding increasingly ridiculous ways to squeeze a little more performance out of Minecraft.
                 </p>
               </div>
             </RetroPanel>
